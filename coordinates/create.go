@@ -1,6 +1,5 @@
 package coordinates
 
-//go:generate stringer -type=CoordinateAxis
 type CoordinateAxis int
 
 const (
