@@ -1,6 +1,6 @@
 package coordinates
 
-type CoordinateAxis int
+type CoordinateAxis int8
 
 const (
 	X CoordinateAxis = iota
@@ -21,6 +21,14 @@ func (c *Coordinate) Get(axis CoordinateAxis) float32 {
 	return c.tuple[axis]
 }
 
+func (c *Coordinate) IsAPoint() bool {
+	return c.tuple[W] == 1
+}
+
+func (c *Coordinate) IsAVector() bool {
+	return c.tuple[W] == 0
+}
+
 func createCoordinate(x, y, z, w float32) Coordinate {
 	c := Coordinate{tuple: make([]float32, 4, 4)}
 	c.Set(X, x)
@@ -36,4 +44,34 @@ func CreatePoint(x, y, z float32) Coordinate {
 
 func CreateVector(x, y, z float32) Coordinate {
 	return createCoordinate(x, y, z, 0)
+}
+
+func (c1 *Coordinate) Add(c2 *Coordinate) *Coordinate {
+	c3 := &Coordinate{tuple: make([]float32, 4, 4)}
+
+	for i := 0; i < 4; i++ {
+		c3.tuple[i] = c1.tuple[i] + c2.tuple[i]
+	}
+
+	return c3
+}
+
+func (c1 *Coordinate) Sub(c2 *Coordinate) *Coordinate {
+	c3 := &Coordinate{tuple: make([]float32, 4, 4)}
+
+	for i := 0; i < 4; i++ {
+		c3.tuple[i] = c1.tuple[i] - c2.tuple[i]
+	}
+
+	return c3
+}
+
+func (c *Coordinate) Negate() *Coordinate {
+	c3 := &Coordinate{tuple: make([]float32, 4, 4)}
+
+	for i := 0; i < 4; i++ {
+		c3.tuple[i] = -c.tuple[i]
+	}
+
+	return c3
 }
