@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/cucumber/godog"
+	"github.com/stretchr/testify/assert"
 )
 
 type tupleCtxKey struct{}
@@ -94,6 +95,22 @@ func checkCoordinateIsVector(ctx context.Context) error {
 	return nil
 }
 
+func InitializeScenario(ctx *godog.ScenarioContext) {
+	ctx.Given(`^a ← tuple\((-?\d+\.?\d*), (-?\d+\.?\d*), (-?\d+\.?\d*), (-?\d+\.?\d*)\)$`, givenATuple)
+	ctx.Then(`^a\.x = (-?\d+\.?\d*)$`, checkCoordinateX)
+	ctx.Then(`^a\.y = (-?\d+\.?\d*)$`, checkCoordinateY)
+	ctx.Then(`^a\.z = (-?\d+\.?\d*)$`, checkCoordinateZ)
+	ctx.Then(`^a\.w = (-?\d+\.?\d*)$`, checkCoordinateW)
+	ctx.Then(`^a is a point$`, checkCoordinateIsPoint)
+	ctx.Then(`^a is a vector$`, checkCoordinateIsVector)
+
+	ctx.Given(`^p ← point\((-?\d+\.?\d*), (-?\d+\.?\d*), (-?\d+\.?\d*)\)$`, giveAPoint)
+	ctx.Then(`^p is a point$`, checkCoordinateIsPoint)
+
+	ctx.Given(`^v ← vector\((-?\d+\.?\d*), (-?\d+\.?\d*), (-?\d+\.?\d*)\)$`, giveAVector)
+	ctx.Then(`^v is a vector$`, checkCoordinateIsVector)
+}
+
 func TestFeatures(t *testing.T) {
 	suite := godog.TestSuite{
 		ScenarioInitializer: InitializeScenario,
@@ -109,18 +126,34 @@ func TestFeatures(t *testing.T) {
 	}
 }
 
-func InitializeScenario(ctx *godog.ScenarioContext) {
-	ctx.Given(`^a ← tuple\((-?\d+\.?\d*), (-?\d+\.?\d*), (-?\d+\.?\d*), (-?\d+\.?\d*)\)$`, givenATuple)
-	ctx.Then(`^a\.x = (-?\d+\.?\d*)$`, checkCoordinateX)
-	ctx.Then(`^a\.y = (-?\d+\.?\d*)$`, checkCoordinateY)
-	ctx.Then(`^a\.z = (-?\d+\.?\d*)$`, checkCoordinateZ)
-	ctx.Then(`^a\.w = (-?\d+\.?\d*)$`, checkCoordinateW)
-	ctx.Then(`^a is a point$`, checkCoordinateIsPoint)
-	ctx.Then(`^a is a vector$`, checkCoordinateIsVector)
+func TestOpsAdd(t *testing.T) {
+	v1 := CreateVector(1, 2, 3)
+	v2 := CreateVector(3, 2, 1)
 
-	ctx.Given(`^p ← point\((-?\d+\.?\d*), (-?\d+\.?\d*), (-?\d+\.?\d*)\)$`, giveAPoint)
-	ctx.Then(`^p is a point$`, checkCoordinateIsPoint)
+	v3 := v1.Add(&v2)
 
-	ctx.Given(`^v ← vector\((-?\d+\.?\d*), (-?\d+\.?\d*), (-?\d+\.?\d*)\)$`, giveAVector)
-	ctx.Then(`^v is a vector$`, checkCoordinateIsVector)
+	assert.True(t, v3.IsAVector())
+	assert.Equal(t, CreateVector(4, 4, 4), *v3)
+}
+
+func TestOpsSub(t *testing.T) {
+	v1 := CreatePoint(2, 2, 2)
+	v2 := CreateVector(1, 1, 1)
+
+	v3 := v1.Sub(&v2)
+
+	assert.True(t, v3.IsAPoint())
+	assert.Equal(t, CreatePoint(1, 1, 1), *v3)
+}
+
+func TestScalerOps(t *testing.T) {
+	v1 := CreateVector(2, 2, 2)
+
+	v2 := v1.Mul(2)
+	v3 := v1.Div(2)
+
+	assert.True(t, v2.IsAVector())
+	assert.Equal(t, CreateVector(4, 4, 4), *v2)
+	assert.True(t, v3.IsAVector())
+	assert.Equal(t, CreateVector(1, 1, 1), *v3)
 }

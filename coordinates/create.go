@@ -1,5 +1,7 @@
 package coordinates
 
+import "math"
+
 type CoordinateAxis int8
 
 const (
@@ -73,5 +75,59 @@ func (c *Coordinate) Negate() *Coordinate {
 		c3.tuple[i] = -c.tuple[i]
 	}
 
+	return c3
+}
+
+func (c *Coordinate) Mul(f float32) *Coordinate {
+	c3 := &Coordinate{tuple: make([]float32, 4, 4)}
+
+	for i := 0; i < 4; i++ {
+		c3.tuple[i] = c.tuple[i] * f
+	}
+
+	return c3
+}
+
+func (c *Coordinate) Div(f float32) *Coordinate {
+	c3 := &Coordinate{tuple: make([]float32, 4, 4)}
+
+	for i := 0; i < 4; i++ {
+		c3.tuple[i] = c.tuple[i] / f
+	}
+
+	return c3
+}
+
+func (c *Coordinate) Magnitude() float64 {
+	_mag := float64(0)
+
+	for i := 0; i < 4; i++ {
+		_mag += math.Pow(float64(c.tuple[i]), 2)
+	}
+
+	return math.Sqrt(float64(_mag))
+}
+
+func (c *Coordinate) Norm() *Coordinate {
+	mag := c.Magnitude()
+
+	return c.Div(float32(mag))
+}
+
+func (c1 *Coordinate) DotP(c2 *Coordinate) *Coordinate {
+	c3 := &Coordinate{tuple: make([]float32, 4, 4)}
+
+	for i := 0; i < 4; i++ {
+		c3.tuple[i] = c1.tuple[i] * c2.tuple[i]
+	}
+	return c3
+}
+
+func (c1 *Coordinate) CrossP(c2 *Coordinate) *Coordinate {
+	c3 := &Coordinate{tuple: make([]float32, 4, 4)}
+
+	c3.Set(X, c1.Get(Y)*c2.Get(Z)-c1.Get(Z)*c2.Get(Y))
+	c3.Set(Y, c1.Get(Z)*c2.Get(X)-c1.Get(X)*c2.Get(Z))
+	c3.Set(Z, c1.Get(X)*c2.Get(Y)-c1.Get(Y)*c2.Get(X))
 	return c3
 }
