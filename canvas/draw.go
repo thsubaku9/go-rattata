@@ -1,69 +1,62 @@
 package canvas
 
-type ColourMode uint8
-
-const (
-	Red ColourMode = iota
-	Green
-	Blue
-	Alpha
+import (
+	"log"
+	"os"
 )
 
-type Colour [4]uint8
-
-func (c *Colour) GetValue(m ColourMode) uint8 {
-	return c[m]
+type Grid struct {
+	Colour
 }
 
-func (c *Colour) SetValue(m ColourMode, v uint8) {
-	c[m] = v
-}
+type Canvas [][]Grid
 
-func NewColour() Colour {
-	return Colour{}
-}
+func CreateCanvas(h, w uint32) Canvas {
 
-func (c1 *Colour) Add(c2 *Colour) *Colour {
-	c3 := NewColour()
+	grids := make([][]Grid, w, w)
 
-	for i := 0; i < 4; i++ {
-		_t := int(c1[i]) + int(c2[i])
-		c3[i] = uint8(min((_t), 255))
+	for i := uint32(0); i < w; i++ {
+		grids[i] = make([]Grid, h, h)
+
+		for j := uint32(0); j < h; j++ {
+			grids[i][j] = Grid{NewColour()}
+		}
 	}
 
-	return &c3
+	return Canvas(grids)
 }
 
-func (c1 *Colour) Sub(c2 *Colour) *Colour {
-	c3 := NewColour()
-
-	for i := 0; i < 3; i++ {
-		_t := int(c1[i]) - int(c2[i])
-		c3[i] = uint8(max(_t, 0))
-	}
-
-	c3[Alpha] = c1[Alpha]
-	return &c3
+func (c Canvas) GetHeight() int {
+	return len(c)
 }
 
-func (c1 *Colour) Mul(k uint8) *Colour {
-	c3 := NewColour()
-
-	for i := 0; i < 3; i++ {
-		_t := int(c1[i]) * int(k)
-		c3[i] = uint8(min((_t), 255))
-	}
-	c3[Alpha] = c1[Alpha]
-	return &c3
+func (c Canvas) GetWidth() int {
+	return len(c[0])
 }
 
-func (c1 *Colour) Blend(c2 *Colour) *Colour {
-	c3 := NewColour()
+func (c Canvas) WritePixel(x, y uint32, col Colour) {
+	c[x][y].Colour = col
+}
 
-	for i := 0; i < 3; i++ {
-		_t := int(c1[i]) * int(c2[i])
-		c3[i] = uint8(min((_t), 255))
+/*
+Notice how the first row of pixels comes first, then the second row, and so forth. Further, each row is terminated by a new line.
+In addition, no line in a PPM file should be more than 70 characters long. Most image programs tend to accept PPM images with lines longer than that, but it’s a good idea to add new lines as needed to keep the lines shorter. (Just be careful to put the new line where a space would have gone, so you don’t split a number in half!
+*/
+func CanvasToPPMData(myCanvas Canvas) string {
+	ppmData := ""
+	return ppmData
+}
+
+func SaveToPath(fileName, ppmData string) {
+	file, err := os.Create(fileName + ".ppm")
+	if err != nil {
+		log.Default().Printf("File creation failed")
 	}
-	c3[Alpha] = c1[Alpha]
-	return &c3
+	defer file.Close()
+
+	_, err = file.WriteString(ppmData)
+
+	if err != nil {
+		log.Default().Printf("File write failed")
+	}
 }
