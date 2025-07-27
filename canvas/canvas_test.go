@@ -12,6 +12,7 @@ import (
 const (
 	colorHolderkey int = iota
 	canvasHolderKey
+	ppmDataKey
 )
 
 func givenAColour(ctx context.Context, r, g, b int) (context.Context, error) {
@@ -109,6 +110,10 @@ func write_pixelcRedPixel(arg1, arg2 int) error {
 	return godog.ErrPending
 }
 
+func perform_canvas_to_ppm() error {
+	return godog.ErrPending
+}
+
 func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Given(`^c ← color\((\d+), (\d+), (\d+)\)$`, givenAColour)
 	ctx.Then(`^c\.blue = (\d+)$`, checkBlue)
@@ -116,6 +121,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Then(`^c\.red = (\d+)$`, checkRed)
 
 	ctx.Given(`^c ← canvas\((\d+), (\d+)\)$`, createCanvas)
+	ctx.When(`^ppm ← canvas_to_ppm(c)$`, perform_canvas_to_ppm)
 	ctx.Then(`^c\.height = (\d+)$`, checkHeight)
 	ctx.Then(`^c\.width = (\d+)$`, checkWidth)
 	ctx.Then(`^every pixel of c is color\((\d+), (\d+), (\d+)\)$`, everyPixelOfCIsColor)

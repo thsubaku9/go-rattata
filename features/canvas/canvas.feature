@@ -11,17 +11,15 @@ Feature: Canvas related ops
         When write_pixel(c, 2, 3, redPixel) 
         Then pixel_at(c, 2, 3) = redPixel
 
-    Scenario: Constructing the PPM header 
+    Scenario: Constructing the PPM file properly 
         Given c ← canvas(5, 3)
         When ppm ← canvas_to_ppm(c)
-        Then lines 1-3 of ppm are 
+        When insert random data of size 15
+        Then header of ppm are 
             """
             P3 
             5 3 
             255
             """
-
-    Scenario: PPM files are terminated by a newline character 
-        Given c ← canvas(5, 3)
-        When ppm ← canvas_to_ppm(c)
-        Then ppm ends with a newline character
+            And each line should try to not exceed 70 chars 
+            And ppm ends with a newline character
