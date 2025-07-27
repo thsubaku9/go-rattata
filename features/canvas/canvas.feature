@@ -13,12 +13,12 @@ Feature: Canvas related ops
 
     Scenario: Constructing the PPM file properly 
         Given c ← canvas(5, 3)
-        When ppm ← canvas_to_ppm(c)
         When insert random data of size 15
+            And ppm ← canvas_to_ppm(c)
         Then header of ppm are 
             """
-            P3 
-            5 3 
+            P3
+            5 3
             255
             """
             And each line should try to not exceed 70 chars 

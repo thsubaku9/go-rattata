@@ -3,6 +3,8 @@ package canvas
 import (
 	"context"
 	"errors"
+	"fmt"
+	"math/rand"
 	"strings"
 	"testing"
 
@@ -123,16 +125,35 @@ func everyPixelOfCIsColor(ctx context.Context) error {
 	return nil
 }
 
-func pixel_atcRedPixel(arg1, arg2 int) error {
-	return godog.ErrPending
+func pixel_atcRedPixel(ctx context.Context, arg1, arg2 int) error {
+	c, ok := ctx.Value(canvasHolderKey).(Canvas)
+
+	if !ok {
+		return errors.New("Value not found")
+	}
+
+	pix := c.ReadPixel(uint32(arg1), uint32(arg2))
+
+	if pix.GetValue(Red) == 255 && pix.GetValue(Green) == 0 && pix.GetValue(Blue) == 0 {
+		return nil
+	}
+
+	return errors.New("Pixel mismatch")
 }
 
 func redPixelColor(arg1, arg2, arg3 int) error {
-	return godog.ErrPending
+	return nil
 }
 
-func write_pixelcRedPixel(arg1, arg2 int) error {
-	return godog.ErrPending
+func write_pixelcRedPixel(ctx context.Context, arg1, arg2 int) (context.Context, error) {
+	c, ok := ctx.Value(canvasHolderKey).(Canvas)
+
+	if !ok {
+		return ctx, errors.New("Value not found")
+	}
+
+	c.WritePixel(uint32(arg1), uint32(arg2), Colour{255, 0, 0, 0})
+	return ctx, nil
 }
 
 func perform_canvas_to_ppm(ctx context.Context) (context.Context, error) {
@@ -145,8 +166,22 @@ func perform_canvas_to_ppm(ctx context.Context) (context.Context, error) {
 	return context.WithValue(ctx, ppmDataKey, CanvasToPPMData(c)), nil
 }
 
-func eachLineShouldTryToNotExceedChars(arg1 int) error {
-	return godog.ErrPending
+func eachLineShouldTryToNotExceedChars(ctx context.Context, line_limit int) error {
+	ppmData, ok := ctx.Value(ppmDataKey).(string)
+
+	if !ok {
+		return errors.New("Value not found")
+	}
+
+	splits := strings.Split(ppmData, "\n")
+
+	for i, v := range splits {
+		if len(v) > line_limit {
+			return fmt.Errorf("Line %d exceeded line limit", i)
+		}
+	}
+
+	return nil
 }
 
 func headerOfPpmAre(ctx context.Context, arg1 *godog.DocString) error {
@@ -155,22 +190,57 @@ func headerOfPpmAre(ctx context.Context, arg1 *godog.DocString) error {
 	if !ok {
 		return errors.New("Value not found")
 	}
+
 	splits := strings.Split(ppmData, "\n")
+	res := strings.Join(splits[0:3], "\n")
 
 	testContentString := arg1.Content
 
-	if testContentString != strings.Join(splits[0:3], "\n") {
-		return errors.New("header did not match")
+	if len(testContentString) != len(res) {
+		return fmt.Errorf("header len did not match, %d vs %d", len(testContentString), len(res))
+	}
+
+	if testContentString != res {
+		return fmt.Errorf("header did not match, %s vs %s", testContentString, strings.Join(splits[0:3], "\n"))
 	}
 	return nil
 }
 
-func insertRandomDataOfSize(arg1 int) error {
-	return godog.ErrPending
+func insertRandomDataOfSize(ctx context.Context, arg1 int) error {
+	c, ok := ctx.Value(canvasHolderKey).(Canvas)
+
+	if !ok {
+		return errors.New("Value not found")
+	}
+
+	w, h := c.GetWidth(), c.GetHeight()
+	write_counter := 0
+
+	for i := 0; i < w; i++ {
+		for j := 0; j < h; j++ {
+			if write_counter >= arg1 {
+				break
+			}
+
+			c.WritePixel(uint32(i), uint32(j), Colour{uint8(rand.Intn(256)), uint8(rand.Intn(256)), uint8(rand.Intn(256)), 255})
+			write_counter++
+		}
+	}
+
+	return nil
 }
 
-func ppmEndsWithANewlineCharacter() error {
-	return godog.ErrPending
+func ppmEndsWithANewlineCharacter(ctx context.Context) error {
+	ppmData, ok := ctx.Value(ppmDataKey).(string)
+
+	if !ok {
+		return errors.New("Value not found")
+	}
+
+	if strings.LastIndex(ppmData, "\n") != len(ppmData)-1 {
+		return errors.New("last line is not a new line")
+	}
+	return nil
 }
 
 func InitializeScenario(ctx *godog.ScenarioContext) {
@@ -185,14 +255,14 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Then(`^c\.width = (\d+)$`, checkWidth)
 	ctx.Then(`^every pixel of c is color zero$`, everyPixelOfCIsColor)
 
-	ctx.Step(`^pixel_at\(c, (\d+), (\d+)\) = redPixel$`, pixel_atcRedPixel)
-	ctx.Step(`^redPixel ← color\((\d+), (\d+), (\d+)\)$`, redPixelColor)
-	ctx.Step(`^write_pixel\(c, (\d+), (\d+), redPixel\)$`, write_pixelcRedPixel)
+	ctx.Given(`^redPixel ← color\((\d+), (\d+), (\d+)\)$`, redPixelColor)
+	ctx.When(`^write_pixel\(c, (\d+), (\d+), redPixel\)$`, write_pixelcRedPixel)
+	ctx.Then(`^pixel_at\(c, (\d+), (\d+)\) = redPixel$`, pixel_atcRedPixel)
 
-	ctx.Step(`^each line should try to not exceed (\d+) chars$`, eachLineShouldTryToNotExceedChars)
-	ctx.Step(`^header of ppm are$`, headerOfPpmAre)
-	ctx.Step(`^insert random data of size (\d+)$`, insertRandomDataOfSize)
-	ctx.Step(`^ppm ends with a newline character$`, ppmEndsWithANewlineCharacter)
+	ctx.When(`^insert random data of size (\d+)$`, insertRandomDataOfSize)
+	ctx.Then(`^each line should try to not exceed (\d+) chars$`, eachLineShouldTryToNotExceedChars)
+	ctx.Then(`^header of ppm are$`, headerOfPpmAre)
+	ctx.Then(`^ppm ends with a newline character$`, ppmEndsWithANewlineCharacter)
 }
 
 func TestFeatures(t *testing.T) {

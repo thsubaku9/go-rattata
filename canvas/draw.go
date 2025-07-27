@@ -8,21 +8,21 @@ import (
 
 const PPM_LINE_LIM = 70
 
-type Grid struct {
+type Pixel struct {
 	Colour
 }
 
-type Canvas [][]Grid
+type Canvas [][]Pixel
 
 func CreateCanvas(w, h uint32) Canvas {
 
-	grids := make([][]Grid, w, w)
+	grids := make([][]Pixel, w, w)
 
 	for i := uint32(0); i < w; i++ {
-		grids[i] = make([]Grid, h, h)
+		grids[i] = make([]Pixel, h, h)
 
 		for j := uint32(0); j < h; j++ {
-			grids[i][j] = Grid{NewColour()}
+			grids[i][j] = Pixel{NewColour()}
 		}
 	}
 
@@ -39,6 +39,10 @@ func (c Canvas) GetWidth() int {
 
 func (c Canvas) WritePixel(x, y uint32, col Colour) {
 	c[x][y].Colour = col
+}
+
+func (c Canvas) ReadPixel(x, y uint32) Pixel {
+	return c[x][y]
 }
 
 /*
