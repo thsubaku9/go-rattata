@@ -14,7 +14,7 @@ type Grid struct {
 
 type Canvas [][]Grid
 
-func CreateCanvas(h, w uint32) Canvas {
+func CreateCanvas(w, h uint32) Canvas {
 
 	grids := make([][]Grid, w, w)
 
@@ -30,11 +30,11 @@ func CreateCanvas(h, w uint32) Canvas {
 }
 
 func (c Canvas) GetHeight() int {
-	return len(c)
+	return len(c[0])
 }
 
 func (c Canvas) GetWidth() int {
-	return len(c[0])
+	return len(c)
 }
 
 func (c Canvas) WritePixel(x, y uint32, col Colour) {
