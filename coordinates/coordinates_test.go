@@ -13,7 +13,7 @@ import (
 type tupleCtxKey struct{}
 
 func givenATuple(ctx context.Context, x, y, z, w float32) (context.Context, error) {
-	return context.WithValue(ctx, tupleCtxKey{}, Coordinate{tuple: []float32{x, y, z, w}}), nil
+	return context.WithValue(ctx, tupleCtxKey{}, Coordinate([4]float32{x, y, z, w})), nil
 }
 
 func giveAPoint(ctx context.Context, x, y, z float32) (context.Context, error) {
