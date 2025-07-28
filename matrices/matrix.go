@@ -36,6 +36,41 @@ func (m Matrix) IsEqual(m2 Matrix) bool {
 	return true
 }
 
+func (m Matrix) Multiply(m2 Matrix) (bool, Matrix) {
+	if m.Column() != m2.Row() {
+		return false, nil
+	}
+	_matrix := NewMatrix(m.Row(), m2.Column())
+
+	r, c, l := _matrix.Row(), _matrix.Column(), m.Column()
+
+	for i := 0; i < r; i++ {
+		for j := 0; j < c; j++ {
+			v := float32(0.0)
+			for k := 0; k < l; k++ {
+				v += m[i][k] * m2[k][j]
+			}
+			_matrix.Set(i, j, v)
+		}
+	}
+
+	return true, _matrix
+}
+
+func (m Matrix) T() Matrix {
+	_matrix := NewMatrix(m.Column(), m.Row())
+
+	r, c := _matrix.Row(), _matrix.Column()
+
+	for i := 0; i < r; i++ {
+		for j := 0; j < c; j++ {
+			_matrix.Set(i, j, m.Get(j, i))
+		}
+	}
+
+	return _matrix
+}
+
 func NewMatrix(r, c int) Matrix {
 	mt := make([][]float32, r, r)
 
