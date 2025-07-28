@@ -30,14 +30,6 @@ func TestFeatures(t *testing.T) {
 func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Given(`^the following 4x4 matrix M:$`, theFollowingXMatrixM)
 	ctx.Step(`^M\[(\d+),(\d+)\] = (-?\d+\.?\d*)$`, m)
-
-	ctx.Given(`^the following matrix A:$`, theFollowingMatrixA)
-	ctx.Given(`^the following matrix B:$`, theFollowingMatrixB)
-	ctx.Then(`^A \* B is the following 4x4 matrix:$`, aBIsTheFollowingXMatrix)
-}
-
-func aBIsTheFollowingXMatrix(arg1, arg2 int, arg3 *godog.Table) error {
-	return godog.ErrPending
 }
 
 func m(ctx context.Context, row, col int, val float32) error {
@@ -51,14 +43,6 @@ func m(ctx context.Context, row, col int, val float32) error {
 		return errors.New("Value mismatch")
 	}
 	return nil
-}
-
-func theFollowingMatrixA(arg1 *godog.Table) error {
-	return godog.ErrPending
-}
-
-func theFollowingMatrixB(arg1 *godog.Table) error {
-	return godog.ErrPending
 }
 
 func theFollowingXMatrixM(ctx context.Context, table *godog.Table) context.Context {
@@ -89,12 +73,27 @@ func TestMatrixEquality(t *testing.T) {
 	assert.True(t, M_A.IsEqual(M_B))
 }
 
+func TestMatrixMult(t *testing.T) {
+	Matrix_a := Matrix{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 8, 7, 6}, {5, 4, 3, 2}}
+	Matrix_b := Matrix{{-2, 1, 2, 3}, {3, 2, 1, -1}, {4, 3, 6, 5}, {1, 2, 7, 8}}
+	Matrix_req_res := Matrix{{20, 22, 50, 48}, {44, 54, 114, 108}, {40, 58, 110, 102}, {16, 26, 46, 42}}
+
+	_, Matrix_act_res := Matrix_a.Multiply(Matrix_b)
+
+	assert.True(t, Matrix_req_res.IsEqual(Matrix_act_res))
+}
+
 func TestMatrixIdentityMult(t *testing.T) {
-	t.Fail()
+	Matrix_a := Matrix{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 8, 7, 6}, {5, 4, 3, 2}}
+	Matrix_id4 := NewIdentityMatrix(4)
+	_, Matrix_act_res := Matrix_a.Multiply(Matrix_id4)
+
+	assert.True(t, Matrix_a.IsEqual(Matrix_act_res))
 }
 
 func TestMatrixTranspose(t *testing.T) {
-	t.Fail()
+	Matrix_a := Matrix{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 8, 7, 6}, {5, 4, 3, 2}}
+	assert.True(t, Matrix_a.IsEqual(Matrix_a.T().T()))
 }
 
 func TestMatrixDeterminant2x2(t *testing.T) {
@@ -102,8 +101,11 @@ func TestMatrixDeterminant2x2(t *testing.T) {
 }
 
 func TestMatrixSubMatrix(t *testing.T) {
-	// submatrix(A, r, c) -> returns a matrix which has row r and col c removed from A
-	t.Fail()
+	Matrix_a := Matrix{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 8, 7, 6}, {5, 4, 3, 2}}
+	Matrix_sub := Matrix_a.SubMatrix(1, 3)
+
+	Matrix_res := Matrix{{1, 2, 3}, {9, 8, 7}, {5, 4, 3}}
+	assert.True(t, Matrix_res.IsEqual(Matrix_sub))
 }
 
 func TestMatrixMinorAndCofactor3x3(t *testing.T) {

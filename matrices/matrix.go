@@ -71,6 +71,35 @@ func (m Matrix) T() Matrix {
 	return _matrix
 }
 
+func (m Matrix) SubMatrix(r_t, c_t int) Matrix {
+	// The new matrix will have one less row and one less column
+	_matrix := NewMatrix(m.Row()-1, m.Column()-1)
+
+	// Initialize row and column counters for the new submatrix
+	newRow := 0
+	newCol := 0
+
+	// Iterate through the original matrix
+	for i := 0; i < m.Row(); i++ {
+		if i == r_t {
+			// Skip the target row
+			continue
+		}
+		newCol = 0 // Reset column for each new row in the submatrix
+		for j := 0; j < m.Column(); j++ {
+			if j == c_t {
+				// Skip the target column
+				continue
+			}
+			// Set the value in the new submatrix
+			_matrix.Set(newRow, newCol, m.Get(i, j))
+			newCol++
+		}
+		newRow++
+	}
+	return _matrix
+}
+
 func NewMatrix(r, c int) Matrix {
 	mt := make([][]float32, r, r)
 
