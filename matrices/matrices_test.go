@@ -96,8 +96,22 @@ func TestMatrixTranspose(t *testing.T) {
 	assert.True(t, Matrix_a.IsEqual(Matrix_a.T().T()))
 }
 
-func TestMatrixDeterminant2x2(t *testing.T) {
-	t.Fail()
+func TestMatrixDeterminant(t *testing.T) {
+	Matrix_a := Matrix{{15}}
+	err, d := Matrix_a.Determinant()
+	assert.Nil(t, err)
+	assert.Equal(t, float32(15), d)
+
+	Matrix_a = Matrix{{1, 2}, {3, 4}}
+	err, d = Matrix_a.Determinant()
+	assert.Nil(t, err)
+	assert.Equal(t, float32(-2), d)
+
+	Matrix_a = Matrix{{-5, 0, 1}, {1, -2, 3}, {6, -2, 1}}
+	err, d = Matrix_a.Determinant()
+	assert.Nil(t, err)
+	assert.Equal(t, float32(-10), d)
+
 }
 
 func TestMatrixSubMatrix(t *testing.T) {
@@ -109,14 +123,35 @@ func TestMatrixSubMatrix(t *testing.T) {
 }
 
 func TestMatrixMinorAndCofactor3x3(t *testing.T) {
-	t.Fail()
+	Matrix_a := Matrix{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 8, 7, 6}, {5, 4, 3, 2}}
+	m22 := Matrix_a.Minor(2, 2)
+	m31 := Matrix_a.Minor(3, 1)
+	c00 := Matrix_a.Cofactor(0, 1)
+	c11 := Matrix_a.Cofactor(1, 1)
+	assert.Equal(t, float32(0), m22)
+	assert.Equal(t, float32(0), m31)
+	assert.Equal(t, float32(0), c00)
+	assert.Equal(t, float32(0), c11)
 }
 
 func TestMatrixIsInvertable(t *testing.T) {
-	// if determinant is 0 => not invertable
-	t.Fail()
+	Matrix_a := Matrix{{9, 6}, {12, 8}}
+	d, err := Matrix_a.Determinant()
+	assert.Nil(t, err)
+	assert.False(t, IsMatrixInvertableBasedOnDeterminant(d))
+
+	Matrix_a = Matrix{{-5, 0, 1}, {1, -2, 3}, {6, -2, 1}}
+	d, err = Matrix_a.Determinant()
+	assert.Nil(t, err)
+	assert.True(t, IsMatrixInvertableBasedOnDeterminant(d))
+
 }
 
 func TestMatrixInverseCalculation(t *testing.T) {
-	t.Fail()
+	Matrix_a := Matrix{{-5, 0, 1}, {1, -2, 3}, {6, -2, 1}}
+	Matrix_a_inv, _ := Matrix_a.Adj()
+
+	_, id3x3 := Matrix_a.Multiply(Matrix_a_inv)
+
+	assert.True(t, id3x3.IsEqual(NewIdentityMatrix(3)))
 }

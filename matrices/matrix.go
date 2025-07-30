@@ -1,5 +1,7 @@
 package matrices
 
+import "errors"
+
 type Matrix [][]float32
 
 func (m Matrix) Row() int {
@@ -34,6 +36,32 @@ func (m Matrix) IsEqual(m2 Matrix) bool {
 	}
 
 	return true
+}
+
+func (m Matrix) ScaleMul(k float32) Matrix {
+	r, c := m.Row(), m.Column()
+
+	for i := 0; i < r; i++ {
+		for j := 0; j < c; j++ {
+
+			m.Set(i, j, m.Get(i, j)*k)
+		}
+	}
+
+	return m
+}
+
+func (m Matrix) ScaleAdd(k float32) Matrix {
+	r, c := m.Row(), m.Column()
+
+	for i := 0; i < r; i++ {
+		for j := 0; j < c; j++ {
+
+			m.Set(i, j, m.Get(i, j)+k)
+		}
+	}
+
+	return m
 }
 
 func (m Matrix) Multiply(m2 Matrix) (bool, Matrix) {
@@ -98,6 +126,73 @@ func (m Matrix) SubMatrix(r_t, c_t int) Matrix {
 		newRow++
 	}
 	return _matrix
+}
+
+func (m Matrix) Determinant() (float32, error) {
+	if m.Column() != m.Row() {
+		return 0, errors.New("NA")
+	}
+
+	n := m.Row()
+
+	if n == 0 {
+		return 1, nil
+	} else if n == 1 {
+		return m[0][0], nil
+	} else if n == 2 {
+		return m[0][0]*m[1][1] - m[0][1]*m[1][0], nil
+	}
+
+	res := float32(0.0)
+
+	for i := range n {
+		d, _ := m.SubMatrix(0, i).Determinant()
+		row_val := m[0][i] * d
+
+		row_val = fetchMatrixPositionalSign(0, i) * row_val
+		res += row_val
+	}
+
+	return res, nil
+}
+
+func (m Matrix) Minor(i, j int) float32 {
+	d, _ := m.SubMatrix(i, j).Determinant()
+	return d
+}
+
+func (m Matrix) Cofactor(i, j int) float32 {
+	d, _ := m.SubMatrix(i, j).Determinant()
+	return d * fetchMatrixPositionalSign(i, j)
+}
+
+func fetchMatrixPositionalSign(row, col int) float32 {
+	if (row+col)%2 == 0 {
+		return 1
+	}
+
+	return -1
+}
+
+func (m Matrix) Adj() (Matrix, error) {
+	if m.Row() != m.Column() {
+		return nil, errors.New("pseudo inverse not supported currently")
+	}
+
+	n := m.Row()
+	_matrix := NewMatrix(n, n)
+	det, _ := m.Determinant()
+	for i_row := range n {
+		for j_col := range n {
+			_matrix[i_row][j_col] = m.Cofactor(i_row, j_col)
+		}
+	}
+
+	return _matrix.T().ScaleMul(1 / det), nil
+}
+
+func IsMatrixInvertableBasedOnDeterminant(val float32) bool {
+	return val != 0
 }
 
 func NewMatrix(r, c int) Matrix {
