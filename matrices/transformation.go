@@ -1,6 +1,9 @@
 package matrices
 
-import "rattata/coordinates"
+import (
+	"math"
+	"rattata/coordinates"
+)
 
 func CoordinateToMatrix(c coordinates.Coordinate) Matrix {
 	_matrix := NewMatrix(4, 1)
@@ -35,6 +38,33 @@ func ScalingMatrix(x, y, z float32) Matrix {
 	return _matrix
 }
 
+func GivensRotationMatrix3D(rotatingAxis coordinates.CoordinateAxis, rad float64) Matrix {
+	_matrix := NewIdentityMatrix(4)
+
+	switch rotatingAxis {
+	case coordinates.X:
+		_matrix.Set(1, 1, float32(math.Cos(rad)))
+		_matrix.Set(2, 2, float32(math.Cos(rad)))
+
+		_matrix.Set(1, 2, -float32(math.Sin(rad)))
+		_matrix.Set(2, 1, float32(math.Sin(rad)))
+	case coordinates.Y:
+		_matrix.Set(0, 0, float32(math.Cos(rad)))
+		_matrix.Set(2, 2, float32(math.Cos(rad)))
+
+		_matrix.Set(0, 2, -float32(math.Sin(rad)))
+		_matrix.Set(2, 0, float32(math.Sin(rad)))
+	case coordinates.Z:
+		_matrix.Set(0, 0, float32(math.Cos(rad)))
+		_matrix.Set(1, 1, float32(math.Cos(rad)))
+
+		_matrix.Set(0, 1, -float32(math.Sin(rad)))
+		_matrix.Set(1, 0, float32(math.Sin(rad)))
+
+	}
+	return _matrix
+}
+
 func PeformMatrixTranslation(src Matrix, x, y, z float32) Matrix {
 	_matrix := TranslationMatrix(x, y, z)
 	_, res := _matrix.Multiply(src)
@@ -49,10 +79,37 @@ func PeformMatrixScaling(src Matrix, x, y, z float32) Matrix {
 	return res
 }
 
-func PeformMatrixRotation() {
+func PerformMatrixRotation(src Matrix, rotatingAxis coordinates.CoordinateAxis, degreeRad float64) Matrix {
+	_matrix := GivensRotationMatrix3D(rotatingAxis, degreeRad)
 
+	_, res := _matrix.Multiply(src)
+
+	return res
 }
 
-func PeformMatrixShearing() {
+func ShearMatrix(xy, xz, yx, yz, zx, zy float32) Matrix {
+	_matrix := NewIdentityMatrix(4)
+	_matrix.Set(0, 1, xy)
+	_matrix.Set(0, 2, xz)
+	_matrix.Set(1, 0, yx)
+	_matrix.Set(1, 2, yz)
+	_matrix.Set(2, 0, zx)
+	_matrix.Set(2, 1, zy)
 
+	return _matrix
+}
+
+func PeformMatrixShearing(src Matrix, xy, xz, yx, yz, zx, zy float32) Matrix {
+	_matrix := ShearMatrix(xy, xz, yx, yz, zx, zy)
+	_, res := _matrix.Multiply(src)
+	return res
+}
+
+func PerformOrderedChainingOps(src Matrix, opMatrix ...Matrix) Matrix {
+	res := src
+
+	for _, op := range opMatrix {
+		_, res = op.Multiply(res)
+	}
+	return res
 }
