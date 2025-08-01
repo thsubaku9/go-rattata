@@ -29,7 +29,7 @@ func (c *Coordinate) IsAVector() bool {
 	return c[W] == 0
 }
 
-func createCoordinate(x, y, z, w float32) Coordinate {
+func CreateCoordinate(x, y, z, w float32) Coordinate {
 	c := Coordinate{}
 	c.Set(X, x)
 	c.Set(Y, y)
@@ -39,11 +39,11 @@ func createCoordinate(x, y, z, w float32) Coordinate {
 }
 
 func CreatePoint(x, y, z float32) Coordinate {
-	return createCoordinate(x, y, z, 1)
+	return CreateCoordinate(x, y, z, 1)
 }
 
 func CreateVector(x, y, z float32) Coordinate {
-	return createCoordinate(x, y, z, 0)
+	return CreateCoordinate(x, y, z, 0)
 }
 
 func (c1 *Coordinate) Add(c2 *Coordinate) *Coordinate {

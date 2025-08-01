@@ -98,17 +98,17 @@ func TestMatrixTranspose(t *testing.T) {
 
 func TestMatrixDeterminant(t *testing.T) {
 	Matrix_a := Matrix{{15}}
-	err, d := Matrix_a.Determinant()
+	d, err := Matrix_a.Determinant()
 	assert.Nil(t, err)
 	assert.Equal(t, float32(15), d)
 
 	Matrix_a = Matrix{{1, 2}, {3, 4}}
-	err, d = Matrix_a.Determinant()
+	d, err = Matrix_a.Determinant()
 	assert.Nil(t, err)
 	assert.Equal(t, float32(-2), d)
 
 	Matrix_a = Matrix{{-5, 0, 1}, {1, -2, 3}, {6, -2, 1}}
-	err, d = Matrix_a.Determinant()
+	d, err = Matrix_a.Determinant()
 	assert.Nil(t, err)
 	assert.Equal(t, float32(-10), d)
 
