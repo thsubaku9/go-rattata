@@ -1,14 +1,15 @@
-package coordinates
+package rays
 
 import (
+	"rattata/coordinates"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func Test2IntersectionsWithSphereFromOutside(t *testing.T) {
-	r := NewRay(CreatePoint(0, 0, -5), CreateVector(0, 0, 1))
-	sph := NewSphere(CreatePoint(0, 0, 0), 1)
+	r := NewRay(coordinates.CreatePoint(0, 0, -5), coordinates.CreateVector(0, 0, 1))
+	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 	xs := Intersect(sph, r)
 
 	assert.Equal(t, 2, len(xs))
@@ -17,8 +18,8 @@ func Test2IntersectionsWithSphereFromOutside(t *testing.T) {
 }
 
 func Test2IntersectionsWithSphereFromInside(t *testing.T) {
-	r := NewRay(CreatePoint(0, 0, 0), CreateVector(0, 0, 1))
-	sph := NewSphere(CreatePoint(0, 0, 0), 1)
+	r := NewRay(coordinates.CreatePoint(0, 0, 0), coordinates.CreateVector(0, 0, 1))
+	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 	xs := Intersect(sph, r)
 
 	assert.Equal(t, 2, len(xs))
@@ -27,8 +28,8 @@ func Test2IntersectionsWithSphereFromInside(t *testing.T) {
 }
 
 func Test1IntersectionWithSphere(t *testing.T) {
-	r := NewRay(CreatePoint(0, 1, -5), CreateVector(0, 0, 1))
-	sph := NewSphere(CreatePoint(0, 0, 0), 1)
+	r := NewRay(coordinates.CreatePoint(0, 1, -5), coordinates.CreateVector(0, 0, 1))
+	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 	xs := Intersect(sph, r)
 
 	assert.Equal(t, 2, len(xs))
@@ -39,15 +40,15 @@ func Test1IntersectionWithSphere(t *testing.T) {
 
 func Test0IntersectionWithSphere(t *testing.T) {
 
-	r := NewRay(CreatePoint(0, 2, -5), CreateVector(0, 0, 1))
-	sph := NewSphere(CreatePoint(0, 0, 0), 1)
+	r := NewRay(coordinates.CreatePoint(0, 2, -5), coordinates.CreateVector(0, 0, 1))
+	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 	xs := Intersect(sph, r)
 
 	assert.Equal(t, 0, len(xs))
 }
 
 func TestHit(t *testing.T) {
-	s := NewSphere(CreatePoint(0, 0, 0), 1)
+	s := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 	i1 := NewIntersection(5, s)
 	i2 := NewIntersection(7, s)
 	i3 := NewIntersection(-3, s)

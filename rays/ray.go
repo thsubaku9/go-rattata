@@ -1,15 +1,17 @@
-package coordinates
+package rays
 
 import (
 	"math"
+	"rattata/coordinates"
+	"rattata/matrices"
 )
 
 type Ray struct {
-	OriginPoint Coordinate
-	Direction   Coordinate
+	OriginPoint coordinates.Coordinate
+	Direction   coordinates.Coordinate
 }
 
-func NewRay(origin, direction Coordinate) Ray {
+func NewRay(origin, direction coordinates.Coordinate) Ray {
 	if origin.IsAPoint() && direction.IsAVector() {
 		return Ray{OriginPoint: origin, Direction: direction}
 	}
@@ -17,7 +19,7 @@ func NewRay(origin, direction Coordinate) Ray {
 	panic("inputs are wrong")
 }
 
-func (r *Ray) PointAtTime(dir float32) *Coordinate {
+func (r *Ray) PointAtTime(dir float32) *coordinates.Coordinate {
 	scaled_vector := r.Direction.Mul(dir)
 
 	return r.OriginPoint.Add(scaled_vector)
@@ -79,4 +81,14 @@ func IntersectSphere(sph Sphere, ray Ray) []Intersection {
 	t1 := float32((float64(-b) - math.Sqrt(float64(discriminant))) / (2 * float64(a)))
 	t2 := float32((float64(-b) + math.Sqrt(float64(discriminant))) / (2 * float64(a)))
 	return Intersections(NewIntersection(t1, sph), NewIntersection(t2, sph))
+}
+
+func Transform(ray Ray, matrix matrices.Matrix) Ray {
+	ray_origin_matrix := matrices.CoordinateToMatrix(ray.OriginPoint)
+	_, ray_origin_post_transform := matrix.Multiply(ray_origin_matrix)
+
+	ray_direction_matrix := matrices.CoordinateToMatrix(ray.Direction)
+	_, ray_direction_post_transform := matrix.Multiply(ray_direction_matrix)
+
+	return NewRay(matrices.MatrixToCoordinate(ray_origin_post_transform), matrices.MatrixToCoordinate(ray_direction_post_transform))
 }
