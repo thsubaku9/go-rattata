@@ -45,3 +45,16 @@ func Test0IntersectionWithSphere(t *testing.T) {
 
 	assert.Equal(t, 0, len(xs))
 }
+
+func TestHit(t *testing.T) {
+	s := NewSphere(CreatePoint(0, 0, 0), 1)
+	i1 := NewIntersection(5, s)
+	i2 := NewIntersection(7, s)
+	i3 := NewIntersection(-3, s)
+	i4 := NewIntersection(2, s)
+	xs := Intersections(i1, i2, i3, i4)
+	i, res := Hit(xs)
+	assert.True(t, res)
+	assert.Equal(t, i4, *i)
+
+}
