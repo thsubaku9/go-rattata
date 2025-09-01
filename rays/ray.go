@@ -57,12 +57,13 @@ func Hit(Intersections []Intersection) (*Intersection, bool) {
 
 func Intersect(shape Shape, ray Ray) []Intersection {
 
+	transformed_ray := Transform(ray, shape.Transformation())
+
 	switch casted_shape := shape.(type) {
 	case Sphere:
-		return IntersectSphere(casted_shape, ray)
+		return IntersectSphere(casted_shape, transformed_ray)
 	default:
 		return []Intersection{}
-
 	}
 }
 

@@ -32,6 +32,19 @@ func TestPointTranslation(t *testing.T) {
 	assert.Equal(t, expected, MatrixToCoordinate(res))
 }
 
+func TestInversionTranslation(t *testing.T) {
+	p := coordinates.CreatePoint(1, 1, 1)
+	coord := CoordinateToMatrix(p)
+
+	trans_matx := TranslationMatrix(0, -1, 1)
+	inv_trans_matx, _ := trans_matx.Adj()
+
+	res := PerformOrderedChainingOps(coord, trans_matx, inv_trans_matx)
+
+	assert.Equal(t, p, MatrixToCoordinate(res))
+
+}
+
 func TestVectorTranslation(t *testing.T) {
 	v := coordinates.CreateVector(1, 1, 1)
 
