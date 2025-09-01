@@ -65,31 +65,37 @@ func CanvasToPPMData(myCanvas Canvas) string {
 				fmt.Sprint(myCanvas[i][j].Colour.GetValue(Green)),
 				fmt.Sprint(myCanvas[i][j].Colour.GetValue(Blue))
 
-			if cur_len+len(r)+1 < PPM_LINE_LIM {
+			{
+				if cur_len+len(r)+1 >= PPM_LINE_LIM {
+					ppmData = AppendWithLine(ppmData, line_data)
+					line_data = ""
+					cur_len = 0
+				}
+
 				line_data = Append(line_data, r, " ")
 				cur_len += len(r) + 1
-			} else {
-				ppmData = AppendWithLine(ppmData, line_data)
-				line_data = ""
-				cur_len = 0
 			}
 
-			if cur_len+len(g)+1 < PPM_LINE_LIM {
+			{
+				if cur_len+len(g)+1 >= PPM_LINE_LIM {
+					ppmData = AppendWithLine(ppmData, line_data)
+					line_data = ""
+					cur_len = 0
+				}
+
 				line_data = Append(line_data, g, " ")
-				cur_len += len(r) + 1
-			} else {
-				ppmData = AppendWithLine(ppmData, line_data)
-				line_data = ""
-				cur_len = 0
+				cur_len += len(b) + 1
 			}
 
-			if cur_len+len(b)+1 < PPM_LINE_LIM {
+			{
+				if cur_len+len(b)+1 >= PPM_LINE_LIM {
+					ppmData = AppendWithLine(ppmData, line_data)
+					line_data = ""
+					cur_len = 0
+				}
+
 				line_data = Append(line_data, b, " ")
 				cur_len += len(r) + 1
-			} else {
-				ppmData = AppendWithLine(ppmData, line_data)
-				line_data = ""
-				cur_len = 0
 			}
 		}
 	}

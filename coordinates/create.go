@@ -96,27 +96,25 @@ func (c *Coordinate) Div(f float32) *Coordinate {
 	return c3
 }
 
-func (c *Coordinate) Magnitude() float64 {
+func (c *Coordinate) Magnitude() float32 {
 	_mag := float64(0)
 
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 3; i++ {
 		_mag += math.Pow(float64(c[i]), 2)
 	}
 
-	return math.Sqrt(float64(_mag))
+	return float32(math.Sqrt(_mag))
 }
 
 func (c *Coordinate) Norm() *Coordinate {
-	mag := c.Magnitude()
-
-	return c.Div(float32(mag))
+	return c.Div(c.Magnitude())
 }
 
-func (c1 *Coordinate) DotP(c2 *Coordinate) *Coordinate {
-	c3 := &Coordinate{}
+func (c1 *Coordinate) DotP(c2 *Coordinate) float32 {
+	c3 := float32(0)
 
 	for i := 0; i < 4; i++ {
-		c3[i] = c1[i] * c2[i]
+		c3 += c1[i] * c2[i]
 	}
 	return c3
 }

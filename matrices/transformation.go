@@ -15,9 +15,7 @@ func CoordinateToMatrix(c coordinates.Coordinate) Matrix {
 }
 
 func MatrixToCoordinate(mtx Matrix) coordinates.Coordinate {
-	_c := coordinates.CreateCoordinate(mtx.Get(0, 0), mtx.Get(1, 0), mtx.Get(2, 0), mtx.Get(3, 0))
-
-	return _c
+	return coordinates.CreateCoordinate(mtx.Get(0, 0), mtx.Get(1, 0), mtx.Get(2, 0), mtx.Get(3, 0))
 }
 
 func TranslationMatrix(x, y, z float32) Matrix {
