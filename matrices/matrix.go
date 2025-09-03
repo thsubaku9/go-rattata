@@ -135,11 +135,12 @@ func (m Matrix) Determinant() (float32, error) {
 
 	n := m.Row()
 
-	if n == 0 {
+	switch n {
+	case 0:
 		return 1, nil
-	} else if n == 1 {
+	case 1:
 		return m[0][0], nil
-	} else if n == 2 {
+	case 2:
 		return m[0][0]*m[1][1] - m[0][1]*m[1][0], nil
 	}
 
