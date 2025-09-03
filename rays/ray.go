@@ -38,10 +38,14 @@ func Intersections(isections ...Intersection) []Intersection {
 	return isections
 }
 
-func Hit(Intersections []Intersection) (*Intersection, bool) {
+func Hit(intersections []Intersection) (*Intersection, bool) {
 
-	res := Intersections[0]
-	for _, i := range Intersections {
+	if len(intersections) == 0 {
+		return nil, false
+	}
+
+	res := intersections[0]
+	for _, i := range intersections {
 		if res.Tvalue < 0 {
 			res = i
 		} else if i.Tvalue > 0 && i.Tvalue < res.Tvalue {
