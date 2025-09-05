@@ -65,13 +65,13 @@ func Intersect(shape Shape, ray Ray) []Intersection {
 
 	switch casted_shape := shape.(type) {
 	case Sphere:
-		return IntersectSphere(casted_shape, transformed_ray)
+		return intersectSphere(casted_shape, transformed_ray)
 	default:
 		return []Intersection{}
 	}
 }
 
-func IntersectSphere(sph Sphere, ray Ray) []Intersection {
+func intersectSphere(sph Sphere, ray Ray) []Intersection {
 	sphere_to_ray := ray.OriginPoint.Sub(&sph.Origin)
 
 	a := ray.Direction.DotP(&ray.Direction)
@@ -89,11 +89,15 @@ func IntersectSphere(sph Sphere, ray Ray) []Intersection {
 }
 
 func Transform(ray Ray, matrix matrices.Matrix) Ray {
-	ray_origin_matrix := matrices.CoordinateToMatrix(ray.OriginPoint)
-	_, ray_origin_post_transform := matrix.Multiply(ray_origin_matrix)
+	ray_origin_matrix, ray_direction_matrix := matrices.CoordinateToMatrix(ray.OriginPoint), matrices.CoordinateToMatrix(ray.Direction)
 
-	ray_direction_matrix := matrices.CoordinateToMatrix(ray.Direction)
+	_, ray_origin_post_transform := matrix.Multiply(ray_origin_matrix)
 	_, ray_direction_post_transform := matrix.Multiply(ray_direction_matrix)
 
 	return NewRay(matrices.MatrixToCoordinate(ray_origin_post_transform), matrices.MatrixToCoordinate(ray_direction_post_transform))
+}
+
+func ReflectVector(incidence, normal coordinates.Coordinate) coordinates.Coordinate {
+	directionInversionVector := normal.Mul(-2 * normal.DotP(&incidence))
+	return *incidence.Add(directionInversionVector)
 }

@@ -4,6 +4,8 @@ import (
 	"math"
 	"rattata/coordinates"
 	"rattata/matrices"
+
+	"rattata/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -40,22 +42,5 @@ func TestNormalComputationOnTransformedSphere(t *testing.T) {
 
 	point := coordinates.CreatePoint(0, float32(math.Sqrt(2))/2, -float32(math.Sqrt(2))/2)
 	normal := sph.NormalAtPoint(point)
-	approxEqualCoordinate(t, coordinates.CreateVector(0, 0.97014, -0.24254), normal, 0.00001)
-	/*
-		When n ← normal_at(s, point(0, √2/2, -√2/2)) Then n = vector(0, 0.97014, -0.24254)
-	*/
-}
-
-func approxEqual(t *testing.T, expected, actual, diff_allowed float64) {
-	if math.Abs(expected-actual) <= diff_allowed {
-		return
-	}
-
-	t.Errorf("Value diff larger than permitted -> %f vs %f", expected, actual)
-}
-
-func approxEqualCoordinate(t *testing.T, expected, acutal coordinates.Coordinate, diff_allowed float64) {
-	for i := range expected {
-		approxEqual(t, float64(expected[i]), float64(acutal[i]), diff_allowed)
-	}
+	helpers.TestApproxEqualCoordinate(t, coordinates.CreateVector(0, 0.97014, -0.24254), normal, 0.00001)
 }

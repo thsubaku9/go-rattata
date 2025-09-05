@@ -1,7 +1,9 @@
 package rays
 
 import (
+	"math"
 	"rattata/coordinates"
+	"rattata/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -58,4 +60,18 @@ func TestHit(t *testing.T) {
 	assert.True(t, res)
 	assert.Equal(t, i4, *i)
 
+}
+
+func TestStandardReflection(t *testing.T) {
+	v := coordinates.CreateVector(1, -1, 0)
+	n := coordinates.CreateVector(0, 1, 0)
+	r := ReflectVector(v, n)
+	helpers.TestApproxEqualCoordinate(t, coordinates.CreateVector(1, 1, 0), r, 0.00001)
+}
+
+func TestTiltedReflection(t *testing.T) {
+	v := coordinates.CreateVector(0, -1, 0)
+	n := coordinates.CreateVector(float32(math.Sqrt(2)/2), float32(math.Sqrt(2)/2), 0)
+	r := ReflectVector(v, n)
+	helpers.TestApproxEqualCoordinate(t, coordinates.CreateVector(1, 0, 0), r, 0.00001)
 }
