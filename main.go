@@ -1,8 +1,6 @@
 package main
 
-import (
-	"rattata/playground"
-)
+import "rattata/playground"
 
 func main() {
 	// c := canvas.CreateCanvas(5, 5)
@@ -22,6 +20,8 @@ func main() {
 
 	// print(canvas.CanvasToPPMData(c))
 
-	playground.Process()
+	// playground.ProcessRaySphereIntersection()
+
+	playground.ProcessPhongReflection()
 
 }

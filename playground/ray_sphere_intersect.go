@@ -7,7 +7,7 @@ import (
 	"rattata/rays"
 )
 
-func Process() {
+func ProcessRaySphereIntersection() {
 	ray_origin := coordinates.CreatePoint(0, 0, -5)
 	wall_z := 10.0
 	wall_size := 7.0
