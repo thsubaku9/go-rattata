@@ -18,7 +18,7 @@ func MatrixToCoordinate(mtx Matrix) coordinates.Coordinate {
 	return coordinates.CreateCoordinate(mtx.Get(0, 0), mtx.Get(1, 0), mtx.Get(2, 0), mtx.Get(3, 0))
 }
 
-func TranslationMatrix(x, y, z float32) Matrix {
+func TranslationMatrix(x, y, z float64) Matrix {
 	_matrix := NewIdentityMatrix(4)
 	_matrix.Set(0, 3, x)
 	_matrix.Set(1, 3, y)
@@ -27,7 +27,7 @@ func TranslationMatrix(x, y, z float32) Matrix {
 	return _matrix
 }
 
-func ScalingMatrix(x, y, z float32) Matrix {
+func ScalingMatrix(x, y, z float64) Matrix {
 	_matrix := NewIdentityMatrix(4)
 	_matrix.Set(0, 0, x)
 	_matrix.Set(1, 1, y)
@@ -41,36 +41,36 @@ func GivensRotationMatrix3D(rotatingAxis coordinates.CoordinateAxis, rad float64
 
 	switch rotatingAxis {
 	case coordinates.X:
-		_matrix.Set(1, 1, float32(math.Cos(rad)))
-		_matrix.Set(2, 2, float32(math.Cos(rad)))
+		_matrix.Set(1, 1, math.Cos(rad))
+		_matrix.Set(2, 2, math.Cos(rad))
 
-		_matrix.Set(1, 2, -float32(math.Sin(rad)))
-		_matrix.Set(2, 1, float32(math.Sin(rad)))
+		_matrix.Set(1, 2, -math.Sin(rad))
+		_matrix.Set(2, 1, math.Sin(rad))
 	case coordinates.Y:
-		_matrix.Set(0, 0, float32(math.Cos(rad)))
-		_matrix.Set(2, 2, float32(math.Cos(rad)))
+		_matrix.Set(0, 0, math.Cos(rad))
+		_matrix.Set(2, 2, math.Cos(rad))
 
-		_matrix.Set(0, 2, -float32(math.Sin(rad)))
-		_matrix.Set(2, 0, float32(math.Sin(rad)))
+		_matrix.Set(0, 2, -math.Sin(rad))
+		_matrix.Set(2, 0, math.Sin(rad))
 	case coordinates.Z:
-		_matrix.Set(0, 0, float32(math.Cos(rad)))
-		_matrix.Set(1, 1, float32(math.Cos(rad)))
+		_matrix.Set(0, 0, math.Cos(rad))
+		_matrix.Set(1, 1, math.Cos(rad))
 
-		_matrix.Set(0, 1, -float32(math.Sin(rad)))
-		_matrix.Set(1, 0, float32(math.Sin(rad)))
+		_matrix.Set(0, 1, -math.Sin(rad))
+		_matrix.Set(1, 0, math.Sin(rad))
 
 	}
 	return _matrix
 }
 
-func PeformMatrixTranslation(src Matrix, x, y, z float32) Matrix {
+func PeformMatrixTranslation(src Matrix, x, y, z float64) Matrix {
 	_matrix := TranslationMatrix(x, y, z)
 	_, res := _matrix.Multiply(src)
 
 	return res
 }
 
-func PeformMatrixScaling(src Matrix, x, y, z float32) Matrix {
+func PeformMatrixScaling(src Matrix, x, y, z float64) Matrix {
 	_matrix := ScalingMatrix(x, y, z)
 	_, res := _matrix.Multiply(src)
 
@@ -85,7 +85,7 @@ func PerformMatrixRotation(src Matrix, rotatingAxis coordinates.CoordinateAxis, 
 	return res
 }
 
-func ShearMatrix(xy, xz, yx, yz, zx, zy float32) Matrix {
+func ShearMatrix(xy, xz, yx, yz, zx, zy float64) Matrix {
 	_matrix := NewIdentityMatrix(4)
 	_matrix.Set(0, 1, xy)
 	_matrix.Set(0, 2, xz)
@@ -97,7 +97,7 @@ func ShearMatrix(xy, xz, yx, yz, zx, zy float32) Matrix {
 	return _matrix
 }
 
-func PeformMatrixShearing(src Matrix, xy, xz, yx, yz, zx, zy float32) Matrix {
+func PeformMatrixShearing(src Matrix, xy, xz, yx, yz, zx, zy float64) Matrix {
 	_matrix := ShearMatrix(xy, xz, yx, yz, zx, zy)
 	_, res := _matrix.Multiply(src)
 	return res

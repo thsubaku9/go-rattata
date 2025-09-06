@@ -32,7 +32,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^M\[(\d+),(\d+)\] = (-?\d+\.?\d*)$`, m)
 }
 
-func m(ctx context.Context, row, col int, val float32) error {
+func m(ctx context.Context, row, col int, val float64) error {
 	mat, ok := ctx.Value(matrixHolderKey{}).(Matrix)
 
 	if !ok {
@@ -54,7 +54,7 @@ func theFollowingXMatrixM(ctx context.Context, table *godog.Table) context.Conte
 	for i, row := range table.Rows {
 		for j, cell_val := range row.Cells {
 			val, _ := strconv.ParseFloat(cell_val.Value, 32)
-			_matrix.Set(i, j, float32(val))
+			_matrix.Set(i, j, float64(val))
 		}
 	}
 
@@ -100,17 +100,17 @@ func TestMatrixDeterminant(t *testing.T) {
 	Matrix_a := Matrix{{15}}
 	d, err := Matrix_a.Determinant()
 	assert.Nil(t, err)
-	assert.Equal(t, float32(15), d)
+	assert.Equal(t, float64(15), d)
 
 	Matrix_a = Matrix{{1, 2}, {3, 4}}
 	d, err = Matrix_a.Determinant()
 	assert.Nil(t, err)
-	assert.Equal(t, float32(-2), d)
+	assert.Equal(t, float64(-2), d)
 
 	Matrix_a = Matrix{{-5, 0, 1}, {1, -2, 3}, {6, -2, 1}}
 	d, err = Matrix_a.Determinant()
 	assert.Nil(t, err)
-	assert.Equal(t, float32(-10), d)
+	assert.Equal(t, float64(-10), d)
 
 }
 
@@ -128,10 +128,10 @@ func TestMatrixMinorAndCofactor3x3(t *testing.T) {
 	m31 := Matrix_a.Minor(3, 1)
 	c00 := Matrix_a.Cofactor(0, 1)
 	c11 := Matrix_a.Cofactor(1, 1)
-	assert.Equal(t, float32(0), m22)
-	assert.Equal(t, float32(0), m31)
-	assert.Equal(t, float32(0), c00)
-	assert.Equal(t, float32(0), c11)
+	assert.Equal(t, float64(0), m22)
+	assert.Equal(t, float64(0), m31)
+	assert.Equal(t, float64(0), c00)
+	assert.Equal(t, float64(0), c11)
 }
 
 func TestMatrixIsInvertable(t *testing.T) {

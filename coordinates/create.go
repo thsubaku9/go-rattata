@@ -11,13 +11,13 @@ const (
 	W
 )
 
-type Coordinate [4]float32
+type Coordinate [4]float64
 
-func (c *Coordinate) Set(axis CoordinateAxis, val float32) {
+func (c *Coordinate) Set(axis CoordinateAxis, val float64) {
 	c[axis] = val
 }
 
-func (c *Coordinate) Get(axis CoordinateAxis) float32 {
+func (c *Coordinate) Get(axis CoordinateAxis) float64 {
 	return c[axis]
 }
 
@@ -29,7 +29,7 @@ func (c *Coordinate) IsAVector() bool {
 	return c[W] == 0
 }
 
-func CreateCoordinate(x, y, z, w float32) Coordinate {
+func CreateCoordinate(x, y, z, w float64) Coordinate {
 	c := Coordinate{}
 	c.Set(X, x)
 	c.Set(Y, y)
@@ -38,11 +38,11 @@ func CreateCoordinate(x, y, z, w float32) Coordinate {
 	return c
 }
 
-func CreatePoint(x, y, z float32) Coordinate {
+func CreatePoint(x, y, z float64) Coordinate {
 	return CreateCoordinate(x, y, z, 1)
 }
 
-func CreateVector(x, y, z float32) Coordinate {
+func CreateVector(x, y, z float64) Coordinate {
 	return CreateCoordinate(x, y, z, 0)
 }
 
@@ -76,7 +76,7 @@ func (c *Coordinate) Negate() *Coordinate {
 	return c3
 }
 
-func (c *Coordinate) Mul(f float32) *Coordinate {
+func (c *Coordinate) Mul(f float64) *Coordinate {
 	c3 := &Coordinate{}
 
 	for i := 0; i < 4; i++ {
@@ -86,7 +86,7 @@ func (c *Coordinate) Mul(f float32) *Coordinate {
 	return c3
 }
 
-func (c *Coordinate) Div(f float32) *Coordinate {
+func (c *Coordinate) Div(f float64) *Coordinate {
 	c3 := &Coordinate{}
 
 	for i := 0; i < 4; i++ {
@@ -96,22 +96,22 @@ func (c *Coordinate) Div(f float32) *Coordinate {
 	return c3
 }
 
-func (c *Coordinate) Magnitude() float32 {
-	_mag := float64(0)
+func (c *Coordinate) Magnitude() float64 {
+	_mag := 0.0
 
 	for i := 0; i < 3; i++ {
-		_mag += math.Pow(float64(c[i]), 2)
+		_mag += math.Pow(c[i], 2)
 	}
 
-	return float32(math.Sqrt(_mag))
+	return math.Sqrt(_mag)
 }
 
 func (c *Coordinate) Norm() *Coordinate {
 	return c.Div(c.Magnitude())
 }
 
-func (c1 *Coordinate) DotP(c2 *Coordinate) float32 {
-	c3 := float32(0)
+func (c1 *Coordinate) DotP(c2 *Coordinate) float64 {
+	c3 := 0.0
 
 	for i := 0; i < 4; i++ {
 		c3 += c1[i] * c2[i]

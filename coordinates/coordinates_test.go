@@ -12,35 +12,35 @@ import (
 
 type tupleCtxKey struct{}
 
-func givenATuple(ctx context.Context, x, y, z, w float32) (context.Context, error) {
-	return context.WithValue(ctx, tupleCtxKey{}, Coordinate([4]float32{x, y, z, w})), nil
+func givenATuple(ctx context.Context, x, y, z, w float64) (context.Context, error) {
+	return context.WithValue(ctx, tupleCtxKey{}, Coordinate([4]float64{x, y, z, w})), nil
 }
 
-func giveAPoint(ctx context.Context, x, y, z float32) (context.Context, error) {
+func giveAPoint(ctx context.Context, x, y, z float64) (context.Context, error) {
 	return context.WithValue(ctx, tupleCtxKey{}, CreatePoint(x, y, z)), nil
 }
 
-func giveAVector(ctx context.Context, x, y, z float32) (context.Context, error) {
+func giveAVector(ctx context.Context, x, y, z float64) (context.Context, error) {
 	return context.WithValue(ctx, tupleCtxKey{}, CreateVector(x, y, z)), nil
 }
 
-func checkCoordinateX(ctx context.Context, expected float32) error {
+func checkCoordinateX(ctx context.Context, expected float64) error {
 	return checkCoordinate(ctx, X, expected)
 }
 
-func checkCoordinateY(ctx context.Context, expected float32) error {
+func checkCoordinateY(ctx context.Context, expected float64) error {
 	return checkCoordinate(ctx, Y, expected)
 }
 
-func checkCoordinateZ(ctx context.Context, expected float32) error {
+func checkCoordinateZ(ctx context.Context, expected float64) error {
 	return checkCoordinate(ctx, Z, expected)
 }
 
-func checkCoordinateW(ctx context.Context, expected float32) error {
+func checkCoordinateW(ctx context.Context, expected float64) error {
 	return checkCoordinate(ctx, W, expected)
 }
 
-func checkCoordinate(ctx context.Context, coordinate CoordinateAxis, expected float32) error {
+func checkCoordinate(ctx context.Context, coordinate CoordinateAxis, expected float64) error {
 	coord, ok := ctx.Value(tupleCtxKey{}).(Coordinate)
 	if !ok {
 		return errors.New("No coord found in ctx")

@@ -29,9 +29,9 @@ func TestNormalComputationOnSphere(t *testing.T) {
 	normal := sph.NormalAtPoint(point)
 	assert.Equal(t, coordinates.CreateVector(0, 0, 1), normal)
 
-	point = coordinates.CreatePoint(float32(math.Sqrt(3))/3, float32(math.Sqrt(3))/3, float32(math.Sqrt(3))/3)
+	point = coordinates.CreatePoint(float64(math.Sqrt(3))/3, float64(math.Sqrt(3))/3, float64(math.Sqrt(3))/3)
 	normal = sph.NormalAtPoint(point)
-	assert.Equal(t, coordinates.CreateVector(float32(math.Sqrt(3))/3, float32(math.Sqrt(3))/3, float32(math.Sqrt(3))/3), normal)
+	assert.Equal(t, coordinates.CreateVector(float64(math.Sqrt(3))/3, float64(math.Sqrt(3))/3, float64(math.Sqrt(3))/3), normal)
 
 }
 
@@ -40,7 +40,7 @@ func TestNormalComputationOnTransformedSphere(t *testing.T) {
 	_, transform_mat := matrices.ScalingMatrix(1, 0.5, 1).Multiply(matrices.GivensRotationMatrix3D(coordinates.Z, math.Pi/5))
 	sph.SetTransformation(transform_mat)
 
-	point := coordinates.CreatePoint(0, float32(math.Sqrt(2))/2, -float32(math.Sqrt(2))/2)
+	point := coordinates.CreatePoint(0, float64(math.Sqrt(2))/2, -float64(math.Sqrt(2))/2)
 	normal := sph.NormalAtPoint(point)
 	helpers.TestApproxEqualCoordinate(t, coordinates.CreateVector(0, 0.97014, -0.24254), normal, 0.00001)
 }

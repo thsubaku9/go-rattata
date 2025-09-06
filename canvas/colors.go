@@ -23,6 +23,10 @@ func NewColour() Colour {
 	return Colour{0, 0, 0, 255}
 }
 
+func NewWhiteColour() Colour {
+	return Colour{255, 255, 255, 255}
+}
+
 func (c1 *Colour) Add(c2 *Colour) *Colour {
 	c3 := NewColour()
 

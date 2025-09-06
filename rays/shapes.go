@@ -12,8 +12,9 @@ type Shape interface {
 
 type Sphere struct {
 	Origin            coordinates.Coordinate
-	Radius            float32
+	Radius            float64
 	transformationMat matrices.Matrix
+	Material          Material
 }
 
 func (s Sphere) Name() string {
@@ -43,9 +44,9 @@ func (s Sphere) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Co
 	return *res.Norm()
 }
 
-func NewSphere(origin coordinates.Coordinate, radius float32) Sphere {
+func NewSphere(origin coordinates.Coordinate, radius float64) Sphere {
 	if origin.IsAPoint() {
-		return Sphere{Origin: origin, Radius: radius, transformationMat: matrices.NewIdentityMatrix(4)}
+		return Sphere{Origin: origin, Radius: radius, transformationMat: matrices.NewIdentityMatrix(4), Material: CreateDefaultMaterial()}
 	}
 
 	panic("origin is not a point")
