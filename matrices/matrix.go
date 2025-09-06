@@ -2,7 +2,7 @@ package matrices
 
 import "errors"
 
-type Matrix [][]float32
+type Matrix [][]float64
 
 func (m Matrix) Row() int {
 	return len(m)
@@ -12,11 +12,11 @@ func (m Matrix) Column() int {
 	return len(m[0])
 }
 
-func (m Matrix) Get(r, c int) float32 {
+func (m Matrix) Get(r, c int) float64 {
 	return m[r][c]
 }
 
-func (m Matrix) Set(r, c int, val float32) {
+func (m Matrix) Set(r, c int, val float64) {
 	m[r][c] = val
 }
 
@@ -38,7 +38,7 @@ func (m Matrix) IsEqual(m2 Matrix) bool {
 	return true
 }
 
-func (m Matrix) ScaleMul(k float32) Matrix {
+func (m Matrix) ScaleMul(k float64) Matrix {
 	r, c := m.Row(), m.Column()
 
 	for i := 0; i < r; i++ {
@@ -51,7 +51,7 @@ func (m Matrix) ScaleMul(k float32) Matrix {
 	return m
 }
 
-func (m Matrix) ScaleAdd(k float32) Matrix {
+func (m Matrix) ScaleAdd(k float64) Matrix {
 	r, c := m.Row(), m.Column()
 
 	for i := 0; i < r; i++ {
@@ -74,7 +74,7 @@ func (m Matrix) Multiply(m2 Matrix) (bool, Matrix) {
 
 	for i := 0; i < r; i++ {
 		for j := 0; j < c; j++ {
-			v := float32(0.0)
+			v := 0.0
 			for k := 0; k < l; k++ {
 				v += m[i][k] * m2[k][j]
 			}
@@ -128,22 +128,23 @@ func (m Matrix) SubMatrix(r_t, c_t int) Matrix {
 	return _matrix
 }
 
-func (m Matrix) Determinant() (float32, error) {
+func (m Matrix) Determinant() (float64, error) {
 	if m.Column() != m.Row() {
 		return 0, errors.New("NA")
 	}
 
 	n := m.Row()
 
-	if n == 0 {
+	switch n {
+	case 0:
 		return 1, nil
-	} else if n == 1 {
+	case 1:
 		return m[0][0], nil
-	} else if n == 2 {
+	case 2:
 		return m[0][0]*m[1][1] - m[0][1]*m[1][0], nil
 	}
 
-	res := float32(0.0)
+	res := 0.0
 
 	for i := range n {
 		d, _ := m.SubMatrix(0, i).Determinant()
@@ -156,17 +157,17 @@ func (m Matrix) Determinant() (float32, error) {
 	return res, nil
 }
 
-func (m Matrix) Minor(i, j int) float32 {
+func (m Matrix) Minor(i, j int) float64 {
 	d, _ := m.SubMatrix(i, j).Determinant()
 	return d
 }
 
-func (m Matrix) Cofactor(i, j int) float32 {
+func (m Matrix) Cofactor(i, j int) float64 {
 	d, _ := m.SubMatrix(i, j).Determinant()
 	return d * fetchMatrixPositionalSign(i, j)
 }
 
-func fetchMatrixPositionalSign(row, col int) float32 {
+func fetchMatrixPositionalSign(row, col int) float64 {
 	if (row+col)%2 == 0 {
 		return 1
 	}
@@ -191,15 +192,15 @@ func (m Matrix) Adj() (Matrix, error) {
 	return _matrix.T().ScaleMul(1 / det), nil
 }
 
-func IsMatrixInvertableBasedOnDeterminant(val float32) bool {
+func IsMatrixInvertableBasedOnDeterminant(val float64) bool {
 	return val != 0
 }
 
 func NewMatrix(r, c int) Matrix {
-	mt := make([][]float32, r, r)
+	mt := make([][]float64, r, r)
 
 	for i := 0; i < r; i++ {
-		mt[i] = make([]float32, c, c)
+		mt[i] = make([]float64, c, c)
 	}
 
 	return mt

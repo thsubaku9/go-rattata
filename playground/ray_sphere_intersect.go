@@ -9,10 +9,10 @@ import (
 
 func Process() {
 	ray_origin := coordinates.CreatePoint(0, 0, -5)
-	wall_z := float32(10.0)
-	wall_size := float32(7.0)
+	wall_z := 10.0
+	wall_size := 7.0
 
-	canvas_pixels := float32(100)
+	canvas_pixels := 100.0
 	pixel_size := wall_size / canvas_pixels
 	half := wall_size / 2
 
@@ -22,10 +22,10 @@ func Process() {
 	sph := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 
 	for y := 0; y < my_canvas.GetHeight(); y++ {
-		world_y := half - pixel_size*float32(y)
+		world_y := half - pixel_size*float64(y)
 
 		for x := 0; x < my_canvas.GetWidth(); x++ {
-			world_x := -half + pixel_size*float32(x)
+			world_x := -half + pixel_size*float64(x)
 
 			position := coordinates.CreatePoint(world_x, world_y, wall_z)
 
