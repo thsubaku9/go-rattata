@@ -130,7 +130,7 @@ type Material struct {
 }
 
 func CreateDefaultMaterial() Material {
-	return Material{Colour: Colour{0, 0, 0}, Ambient: 0.1, Diffuse: 0.9, Specular: 0.9, Shininess: 200.0}
+	return Material{Colour: Colour{1, 1, 1}, Ambient: 0.1, Diffuse: 0.9, Specular: 0.9, Shininess: 200.0}
 }
 
 /*
@@ -141,31 +141,19 @@ Diffuse -> Light reflected from matte surface;
 Specular -> Reflection of light source
 */
 func Lighting(m Material, light Light, pos, eyeVector, normalVector coordinates.Coordinate) Colour {
-
-	/*
-		my hunch ->
-		pos is the point on an object (which has material property m)
-		normalVector is situtated on pos
-		incidence ray := light pos - point pos
-		reflection ray := reflect(normal, incidence)
-		based on eyeVector overlap with incidence and reflection, material value will be used to find net color
-	*/
-
 	effectiveColour := Colour{m.Colour[0] * light.Colour[0],
 		m.Colour[1] * light.Colour[1],
 		m.Colour[2] * light.Colour[2],
 	}
-
-	lightVector := *light.Origin.Sub(&pos).Norm()
 
 	ambient := Colour{
 		effectiveColour[0] * m.Ambient,
 		effectiveColour[1] * m.Ambient,
 		effectiveColour[2] * m.Ambient,
 	}
-
 	var diffuse, specular Colour
 
+	lightVector := *light.Origin.Sub(&pos).Norm()
 	light_dot_normal := lightVector.DotP(&normalVector)
 
 	if light_dot_normal < 0 {

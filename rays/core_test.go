@@ -2,7 +2,6 @@ package rays
 
 import (
 	"math"
-	"rattata/canvas"
 	"rattata/coordinates"
 	"rattata/helpers"
 	"testing"
@@ -86,7 +85,7 @@ func TestLightingScenarioEyeBetweenLightNSurface(t *testing.T) {
 	result := Lighting(m, light, position, eyeV, normalV)
 
 	// 0.1 (the ambient value) + 0.9 (the diffuse value) + 0.9 (the specular value), or 1.9
-	assert.Equal(t, canvas.Colour{}, result)
+	assert.Equal(t, Colour{1.9, 1.9, 1.9}, result)
 
 }
 
@@ -99,7 +98,7 @@ func TestLightingScenarioEyeBetweenLightNSurfaceEyeOffset45Deg(t *testing.T) {
 	result := Lighting(m, light, position, eyeV, normalV)
 
 	// result = color(1.0, 1.0, 1.0)
-	assert.Equal(t, canvas.Colour{}, result)
+	assert.Equal(t, Colour{}, result)
 }
 
 func TestLightingScenarioEyeOppositeSurface(t *testing.T) {
@@ -111,7 +110,7 @@ func TestLightingScenarioEyeOppositeSurface(t *testing.T) {
 	result := Lighting(m, light, position, eyeV, normalV)
 
 	// result = color(0.7364, 0.7364, 0.7364)
-	assert.Equal(t, canvas.Colour{}, result)
+	assert.Equal(t, Colour{}, result)
 }
 
 func TestLightingScenarioEyeInReflectionPath(t *testing.T) {
@@ -123,7 +122,7 @@ func TestLightingScenarioEyeInReflectionPath(t *testing.T) {
 	result := Lighting(m, light, position, eyeV, normalV)
 
 	// result = color(1.6364, 1.6364, 1.6364)
-	assert.Equal(t, canvas.Colour{}, result)
+	assert.Equal(t, Colour{}, result)
 }
 
 func TestLightingScenarioLightSourceBehindSurface(t *testing.T) {
@@ -135,5 +134,5 @@ func TestLightingScenarioLightSourceBehindSurface(t *testing.T) {
 	result := Lighting(m, light, position, eyeV, normalV)
 
 	// result = color(0.1,0.1,0.1)
-	assert.Equal(t, canvas.Colour{}, result)
+	assert.Equal(t, Colour{0.1, 0.1, 0.1}, result)
 }
