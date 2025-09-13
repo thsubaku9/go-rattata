@@ -18,13 +18,20 @@ func NewEmptyWorld() World {
 
 func NewDefaultWorld() World {
 	lightSrc := rays.NewLightSource(-10, 10, -10, rays.NewWhiteLightColour())
+
 	s1 := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 	s1.Material = rays.Material{Colour: rays.Colour{0.8, 1.0, 0.6}, Ambient: 0.1, Diffuse: 0.7, Specular: 0.2, Shininess: 200.0}
 	s2 := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 0.5)
 	s2.SetTransformation(matrices.ScalingMatrix(0.5, 0.5, 0.5))
+
+	_objects := make([]*rays.Shape, 0)
+	var ps1 rays.Shape = s1
+	var ps2 rays.Shape = s2
+	_objects = append(_objects, &ps1)
+	_objects = append(_objects, &ps2)
 	return World{
 		lightSource: &lightSrc,
-		objects:     make([]*rays.Shape, 0),
+		objects:     _objects,
 	}
 }
 
@@ -34,6 +41,17 @@ func (w *World) LightSource() *rays.Light {
 
 func (w *World) AddObject(obj rays.Shape) {
 	w.objects = append(w.objects, &obj)
+}
+
+func (w *World) ListObjects() []*rays.Shape {
+	return w.objects
+}
+
+func (w *World) RemoveObjectAt(index int) {
+	if index < 0 || index >= len(w.objects) {
+		return
+	}
+	w.objects = append(w.objects[0:index], w.objects[index+1:len(w.objects)]...)
 }
 
 func (w World) IntersectWithRay(r rays.Ray) []rays.Intersection {

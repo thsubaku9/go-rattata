@@ -8,6 +8,7 @@ import (
 type Shape interface {
 	Name() string
 	Transformation() matrices.Matrix
+	NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate
 }
 
 type Sphere struct {
