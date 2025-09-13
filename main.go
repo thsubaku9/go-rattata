@@ -24,4 +24,7 @@ func main() {
 
 	playground.ProcessPhongReflection()
 
+	// w := theworld.NewWorld()
+	// fmt.Printf("%#v", w.LightSource())
+
 }

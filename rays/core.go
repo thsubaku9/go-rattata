@@ -114,7 +114,7 @@ func NewLightColour(red, green, blue float64) Colour {
 }
 
 func NewWhiteLightColour() Colour {
-	return Colour{1, 1, 1}
+	return NewLightColour(1, 1, 1)
 }
 
 func NewLightSource(x, y, z float64, colour Colour) Light {
