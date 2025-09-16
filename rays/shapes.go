@@ -8,6 +8,8 @@ import (
 type Shape interface {
 	Name() string
 	Transformation() matrices.Matrix
+	NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate
+	GetMaterial() Material
 }
 
 type Sphere struct {
@@ -27,6 +29,10 @@ func (s Sphere) Transformation() matrices.Matrix {
 
 func (s *Sphere) SetTransformation(mt matrices.Matrix) {
 	s.transformationMat = mt
+}
+
+func (s Sphere) GetMaterial() Material {
+	return s.Material
 }
 
 func (s Sphere) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate {

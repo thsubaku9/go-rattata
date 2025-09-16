@@ -1,5 +1,10 @@
 package canvas
 
+import (
+	"math"
+	"rattata/rays"
+)
+
 type ColourMode uint8
 
 const (
@@ -70,4 +75,8 @@ func (c1 *Colour) Blend(c2 *Colour) *Colour {
 	}
 	c3[Alpha] = c1[Alpha]
 	return &c3
+}
+
+func RayColorToCanvasColor(input rays.Colour) Colour {
+	return Colour{uint8(math.Min(255, input[0]*255)), uint8(math.Min(255, input[1]*255)), uint8(math.Min(255, input[2]*255)), 255}
 }

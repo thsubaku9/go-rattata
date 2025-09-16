@@ -83,8 +83,8 @@ func intersectSphere(sph Sphere, ray Ray) []Intersection {
 		return []Intersection{}
 	}
 
-	t1 := float64((float64(-b) - math.Sqrt(float64(discriminant))) / (2 * float64(a)))
-	t2 := float64((float64(-b) + math.Sqrt(float64(discriminant))) / (2 * float64(a)))
+	t1 := (-b - math.Sqrt(discriminant)) / (2 * a)
+	t2 := (-b + math.Sqrt(discriminant)) / (2 * a)
 	return Intersections(NewIntersection(t1, sph), NewIntersection(t2, sph))
 }
 
@@ -114,7 +114,7 @@ func NewLightColour(red, green, blue float64) Colour {
 }
 
 func NewWhiteLightColour() Colour {
-	return Colour{1, 1, 1}
+	return NewLightColour(1, 1, 1)
 }
 
 func NewLightSource(x, y, z float64, colour Colour) Light {
@@ -186,4 +186,25 @@ func Lighting(m Material, light Light, pos, eyeVector, normalVector coordinates.
 		ambient[1] + diffuse[1] + specular[1],
 		ambient[2] + diffuse[2] + specular[2],
 	}
+}
+
+type PreCompData struct {
+	Tvalue         float64
+	Object         Shape
+	Point          coordinates.Coordinate
+	EyeVector      coordinates.Coordinate
+	NormalVector   coordinates.Coordinate
+	EyeInsideShape bool
+}
+
+func PreparePrecompData(intersection Intersection, r Ray) PreCompData {
+	_preComp := PreCompData{Tvalue: intersection.Tvalue, Object: intersection.Obj, Point: *r.PointAtTime(intersection.Tvalue),
+		EyeVector: *r.Direction.Negate(), NormalVector: intersection.Obj.NormalAtPoint(*r.PointAtTime(intersection.Tvalue))}
+
+	_preComp.EyeInsideShape = _preComp.EyeVector.DotP(&_preComp.NormalVector) < 0
+	return _preComp
+}
+
+func (pre PreCompData) Shade_Hit(l Light) Colour {
+	return Lighting(pre.Object.GetMaterial(), l, pre.Point, pre.EyeVector, pre.NormalVector)
 }
