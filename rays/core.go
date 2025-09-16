@@ -189,14 +189,22 @@ func Lighting(m Material, light Light, pos, eyeVector, normalVector coordinates.
 }
 
 type PreCompData struct {
-	Tvalue       float64
-	Object       Shape
-	Point        coordinates.Coordinate
-	EyeVector    coordinates.Coordinate
-	NormalVector coordinates.Coordinate
+	Tvalue         float64
+	Object         Shape
+	Point          coordinates.Coordinate
+	EyeVector      coordinates.Coordinate
+	NormalVector   coordinates.Coordinate
+	EyeInsideShape bool
 }
 
 func PreparePrecompData(intersection Intersection, r Ray) PreCompData {
-	return PreCompData{Tvalue: intersection.Tvalue, Object: intersection.Obj, Point: *r.PointAtTime(intersection.Tvalue),
+	_preComp := PreCompData{Tvalue: intersection.Tvalue, Object: intersection.Obj, Point: *r.PointAtTime(intersection.Tvalue),
 		EyeVector: *r.Direction.Negate(), NormalVector: intersection.Obj.NormalAtPoint(*r.PointAtTime(intersection.Tvalue))}
+
+	_preComp.EyeInsideShape = _preComp.EyeVector.DotP(&_preComp.NormalVector) < 0
+	return _preComp
+}
+
+func (pre PreCompData) Shade_Hit(l Light) Colour {
+	return Lighting(pre.Object.GetMaterial(), l, pre.Point, pre.EyeVector, pre.NormalVector)
 }

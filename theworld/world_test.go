@@ -29,3 +29,11 @@ func TestWorldIntersection(t *testing.T) {
 	assert.Equal(t, 6.0, xs[2].Tvalue)
 	assert.Equal(t, 6.414213562373095, xs[3].Tvalue)
 }
+
+/*
+Scenario: The color with an intersection behind the ray Given w ← default_world()
+And outer ← the first object in w And outer.material.ambient ← 1
+And inner ← the second object in w And inner.material.ambient ← 1
+And r ← ray(point(0, 0, 0.75), vector(0, 0, -1)) When c ← color_at(w, r)
+Then c = inner.material.color
+*/

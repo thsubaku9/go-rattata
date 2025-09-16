@@ -67,3 +67,16 @@ func (w World) IntersectWithRay(r rays.Ray) []rays.Intersection {
 
 	return res
 }
+
+func (w World) Color_At(r rays.Ray) rays.Colour {
+	xs := w.IntersectWithRay(r)
+	res, isOk := rays.Hit(xs)
+
+	if !isOk {
+		return rays.Colour{0, 0, 0}
+	}
+
+	precomp := rays.PreparePrecompData(*res, r)
+
+	return precomp.Shade_Hit(*w.LightSource())
+}
