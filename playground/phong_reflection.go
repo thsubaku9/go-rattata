@@ -2,7 +2,6 @@ package playground
 
 import (
 	"fmt"
-	"math"
 	"rattata/canvas"
 	"rattata/coordinates"
 	"rattata/rays"
@@ -43,14 +42,10 @@ func ProcessPhongReflection() {
 				eye_vector := *cur_ray.Direction.Negate()
 
 				color := rays.Lighting(sph.Material, light, *point, eye_vector, normal_vector)
-				my_canvas.WritePixel(uint32(x), uint32(y), rayColorToCanvasColor(color))
+				my_canvas.WritePixel(uint32(x), uint32(y), canvas.RayColorToCanvasColor(color))
 			}
 		}
 	}
 	fmt.Println(canvas.CanvasToPPMData(my_canvas))
 
-}
-
-func rayColorToCanvasColor(input rays.Colour) canvas.Colour {
-	return canvas.Colour{uint8(math.Min(255, input[0]*255)), uint8(math.Min(255, input[1]*255)), uint8(math.Min(255, input[2]*255)), 255}
 }

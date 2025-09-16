@@ -1,4 +1,4 @@
-package theworld
+package observe
 
 import (
 	"rattata/coordinates"
