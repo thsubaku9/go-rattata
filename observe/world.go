@@ -9,11 +9,11 @@ import (
 
 type World struct {
 	lightSource *rays.Light
-	objects     []*rays.Shape
+	objects     []rays.Shape
 }
 
 func NewEmptyWorld() World {
-	return World{lightSource: nil, objects: make([]*rays.Shape, 0)}
+	return World{lightSource: nil, objects: make([]rays.Shape, 0)}
 }
 
 func NewDefaultWorld() World {
@@ -24,11 +24,9 @@ func NewDefaultWorld() World {
 	s2 := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 	s2.SetTransformation(matrices.ScalingMatrix(0.5, 0.5, 0.5))
 
-	_objects := make([]*rays.Shape, 0)
-	var ps1 rays.Shape = s1
-	var ps2 rays.Shape = s2
-	_objects = append(_objects, &ps1)
-	_objects = append(_objects, &ps2)
+	_objects := make([]rays.Shape, 0)
+	_objects = append(_objects, s1)
+	_objects = append(_objects, s2)
 	return World{
 		lightSource: &lightSrc,
 		objects:     _objects,
@@ -40,10 +38,10 @@ func (w *World) LightSource() *rays.Light {
 }
 
 func (w *World) AddObject(obj rays.Shape) {
-	w.objects = append(w.objects, &obj)
+	w.objects = append(w.objects, obj)
 }
 
-func (w *World) ListObjects() []*rays.Shape {
+func (w *World) ListObjects() []rays.Shape {
 	return w.objects
 }
 
@@ -54,11 +52,22 @@ func (w *World) RemoveObjectAt(index int) {
 	w.objects = append(w.objects[0:index], w.objects[index+1:len(w.objects)]...)
 }
 
+func (w *World) ReplaceObjectAt(index int, obj rays.Shape) {
+	if index < 0 || index >= len(w.objects) {
+		return
+	}
+	w.objects[index] = obj
+}
+
+func (w *World) PerformObjectModifications(index int, ops func(obj rays.Shape) rays.Shape) {
+	w.ReplaceObjectAt(index, ops(w.ListObjects()[index]))
+}
+
 func (w World) IntersectWithRay(r rays.Ray) []rays.Intersection {
 	res := make([]rays.Intersection, 0)
 
 	for _, obj := range w.objects {
-		res = append(res, rays.Intersect(*obj, r)...)
+		res = append(res, rays.Intersect(obj, r)...)
 	}
 
 	sort.Slice(res, func(i, j int) bool {

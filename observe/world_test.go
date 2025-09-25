@@ -46,15 +46,14 @@ func TestWorldColorRayHit(t *testing.T) {
 	assert.Equal(t, rays.Colour{0.38066, 0.47583, 0.2855}, c)
 }
 
-// todo -> fix from here onwards ?
 func TestWorldColorRayBehind(t *testing.T) {
 	w := NewDefaultWorld()
-	outer := (*w.ListObjects()[0]).(rays.Sphere)
-	inner := (*w.ListObjects()[1]).(rays.Sphere)
-	outer.Material.Ambient = 1
-	inner.Material.Ambient = 1
 
-	assert.Equal(t, 1, inner.Material.Ambient)
+	w.PerformObjectModifications(1, func(obj rays.Shape) rays.Shape {
+		inner := (w.ListObjects()[1]).(rays.Sphere)
+		inner.Material.Ambient = 1
+		return inner
+	})
 
 	r := rays.NewRay(coordinates.CreatePoint(0, 0, 0.75), coordinates.CreateVector(0, 0, -1))
 	c := w.Color_At(r)

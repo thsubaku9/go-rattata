@@ -40,7 +40,7 @@ func (c *Camera) RayForPixel(px, py int) rays.Ray {
 	world_x := c.half_width - xoffset
 	world_y := c.half_height - yoffset
 
-	transform_inv_matrix, _ := c.Transform_Matrix.Adj()
+	transform_inv_matrix, _ := c.Transform_Matrix.Inverse()
 	_, pixel := transform_inv_matrix.Multiply(matrices.CoordinateToMatrix(coordinates.CreatePoint(world_x, world_y, -1)))
 	_, origin := transform_inv_matrix.Multiply(matrices.CoordinateToMatrix(coordinates.CreatePoint(0, 0, 0)))
 

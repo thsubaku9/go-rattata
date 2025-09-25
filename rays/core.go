@@ -1,6 +1,7 @@
 package rays
 
 import (
+	"fmt"
 	"math"
 	"rattata/coordinates"
 	"rattata/matrices"
@@ -61,7 +62,7 @@ func Hit(intersections []Intersection) (*Intersection, bool) {
 
 func Intersect(shape Shape, ray Ray) []Intersection {
 
-	inv_transform, _ := shape.Transformation().Adj()
+	inv_transform, _ := shape.Transformation().Inverse()
 	transformed_ray := Transform(ray, inv_transform)
 
 	switch casted_shape := shape.(type) {
@@ -142,6 +143,8 @@ Diffuse -> Light reflected from matte surface;
 Specular -> Reflection of light source
 */
 func Lighting(m Material, light Light, pos, eyeVector, normalVector coordinates.Coordinate) Colour {
+
+	fmt.Printf("%v", m)
 	effectiveColour := Colour{m.Colour[0] * light.Colour[0],
 		m.Colour[1] * light.Colour[1],
 		m.Colour[2] * light.Colour[2],
