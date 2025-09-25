@@ -61,7 +61,8 @@ func Hit(intersections []Intersection) (*Intersection, bool) {
 
 func Intersect(shape Shape, ray Ray) []Intersection {
 
-	transformed_ray := Transform(ray, shape.Transformation())
+	inv_transform, _ := shape.Transformation().Adj()
+	transformed_ray := Transform(ray, inv_transform)
 
 	switch casted_shape := shape.(type) {
 	case Sphere:
@@ -107,7 +108,7 @@ type Light struct {
 	Colour Colour
 }
 
-type Colour [3]float64
+type Colour = [3]float64
 
 func NewLightColour(red, green, blue float64) Colour {
 	return Colour{red, green, blue}

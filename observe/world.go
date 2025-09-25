@@ -21,7 +21,7 @@ func NewDefaultWorld() World {
 
 	s1 := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 	s1.Material = rays.Material{Colour: rays.Colour{0.8, 1.0, 0.6}, Ambient: 0.1, Diffuse: 0.7, Specular: 0.2, Shininess: 200.0}
-	s2 := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 0.5)
+	s2 := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 	s2.SetTransformation(matrices.ScalingMatrix(0.5, 0.5, 0.5))
 
 	_objects := make([]*rays.Shape, 0)
