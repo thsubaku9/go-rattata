@@ -1,7 +1,6 @@
 package rays
 
 import (
-	"fmt"
 	"math"
 	"rattata/coordinates"
 	"rattata/matrices"
@@ -143,8 +142,6 @@ Diffuse -> Light reflected from matte surface;
 Specular -> Reflection of light source
 */
 func Lighting(m Material, light Light, pos, eyeVector, normalVector coordinates.Coordinate) Colour {
-
-	fmt.Printf("%v", m)
 	effectiveColour := Colour{m.Colour[0] * light.Colour[0],
 		m.Colour[1] * light.Colour[1],
 		m.Colour[2] * light.Colour[2],

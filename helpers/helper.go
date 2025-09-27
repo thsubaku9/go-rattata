@@ -14,6 +14,7 @@ func ApproxEqual(t *testing.T, expected, actual, diff_allowed float64) {
 }
 
 func TestApproxEqualMatrix(t *testing.T, expected, actual [][]float64, diff_allowed float64) {
+	t.Helper()
 	if len(expected) != len(actual) {
 		t.Errorf("Rows mismatch")
 	} else if len(expected[0]) != len(actual[0]) {
