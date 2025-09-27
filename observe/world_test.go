@@ -2,6 +2,7 @@ package observe
 
 import (
 	"rattata/coordinates"
+	"rattata/helpers"
 	"rattata/rays"
 	"testing"
 
@@ -24,10 +25,10 @@ func TestWorldIntersection(t *testing.T) {
 
 	assert.Equal(t, 4, len(xs))
 
-	assert.Equal(t, 3, xs[0].Tvalue)
-	assert.Equal(t, 4.0, xs[1].Tvalue)
-	assert.Equal(t, 6.0, xs[2].Tvalue)
-	assert.Equal(t, 7, xs[3].Tvalue)
+	assert.Equal(t, 4.0, xs[0].Tvalue)
+	assert.Equal(t, 4.5, xs[1].Tvalue)
+	assert.Equal(t, 5.5, xs[2].Tvalue)
+	assert.Equal(t, 6.0, xs[3].Tvalue)
 }
 
 func TestWorldColorRayMiss(t *testing.T) {
@@ -43,7 +44,12 @@ func TestWorldColorRayHit(t *testing.T) {
 	r := rays.NewRay(coordinates.CreatePoint(0, 0, -5), coordinates.CreateVector(0, 0, 1))
 	c := w.Color_At(r)
 
-	assert.Equal(t, rays.Colour{0.38066, 0.47583, 0.2855}, c)
+	expected_c := rays.Colour{0.38066, 0.47583, 0.2855}
+
+	for i := range expected_c {
+		helpers.ApproxEqual(t, expected_c[i], c[i], 0.0001)
+	}
+
 }
 
 func TestWorldColorRayBehind(t *testing.T) {

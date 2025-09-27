@@ -7,6 +7,7 @@ import (
 )
 
 func ApproxEqual(t *testing.T, expected, actual, diff_allowed float64) {
+	t.Helper()
 	if math.Abs(expected-actual) <= diff_allowed {
 		return
 	}

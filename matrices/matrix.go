@@ -72,10 +72,10 @@ func (m Matrix) Multiply(m2 Matrix) (bool, Matrix) {
 
 	r, c, l := _matrix.Row(), _matrix.Column(), m.Column()
 
-	for i := 0; i < r; i++ {
-		for j := 0; j < c; j++ {
+	for i := range r {
+		for j := range c {
 			v := 0.0
-			for k := 0; k < l; k++ {
+			for k := range l {
 				v += m[i][k] * m2[k][j]
 			}
 			_matrix.Set(i, j, v)
@@ -183,7 +183,7 @@ func (m Matrix) Inverse() (Matrix, error) {
 	}
 
 	det, _ := m.Determinant()
-	return adj_mat.T().ScaleMul(1 / det), nil
+	return adj_mat.ScaleMul(1 / det), nil
 }
 
 func (m Matrix) Adj() (Matrix, error) {

@@ -46,13 +46,14 @@ func (c *Camera) GetPixelSize() float64 {
 
 func (c *Camera) RayForPixel(px, py int) rays.Ray {
 	dist_per_pix_size := c.GetPixelSize()
+	transform_inv_matrix, _ := c.Transform_Matrix.Inverse()
+
 	xoffset := (0.5 + float64(px)) * dist_per_pix_size
 	yoffset := (0.5 + float64(py)) * dist_per_pix_size
 
 	world_x := c.half_width - xoffset
 	world_y := c.half_height - yoffset
 
-	transform_inv_matrix, _ := c.Transform_Matrix.Inverse()
 	_, pixel := transform_inv_matrix.Multiply(matrices.CoordinateToMatrix(coordinates.CreatePoint(world_x, world_y, -1)))
 	_, origin := transform_inv_matrix.Multiply(matrices.CoordinateToMatrix(coordinates.CreatePoint(0, 0, 0)))
 
@@ -60,7 +61,7 @@ func (c *Camera) RayForPixel(px, py int) rays.Ray {
 	origin_point := matrices.MatrixToCoordinate(origin)
 	direction := *pixel_point.Sub(&origin_point).Norm()
 
-	return rays.NewRay(pixel_point, direction)
+	return rays.NewRay(origin_point, direction)
 }
 
 func Render(cam Camera, _world World) canvas.Canvas {
