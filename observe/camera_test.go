@@ -45,12 +45,10 @@ func TestRayWhenCamTransform(t *testing.T) {
 	t_mat := matrices.TranslationMatrix(0, -2, 5)
 	r_mat := matrices.GivensRotationMatrix3D(coordinates.Y, math.Pi/4)
 	_, transform_mat := r_mat.Multiply(t_mat)
-
 	_c.SetTransformationMatrix(transform_mat)
 
 	r := _c.RayForPixel(100, 50)
 
 	helpers.TestApproxEqualCoordinate(t, coordinates.CreatePoint(0, 2, -5), r.Origin, 0.0001)
-	// todok -> debug
-	helpers.TestApproxEqualCoordinate(t, coordinates.CreateVector(math.Sqrt(2)/2, 0, -math.Sqrt(2)/2), r.Direction, 0.0001)
+	helpers.TestApproxEqualCoordinate(t, coordinates.CreateVector(-math.Sqrt(2)/2, 0, -math.Sqrt(2)/2), r.Direction, 0.0001)
 }

@@ -12,7 +12,7 @@ func ProcessRaySphereIntersection() {
 	wall_z := 10.0
 	wall_size := 7.0
 
-	canvas_pixels := 100.0
+	canvas_pixels := 200.0
 	pixel_size := wall_size / canvas_pixels
 	half := wall_size / 2
 

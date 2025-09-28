@@ -11,7 +11,7 @@ func ApproxEqual(t *testing.T, expected, actual, diff_allowed float64) {
 	if math.Abs(expected-actual) <= diff_allowed {
 		return
 	}
-	t.Errorf("Value diff larger than permitted -> %f vs %f", expected, actual)
+	t.Errorf("Diff aprox: expected(%f) vs actual(%f)", expected, actual)
 }
 
 func TestApproxEqualMatrix(t *testing.T, expected, actual [][]float64, diff_allowed float64) {
