@@ -36,7 +36,7 @@ func (s Sphere) GetMaterial() Material {
 }
 
 func (s Sphere) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate {
-	inverse_transformation, _ := s.Transformation().Adj()
+	inverse_transformation, _ := s.Transformation().Inverse()
 
 	obj_point_mat := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(world_point), inverse_transformation)
 

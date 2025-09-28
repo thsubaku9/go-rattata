@@ -22,9 +22,8 @@ func main() {
 
 	// playground.ProcessRaySphereIntersection()
 
-	playground.ProcessPhongReflection()
+	// playground.ProcessPhongReflection()
 
-	// w := theworld.NewWorld()
-	// fmt.Printf("%#v", w.LightSource())
+	playground.PerformWorldBuildingCustom()
 
 }

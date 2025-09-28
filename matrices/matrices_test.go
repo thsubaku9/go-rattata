@@ -151,7 +151,7 @@ func TestMatrixIsInvertable(t *testing.T) {
 
 func TestMatrixInverseCalculation(t *testing.T) {
 	Matrix_a := Matrix{{-5, 0, 1}, {1, -2, 3}, {6, -2, 1}}
-	Matrix_a_inv, _ := Matrix_a.Adj()
+	Matrix_a_inv, _ := Matrix_a.Inverse()
 
 	_, id3x3 := Matrix_a.Multiply(Matrix_a_inv)
 

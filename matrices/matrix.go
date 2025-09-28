@@ -72,10 +72,10 @@ func (m Matrix) Multiply(m2 Matrix) (bool, Matrix) {
 
 	r, c, l := _matrix.Row(), _matrix.Column(), m.Column()
 
-	for i := 0; i < r; i++ {
-		for j := 0; j < c; j++ {
+	for i := range r {
+		for j := range c {
 			v := 0.0
-			for k := 0; k < l; k++ {
+			for k := range l {
 				v += m[i][k] * m2[k][j]
 			}
 			_matrix.Set(i, j, v)
@@ -175,6 +175,17 @@ func fetchMatrixPositionalSign(row, col int) float64 {
 	return -1
 }
 
+func (m Matrix) Inverse() (Matrix, error) {
+
+	adj_mat, err := m.Adj()
+	if err != nil {
+		return nil, err
+	}
+
+	det, _ := m.Determinant()
+	return adj_mat.ScaleMul(1 / det), nil
+}
+
 func (m Matrix) Adj() (Matrix, error) {
 	if m.Row() != m.Column() {
 		return nil, errors.New("pseudo inverse not supported currently")
@@ -182,14 +193,13 @@ func (m Matrix) Adj() (Matrix, error) {
 
 	n := m.Row()
 	_matrix := NewMatrix(n, n)
-	det, _ := m.Determinant()
 	for i_row := range n {
 		for j_col := range n {
 			_matrix[i_row][j_col] = m.Cofactor(i_row, j_col)
 		}
 	}
 
-	return _matrix.T().ScaleMul(1 / det), nil
+	return _matrix.T(), nil
 }
 
 func IsMatrixInvertableBasedOnDeterminant(val float64) bool {

@@ -37,7 +37,7 @@ func TestInversionTranslation(t *testing.T) {
 	coord := CoordinateToMatrix(p)
 
 	trans_matx := TranslationMatrix(0, -1, 1)
-	inv_trans_matx, _ := trans_matx.Adj()
+	inv_trans_matx, _ := trans_matx.Inverse()
 
 	res := PerformOrderedChainingOps(coord, trans_matx, inv_trans_matx)
 

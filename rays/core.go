@@ -1,6 +1,7 @@
 package rays
 
 import (
+	"fmt"
 	"math"
 	"rattata/coordinates"
 	"rattata/matrices"
@@ -16,7 +17,7 @@ func NewRay(origin, direction coordinates.Coordinate) Ray {
 		return Ray{Origin: origin, Direction: direction}
 	}
 
-	panic("inputs are wrong")
+	panic(fmt.Sprintf("Origin coord : %t and Vector coord :%t", origin.IsAPoint(), direction.IsAVector()))
 }
 
 func (r *Ray) PointAtTime(dir float64) *coordinates.Coordinate {
@@ -61,7 +62,8 @@ func Hit(intersections []Intersection) (*Intersection, bool) {
 
 func Intersect(shape Shape, ray Ray) []Intersection {
 
-	transformed_ray := Transform(ray, shape.Transformation())
+	inv_transform, _ := shape.Transformation().Inverse()
+	transformed_ray := Transform(ray, inv_transform)
 
 	switch casted_shape := shape.(type) {
 	case Sphere:
@@ -107,7 +109,7 @@ type Light struct {
 	Colour Colour
 }
 
-type Colour [3]float64
+type Colour = [3]float64
 
 func NewLightColour(red, green, blue float64) Colour {
 	return Colour{red, green, blue}

@@ -16,7 +16,7 @@ func TestTransformationMatrixInShape(t *testing.T) {
 	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 	assert.Equal(t, matrices.NewIdentityMatrix(4), sph.Transformation())
 
-	rotationMat := matrices.GivensRotationMatrix3D(coordinates.Z, 23)
+	rotationMat := matrices.GivensRotationMatrix3DLeftHanded(coordinates.Z, 23)
 
 	(&sph).SetTransformation(rotationMat)
 
@@ -37,7 +37,7 @@ func TestNormalComputationOnSphere(t *testing.T) {
 
 func TestNormalComputationOnTransformedSphere(t *testing.T) {
 	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
-	_, transform_mat := matrices.ScalingMatrix(1, 0.5, 1).Multiply(matrices.GivensRotationMatrix3D(coordinates.Z, math.Pi/5))
+	_, transform_mat := matrices.ScalingMatrix(1, 0.5, 1).Multiply(matrices.GivensRotationMatrix3DLeftHanded(coordinates.Z, math.Pi/5))
 	sph.SetTransformation(transform_mat)
 
 	point := coordinates.CreatePoint(0, float64(math.Sqrt(2))/2, -float64(math.Sqrt(2))/2)
