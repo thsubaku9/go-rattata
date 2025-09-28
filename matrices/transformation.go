@@ -63,6 +63,33 @@ func GivensRotationMatrix3D(rotatingAxis coordinates.CoordinateAxis, rad float64
 	return _matrix
 }
 
+func GivensRotationMatrix3DLeftHanded(rotatingAxis coordinates.CoordinateAxis, rad float64) Matrix {
+	_matrix := NewIdentityMatrix(4)
+
+	switch rotatingAxis {
+	case coordinates.X:
+		_matrix.Set(1, 1, math.Cos(rad))
+		_matrix.Set(2, 2, math.Cos(rad))
+
+		_matrix.Set(1, 2, math.Sin(rad))
+		_matrix.Set(2, 1, -math.Sin(rad))
+	case coordinates.Y:
+		_matrix.Set(0, 0, math.Cos(rad))
+		_matrix.Set(2, 2, math.Cos(rad))
+
+		_matrix.Set(0, 2, math.Sin(rad))
+		_matrix.Set(2, 0, -math.Sin(rad))
+	case coordinates.Z:
+		_matrix.Set(0, 0, math.Cos(rad))
+		_matrix.Set(1, 1, math.Cos(rad))
+
+		_matrix.Set(0, 1, math.Sin(rad))
+		_matrix.Set(1, 0, -math.Sin(rad))
+
+	}
+	return _matrix
+}
+
 func PeformMatrixTranslation(src Matrix, x, y, z float64) Matrix {
 	_matrix := TranslationMatrix(x, y, z)
 	_, res := _matrix.Multiply(src)
@@ -78,7 +105,7 @@ func PeformMatrixScaling(src Matrix, x, y, z float64) Matrix {
 }
 
 func PerformMatrixRotation(src Matrix, rotatingAxis coordinates.CoordinateAxis, degreeRad float64) Matrix {
-	_matrix := GivensRotationMatrix3D(rotatingAxis, degreeRad)
+	_matrix := GivensRotationMatrix3DLeftHanded(rotatingAxis, degreeRad)
 
 	_, res := _matrix.Multiply(src)
 

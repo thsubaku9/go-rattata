@@ -24,6 +24,6 @@ func main() {
 
 	// playground.ProcessPhongReflection()
 
-	playground.PerformWorldBuildingDefault()
+	playground.PerformWorldBuildingCustom()
 
 }

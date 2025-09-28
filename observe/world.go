@@ -37,6 +37,10 @@ func (w *World) LightSource() *rays.Light {
 	return w.lightSource
 }
 
+func (w *World) SetLightSource(lightSrc *rays.Light) {
+	w.lightSource = lightSrc
+}
+
 func (w *World) AddObject(obj rays.Shape) {
 	w.objects = append(w.objects, obj)
 }
