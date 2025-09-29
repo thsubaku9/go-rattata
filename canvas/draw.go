@@ -59,11 +59,11 @@ func CanvasToPPMData(myCanvas Canvas) string {
 	cur_len := 0
 	w, h := myCanvas.GetWidth(), myCanvas.GetHeight()
 
-	for i := 0; i < w; i++ {
-		for j := 0; j < h; j++ {
-			r, g, b := fmt.Sprint(myCanvas[i][j].Colour.GetValue(Red)),
-				fmt.Sprint(myCanvas[i][j].Colour.GetValue(Green)),
-				fmt.Sprint(myCanvas[i][j].Colour.GetValue(Blue))
+	for i := 0; i < h; i++ {
+		for j := 0; j < w; j++ {
+			r, g, b := fmt.Sprint(myCanvas[j][i].Colour.GetValue(Red)),
+				fmt.Sprint(myCanvas[j][i].Colour.GetValue(Green)),
+				fmt.Sprint(myCanvas[j][i].Colour.GetValue(Blue))
 
 			{
 				if cur_len+len(r)+1 >= PPM_LINE_LIM {
