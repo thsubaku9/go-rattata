@@ -112,7 +112,7 @@ func PerformWorldBuildingCustom() {
 		my_world.AddObject(left)
 	}
 
-	cam := observe.CreateNewCamera(300, 300, math.Pi/3)
+	cam := observe.CreateNewCamera(300, 200, math.Pi/3)
 
 	view_t := matrices.View_Transform(coordinates.CreatePoint(0, 1.5, -5), coordinates.CreatePoint(0, 1, 0), coordinates.CreateVector(0, 1, 0))
 
