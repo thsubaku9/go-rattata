@@ -92,14 +92,14 @@ func GivensRotationMatrix3DLeftHanded(rotatingAxis coordinates.CoordinateAxis, r
 
 func PeformMatrixTranslation(src Matrix, x, y, z float64) Matrix {
 	_matrix := TranslationMatrix(x, y, z)
-	_, res := _matrix.Multiply(src)
+	res, _ := _matrix.Multiply(src)
 
 	return res
 }
 
 func PeformMatrixScaling(src Matrix, x, y, z float64) Matrix {
 	_matrix := ScalingMatrix(x, y, z)
-	_, res := _matrix.Multiply(src)
+	res, _ := _matrix.Multiply(src)
 
 	return res
 }
@@ -107,7 +107,7 @@ func PeformMatrixScaling(src Matrix, x, y, z float64) Matrix {
 func PerformMatrixRotation(src Matrix, rotatingAxis coordinates.CoordinateAxis, degreeRad float64) Matrix {
 	_matrix := GivensRotationMatrix3DLeftHanded(rotatingAxis, degreeRad)
 
-	_, res := _matrix.Multiply(src)
+	res, _ := _matrix.Multiply(src)
 
 	return res
 }
@@ -126,7 +126,7 @@ func ShearMatrix(xy, xz, yx, yz, zx, zy float64) Matrix {
 
 func PeformMatrixShearing(src Matrix, xy, xz, yx, yz, zx, zy float64) Matrix {
 	_matrix := ShearMatrix(xy, xz, yx, yz, zx, zy)
-	_, res := _matrix.Multiply(src)
+	res, _ := _matrix.Multiply(src)
 	return res
 }
 
@@ -134,7 +134,7 @@ func PerformOrderedChainingOps(src Matrix, opMatrix ...Matrix) Matrix {
 	res := src
 
 	for _, op := range opMatrix {
-		_, res = op.Multiply(res)
+		res, _ = op.Multiply(res)
 	}
 	return res
 }

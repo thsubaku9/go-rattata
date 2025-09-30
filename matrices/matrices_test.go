@@ -80,7 +80,7 @@ func TestMatrixMult(t *testing.T) {
 	Matrix_b := Matrix{{-2, 1, 2, 3}, {3, 2, 1, -1}, {4, 3, 6, 5}, {1, 2, 7, 8}}
 	Matrix_req_res := Matrix{{20, 22, 50, 48}, {44, 54, 114, 108}, {40, 58, 110, 102}, {16, 26, 46, 42}}
 
-	_, Matrix_act_res := Matrix_a.Multiply(Matrix_b)
+	Matrix_act_res, _ := Matrix_a.Multiply(Matrix_b)
 
 	assert.True(t, Matrix_req_res.IsEqual(Matrix_act_res))
 }
@@ -88,7 +88,7 @@ func TestMatrixMult(t *testing.T) {
 func TestMatrixIdentityMult(t *testing.T) {
 	Matrix_a := Matrix{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 8, 7, 6}, {5, 4, 3, 2}}
 	Matrix_id4 := NewIdentityMatrix(4)
-	_, Matrix_act_res := Matrix_a.Multiply(Matrix_id4)
+	Matrix_act_res, _ := Matrix_a.Multiply(Matrix_id4)
 
 	assert.True(t, Matrix_a.IsEqual(Matrix_act_res))
 }
@@ -153,7 +153,7 @@ func TestMatrixInverseCalculation(t *testing.T) {
 	Matrix_a := Matrix{{-5, 0, 1}, {1, -2, 3}, {6, -2, 1}}
 	Matrix_a_inv, _ := Matrix_a.Inverse()
 
-	_, id3x3 := Matrix_a.Multiply(Matrix_a_inv)
+	id3x3, _ := Matrix_a.Multiply(Matrix_a_inv)
 
 	fmt.Printf("%#v", id3x3)
 	testApproxEqualMatrix(t, NewIdentityMatrix(3), id3x3, 0.000001)

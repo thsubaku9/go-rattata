@@ -7,8 +7,6 @@ import (
 	"sort"
 )
 
-var EPSILON float64 = 0.0001
-
 type PreCompData struct {
 	Tvalue         float64
 	Object         rays.Shape
@@ -29,7 +27,7 @@ func PreparePrecompData(intersection rays.Intersection, r rays.Ray) PreCompData 
 		_preComp.NormalVector = *_preComp.NormalVector.Negate()
 	}
 
-	raising_vector := _preComp.NormalVector.Mul(EPSILON)
+	raising_vector := _preComp.NormalVector.Mul(rays.EPSILON)
 	_preComp.OverPoint = *_preComp.Point.Add(raising_vector)
 	return _preComp
 }

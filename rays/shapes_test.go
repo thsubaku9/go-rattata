@@ -37,10 +37,15 @@ func TestNormalComputationOnSphere(t *testing.T) {
 
 func TestNormalComputationOnTransformedSphere(t *testing.T) {
 	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
-	_, transform_mat := matrices.ScalingMatrix(1, 0.5, 1).Multiply(matrices.GivensRotationMatrix3DLeftHanded(coordinates.Z, math.Pi/5))
+	transform_mat, _ := matrices.ScalingMatrix(1, 0.5, 1).Multiply(matrices.GivensRotationMatrix3DLeftHanded(coordinates.Z, math.Pi/5))
 	sph.SetTransformation(transform_mat)
 
 	point := coordinates.CreatePoint(0, float64(math.Sqrt(2))/2, -float64(math.Sqrt(2))/2)
 	normal := sph.NormalAtPoint(point)
 	helpers.TestApproxEqualCoordinate(t, coordinates.CreateVector(0, 0.97014, -0.24254), normal, 0.00001)
+}
+
+func TestNormalOnPlane(t *testing.T) {
+	pl := NewPlane(coordinates.CreatePoint(0, 0, 0))
+	assert.Equal(t, coordinates.CreateVector(0, 1, 0), pl.NormalAtPoint(coordinates.CreatePoint(0, 0, 0)))
 }
