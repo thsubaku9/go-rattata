@@ -7,6 +7,37 @@ import (
 	"sort"
 )
 
+var EPSILON float64 = 0.0001
+
+type PreCompData struct {
+	Tvalue         float64
+	Object         rays.Shape
+	Point          coordinates.Coordinate
+	OverPoint      coordinates.Coordinate
+	EyeVector      coordinates.Coordinate
+	NormalVector   coordinates.Coordinate
+	EyeInsideShape bool
+}
+
+func PreparePrecompData(intersection rays.Intersection, r rays.Ray) PreCompData {
+	_preComp := PreCompData{Tvalue: intersection.Tvalue, Object: intersection.Obj, Point: *r.PointAtTime(intersection.Tvalue),
+		EyeVector: *r.Direction.Negate(), NormalVector: intersection.Obj.NormalAtPoint(*r.PointAtTime(intersection.Tvalue))}
+
+	_preComp.EyeInsideShape = _preComp.EyeVector.DotP(&_preComp.NormalVector) < 0
+
+	if _preComp.EyeInsideShape {
+		_preComp.NormalVector = *_preComp.NormalVector.Negate()
+	}
+
+	raising_vector := _preComp.NormalVector.Mul(EPSILON)
+	_preComp.OverPoint = *_preComp.Point.Add(raising_vector)
+	return _preComp
+}
+
+func (pre PreCompData) Shade_Hit(l rays.Light, w World) rays.Colour {
+	return rays.Lighting(pre.Object.GetMaterial(), l, pre.OverPoint, pre.EyeVector, pre.NormalVector, w.IsShadowed(pre.OverPoint))
+}
+
 type World struct {
 	lightSource *rays.Light
 	objects     []rays.Shape
@@ -89,7 +120,24 @@ func (w World) Color_At(r rays.Ray) rays.Colour {
 		return rays.Colour{0, 0, 0}
 	}
 
-	precomp := rays.PreparePrecompData(*res, r)
+	precomp := PreparePrecompData(*res, r)
 
-	return precomp.Shade_Hit(*w.LightSource())
+	return precomp.Shade_Hit(*w.LightSource(), w)
+}
+
+func (w World) IsShadowed(point coordinates.Coordinate) bool {
+	_vec := w.lightSource.Origin.Sub(&point)
+	dist := _vec.Magnitude()
+	direction := _vec.Norm()
+
+	ray := rays.NewRay(point, *direction)
+
+	xs := w.IntersectWithRay(ray)
+	h, doesHit := rays.Hit(xs)
+
+	if doesHit && h.Tvalue < dist {
+		return true
+	}
+
+	return false
 }

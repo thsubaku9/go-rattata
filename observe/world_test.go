@@ -65,3 +65,31 @@ func TestWorldColorRayBehind(t *testing.T) {
 	c := w.Color_At(r)
 	assert.Equal(t, rays.Colour{1, 1, 1}, c)
 }
+
+func TestNoShadowWhenNothingCollinear(t *testing.T) {
+	w := NewDefaultWorld()
+	p := coordinates.CreatePoint(0, 10, 0)
+	in_shadow := w.IsShadowed(p)
+	assert.False(t, in_shadow)
+}
+
+func TestShadowWhenObjectBetweenAndLight(t *testing.T) {
+	w := NewDefaultWorld()
+	p := coordinates.CreatePoint(10, -10, 10)
+	in_shadow := w.IsShadowed(p)
+	assert.True(t, in_shadow)
+}
+
+func TestNoShadowWhenObjectBehindLight(t *testing.T) {
+	w := NewDefaultWorld()
+	p := coordinates.CreatePoint(-20, 20, -20)
+	in_shadow := w.IsShadowed(p)
+	assert.False(t, in_shadow)
+}
+
+func TestNoShadowWhenObjectBehindPoint(t *testing.T) {
+	w := NewDefaultWorld()
+	p := coordinates.CreatePoint(-2, 2, -2)
+	in_shadow := w.IsShadowed(p)
+	assert.False(t, in_shadow)
+}
