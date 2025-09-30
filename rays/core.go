@@ -142,7 +142,7 @@ Ambient -> Background lighting;
 Diffuse -> Light reflected from matte surface;
 Specular -> Reflection of light source
 */
-func Lighting(m Material, light Light, pos, eyeVector, normalVector coordinates.Coordinate) Colour {
+func Lighting(m Material, light Light, pos, eyeVector, normalVector coordinates.Coordinate, isInShadow bool) Colour {
 	effectiveColour := Colour{m.Colour[0] * light.Colour[0],
 		m.Colour[1] * light.Colour[1],
 		m.Colour[2] * light.Colour[2],
@@ -153,14 +153,12 @@ func Lighting(m Material, light Light, pos, eyeVector, normalVector coordinates.
 		effectiveColour[1] * m.Ambient,
 		effectiveColour[2] * m.Ambient,
 	}
-	var diffuse, specular Colour
+	var diffuse, specular Colour = Colour{}, Colour{}
 
 	lightVector := *light.Origin.Sub(&pos).Norm()
 	light_dot_normal := lightVector.DotP(&normalVector)
 
-	if light_dot_normal < 0 {
-		diffuse = Colour{}
-	} else {
+	if light_dot_normal >= 0 && !isInShadow {
 		diffuse = Colour{
 			effectiveColour[0] * m.Diffuse * light_dot_normal,
 			effectiveColour[1] * m.Diffuse * light_dot_normal,
@@ -171,9 +169,7 @@ func Lighting(m Material, light Light, pos, eyeVector, normalVector coordinates.
 	reflectV := ReflectVector(*lightVector.Negate(), normalVector)
 	reflect_dot_eye := reflectV.DotP(&eyeVector)
 
-	if reflect_dot_eye <= 0 || light_dot_normal < 0 {
-		specular = Colour{}
-	} else {
+	if reflect_dot_eye > 0 && light_dot_normal >= 0 && !isInShadow {
 		factor := math.Pow(reflect_dot_eye, m.Shininess)
 
 		specular = Colour{
@@ -188,25 +184,4 @@ func Lighting(m Material, light Light, pos, eyeVector, normalVector coordinates.
 		ambient[1] + diffuse[1] + specular[1],
 		ambient[2] + diffuse[2] + specular[2],
 	}
-}
-
-type PreCompData struct {
-	Tvalue         float64
-	Object         Shape
-	Point          coordinates.Coordinate
-	EyeVector      coordinates.Coordinate
-	NormalVector   coordinates.Coordinate
-	EyeInsideShape bool
-}
-
-func PreparePrecompData(intersection Intersection, r Ray) PreCompData {
-	_preComp := PreCompData{Tvalue: intersection.Tvalue, Object: intersection.Obj, Point: *r.PointAtTime(intersection.Tvalue),
-		EyeVector: *r.Direction.Negate(), NormalVector: intersection.Obj.NormalAtPoint(*r.PointAtTime(intersection.Tvalue))}
-
-	_preComp.EyeInsideShape = _preComp.EyeVector.DotP(&_preComp.NormalVector) < 0
-	return _preComp
-}
-
-func (pre PreCompData) Shade_Hit(l Light) Colour {
-	return Lighting(pre.Object.GetMaterial(), l, pre.Point, pre.EyeVector, pre.NormalVector)
 }

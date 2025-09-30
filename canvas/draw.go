@@ -14,14 +14,29 @@ type Pixel struct {
 
 type Canvas [][]Pixel
 
+// func CreateCanvas(w, h uint32) Canvas {
+
+// 	grids := make([][]Pixel, w, w)
+
+// 	for i := uint32(0); i < w; i++ {
+// 		grids[i] = make([]Pixel, h, h)
+
+// 		for j := uint32(0); j < h; j++ {
+// 			grids[i][j] = Pixel{NewColour()}
+// 		}
+// 	}
+
+// 	return Canvas(grids)
+// }
+
 func CreateCanvas(w, h uint32) Canvas {
 
-	grids := make([][]Pixel, w, w)
+	grids := make([][]Pixel, h, h)
 
-	for i := uint32(0); i < w; i++ {
-		grids[i] = make([]Pixel, h, h)
+	for i := uint32(0); i < h; i++ {
+		grids[i] = make([]Pixel, w, w)
 
-		for j := uint32(0); j < h; j++ {
+		for j := uint32(0); j < w; j++ {
 			grids[i][j] = Pixel{NewColour()}
 		}
 	}
@@ -30,19 +45,19 @@ func CreateCanvas(w, h uint32) Canvas {
 }
 
 func (c Canvas) GetHeight() int {
-	return len(c[0])
-}
-
-func (c Canvas) GetWidth() int {
 	return len(c)
 }
 
-func (c Canvas) WritePixel(x, y uint32, col Colour) {
-	c[x][y].Colour = col
+func (c Canvas) GetWidth() int {
+	return len(c[0])
 }
 
-func (c Canvas) ReadPixel(x, y uint32) Pixel {
-	return c[x][y]
+func (c Canvas) WritePixel(colIdx, rowIdx uint32, col Colour) {
+	c[rowIdx][colIdx].Colour = col
+}
+
+func (c Canvas) ReadPixel(colIdx, rowIdx uint32) Pixel {
+	return c[rowIdx][colIdx]
 }
 
 /*
@@ -59,11 +74,11 @@ func CanvasToPPMData(myCanvas Canvas) string {
 	cur_len := 0
 	w, h := myCanvas.GetWidth(), myCanvas.GetHeight()
 
-	for i := 0; i < w; i++ {
-		for j := 0; j < h; j++ {
-			r, g, b := fmt.Sprint(myCanvas[i][j].Colour.GetValue(Red)),
-				fmt.Sprint(myCanvas[i][j].Colour.GetValue(Green)),
-				fmt.Sprint(myCanvas[i][j].Colour.GetValue(Blue))
+	for _rowIdx := 0; _rowIdx < h; _rowIdx++ {
+		for _colIdx := 0; _colIdx < w; _colIdx++ {
+			r, g, b := fmt.Sprint(myCanvas[_rowIdx][_colIdx].Colour.GetValue(Red)),
+				fmt.Sprint(myCanvas[_rowIdx][_colIdx].Colour.GetValue(Green)),
+				fmt.Sprint(myCanvas[_rowIdx][_colIdx].Colour.GetValue(Blue))
 
 			{
 				if cur_len+len(r)+1 >= PPM_LINE_LIM {

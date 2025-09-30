@@ -106,8 +106,8 @@ func everyPixelOfCIsColor(ctx context.Context) error {
 
 	w, h := c.GetWidth(), c.GetHeight()
 
-	for i := 0; i < w; i++ {
-		for j := 0; j < h; j++ {
+	for i := 0; i < h; i++ {
+		for j := 0; j < w; j++ {
 			r, g, b :=
 				c[i][j].Colour.GetValue(Red),
 				c[i][j].Colour.GetValue(Green),

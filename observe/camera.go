@@ -68,11 +68,11 @@ func (c *Camera) RayForPixel(px, py int) rays.Ray {
 func Render(cam Camera, world World) canvas.Canvas {
 	my_canvas := canvas.CreateCanvas(cam.Hsize, cam.Vsize)
 
-	for y := 0; y < my_canvas.GetHeight(); y++ {
-		for x := 0; x < my_canvas.GetWidth(); x++ {
-			_ray := cam.RayForPixel(x, y)
+	for py := 0; py < my_canvas.GetHeight(); py++ {
+		for px := 0; px < my_canvas.GetWidth(); px++ {
+			_ray := cam.RayForPixel(px, py)
 			c := world.Color_At(_ray)
-			my_canvas.WritePixel(uint32(x), uint32(y), canvas.RayColorToCanvasColor(c))
+			my_canvas.WritePixel(uint32(px), uint32(py), canvas.RayColorToCanvasColor(c))
 		}
 	}
 
@@ -89,10 +89,10 @@ func RenderParaller(cam Camera, world World, parallel_count int) canvas.Canvas {
 	point_render_work := func(data_stream <-chan [2]int, _cam Camera, _world World, _canvas canvas.Canvas) {
 		wg.Add(1)
 		for data := range data_stream {
-			x, y := data[1], data[0]
-			_ray := _cam.RayForPixel(x, y)
+			py, px := data[0], data[1]
+			_ray := _cam.RayForPixel(px, py)
 			c := _world.Color_At(_ray)
-			_canvas.WritePixel(uint32(x), uint32(y), canvas.RayColorToCanvasColor(c))
+			_canvas.WritePixel(uint32(px), uint32(py), canvas.RayColorToCanvasColor(c))
 		}
 
 		wg.Done()

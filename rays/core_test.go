@@ -82,7 +82,7 @@ func TestLightingScenarioEyeBetweenLightNSurface(t *testing.T) {
 	eyeV := coordinates.CreateVector(0, 0, -1)
 	normalV := coordinates.CreateVector(0, 0, -1)
 	light := NewLightSource(0, 0, -10, NewWhiteLightColour())
-	result := Lighting(m, light, position, eyeV, normalV)
+	result := Lighting(m, light, position, eyeV, normalV, false)
 
 	assert.Equal(t, Colour{1.9, 1.9, 1.9}, result)
 
@@ -94,7 +94,7 @@ func TestLightingScenarioEyeBetweenLightNSurfaceEyeOffset45Deg(t *testing.T) {
 	eyeV := coordinates.CreateVector(0, math.Sqrt(2)/2, -math.Sqrt(2)/2)
 	normalV := coordinates.CreateVector(0, 0, -1)
 	light := NewLightSource(0, 0, -10, NewWhiteLightColour())
-	result := Lighting(m, light, position, eyeV, normalV)
+	result := Lighting(m, light, position, eyeV, normalV, false)
 
 	assert.Equal(t, Colour{1, 1, 1}, result)
 }
@@ -105,7 +105,7 @@ func TestLightingScenarioEyeOppositeSurface(t *testing.T) {
 	eyeV := coordinates.CreateVector(0, 0, -1)
 	normalV := coordinates.CreateVector(0, 0, -1)
 	light := NewLightSource(0, 10, -10, NewWhiteLightColour())
-	result := Lighting(m, light, position, eyeV, normalV)
+	result := Lighting(m, light, position, eyeV, normalV, false)
 
 	assert.Equal(t, Colour{0.7363961030678927, 0.7363961030678927, 0.7363961030678927}, result)
 }
@@ -116,7 +116,7 @@ func TestLightingScenarioEyeInReflectionPath(t *testing.T) {
 	eyeV := coordinates.CreateVector(0, -float64(math.Sqrt(2)/2), -float64(math.Sqrt(2)/2))
 	normalV := coordinates.CreateVector(0, 0, -1)
 	light := NewLightSource(0, 10, -10, NewWhiteLightColour())
-	result := Lighting(m, light, position, eyeV, normalV)
+	result := Lighting(m, light, position, eyeV, normalV, false)
 
 	assert.Equal(t, Colour{1.6363961030678928, 1.6363961030678928, 1.6363961030678928}, result)
 }
@@ -127,7 +127,18 @@ func TestLightingScenarioLightSourceBehindSurface(t *testing.T) {
 	eyeV := coordinates.CreateVector(0, 0, -1)
 	normalV := coordinates.CreateVector(0, 0, -1)
 	light := NewLightSource(0, 0, 10, NewWhiteLightColour())
-	result := Lighting(m, light, position, eyeV, normalV)
+	result := Lighting(m, light, position, eyeV, normalV, false)
+
+	assert.Equal(t, Colour{0.1, 0.1, 0.1}, result)
+}
+
+func TestLightingShadowRegion(t *testing.T) {
+	m := CreateDefaultMaterial()
+	position := coordinates.CreatePoint(0, 0, 0)
+	eyeV := coordinates.CreateVector(0, 0, -1)
+	normalV := coordinates.CreateVector(0, 0, -1)
+	light := NewLightSource(0, 0, -10, NewWhiteLightColour())
+	result := Lighting(m, light, position, eyeV, normalV, true)
 
 	assert.Equal(t, Colour{0.1, 0.1, 0.1}, result)
 }

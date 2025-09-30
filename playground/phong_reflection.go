@@ -46,7 +46,7 @@ func ProcessPhongReflection() {
 				normal_vector := sph.NormalAtPoint(*point)
 				eye_vector := *cur_ray.Direction.Negate()
 
-				color := rays.Lighting(sph.Material, light, *point, eye_vector, normal_vector)
+				color := rays.Lighting(sph.Material, light, *point, eye_vector, normal_vector, false)
 				my_canvas.WritePixel(uint32(x), uint32(y), canvas.RayColorToCanvasColor(color))
 			}
 
@@ -56,7 +56,7 @@ func ProcessPhongReflection() {
 				normal_vector := sph2.NormalAtPoint(*point)
 				eye_vector := *cur_ray.Direction.Negate()
 
-				color := rays.Lighting(sph2.Material, light, *point, eye_vector, normal_vector)
+				color := rays.Lighting(sph2.Material, light, *point, eye_vector, normal_vector, false)
 				my_canvas.WritePixel(uint32(x), uint32(y), canvas.RayColorToCanvasColor(color))
 			}
 		}
