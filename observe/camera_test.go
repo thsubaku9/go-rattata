@@ -44,7 +44,7 @@ func TestRayWhenCamTransform(t *testing.T) {
 
 	t_mat := matrices.TranslationMatrix(0, -2, 5)
 	r_mat := matrices.GivensRotationMatrix3DLeftHanded(coordinates.Y, math.Pi/4)
-	_, transform_mat := r_mat.Multiply(t_mat)
+	transform_mat, _ := r_mat.Multiply(t_mat)
 	_c.SetTransformationMatrix(transform_mat)
 
 	r := _c.RayForPixel(100, 50)

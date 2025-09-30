@@ -64,9 +64,9 @@ func (m Matrix) ScaleAdd(k float64) Matrix {
 	return m
 }
 
-func (m Matrix) Multiply(m2 Matrix) (bool, Matrix) {
+func (m Matrix) Multiply(m2 Matrix) (Matrix, bool) {
 	if m.Column() != m2.Row() {
-		return false, nil
+		return nil, false
 	}
 	_matrix := NewMatrix(m.Row(), m2.Column())
 
@@ -82,7 +82,7 @@ func (m Matrix) Multiply(m2 Matrix) (bool, Matrix) {
 		}
 	}
 
-	return true, _matrix
+	return _matrix, true
 }
 
 func (m Matrix) T() Matrix {

@@ -7,6 +7,8 @@ import (
 	"rattata/matrices"
 )
 
+var EPSILON float64 = 0.0001
+
 type Ray struct {
 	Origin    coordinates.Coordinate
 	Direction coordinates.Coordinate
@@ -68,6 +70,8 @@ func Intersect(shape Shape, ray Ray) []Intersection {
 	switch casted_shape := shape.(type) {
 	case Sphere:
 		return intersectSphere(casted_shape, transformed_ray)
+	case XZPlane:
+		return intersectPlane(casted_shape, transformed_ray)
 	default:
 		return []Intersection{}
 	}
@@ -90,11 +94,20 @@ func intersectSphere(sph Sphere, ray Ray) []Intersection {
 	return Intersections(NewIntersection(t1, sph), NewIntersection(t2, sph))
 }
 
+func intersectPlane(pl XZPlane, ray Ray) []Intersection {
+	if math.Abs(ray.Direction[coordinates.Y]) < EPSILON {
+		return []Intersection{}
+	}
+
+	t := -ray.Origin[coordinates.Y] / ray.Direction[coordinates.Y]
+	return Intersections(NewIntersection(t, pl))
+}
+
 func Transform(ray Ray, matrix matrices.Matrix) Ray {
 	ray_origin_matrix, ray_direction_matrix := matrices.CoordinateToMatrix(ray.Origin), matrices.CoordinateToMatrix(ray.Direction)
 
-	_, ray_origin_post_transform := matrix.Multiply(ray_origin_matrix)
-	_, ray_direction_post_transform := matrix.Multiply(ray_direction_matrix)
+	ray_origin_post_transform, _ := matrix.Multiply(ray_origin_matrix)
+	ray_direction_post_transform, _ := matrix.Multiply(ray_direction_matrix)
 
 	return NewRay(matrices.MatrixToCoordinate(ray_origin_post_transform), matrices.MatrixToCoordinate(ray_direction_post_transform))
 }

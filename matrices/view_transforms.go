@@ -24,6 +24,6 @@ func View_Transform(from, to, up coordinates.Coordinate) Matrix {
 	orient_matrix.Set(2, 1, -forward_vector.Get(coordinates.Y))
 	orient_matrix.Set(2, 2, -forward_vector.Get(coordinates.Z))
 
-	_, res := orient_matrix.Multiply(TranslationMatrix(-from.Get(coordinates.X), -from.Get(coordinates.Y), -from.Get(coordinates.Z)))
+	res, _ := orient_matrix.Multiply(TranslationMatrix(-from.Get(coordinates.X), -from.Get(coordinates.Y), -from.Get(coordinates.Z)))
 	return res
 }

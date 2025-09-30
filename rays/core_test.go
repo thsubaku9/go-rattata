@@ -49,6 +49,25 @@ func Test0IntersectionWithSphere(t *testing.T) {
 	assert.Equal(t, 0, len(xs))
 }
 
+func Test0IntersectionWithXZPlane(t *testing.T) {
+
+	r := NewRay(coordinates.CreatePoint(0, 1, 0), coordinates.CreateVector(0, 0, 1))
+	pl := NewPlane(coordinates.CreatePoint(0, 0, 0))
+	xs := Intersect(pl, r)
+
+	assert.Equal(t, 0, len(xs))
+}
+
+func Test1IntersectionWithXZPlane(t *testing.T) {
+
+	r := NewRay(coordinates.CreatePoint(0, 1, -5), coordinates.CreateVector(0, -1, 1))
+	pl := NewPlane(coordinates.CreatePoint(0, 0, 0))
+	xs := Intersect(pl, r)
+
+	assert.Equal(t, 1, len(xs))
+	helpers.ApproxEqual(t, 5.0, xs[0].Tvalue, 0.00001)
+}
+
 func TestHit(t *testing.T) {
 	s := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 	i1 := NewIntersection(5, s)

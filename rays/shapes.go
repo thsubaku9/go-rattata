@@ -19,6 +19,14 @@ type Sphere struct {
 	Material          Material
 }
 
+func NewSphere(origin coordinates.Coordinate, radius float64) Sphere {
+	if !origin.IsAPoint() {
+		panic("origin is not a point")
+	}
+
+	return Sphere{Origin: origin, Radius: radius, transformationMat: matrices.NewIdentityMatrix(4), Material: CreateDefaultMaterial()}
+}
+
 func (s Sphere) Name() string {
 	return "Sphere"
 }
@@ -50,10 +58,44 @@ func (s Sphere) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Co
 	return *res.Norm()
 }
 
-func NewSphere(origin coordinates.Coordinate, radius float64) Sphere {
-	if origin.IsAPoint() {
-		return Sphere{Origin: origin, Radius: radius, transformationMat: matrices.NewIdentityMatrix(4), Material: CreateDefaultMaterial()}
+type XZPlane struct {
+	Origin            coordinates.Coordinate
+	transformationMat matrices.Matrix
+	Material          Material
+}
+
+func NewPlane(origin coordinates.Coordinate) XZPlane {
+	if !origin.IsAPoint() {
+		panic("origin is not a point")
 	}
 
-	panic("origin is not a point")
+	return XZPlane{Origin: origin, transformationMat: matrices.NewIdentityMatrix(4), Material: CreateDefaultMaterial()}
+}
+
+func (p XZPlane) Name() string {
+	return "Plane"
+}
+
+func (p XZPlane) Transformation() matrices.Matrix {
+	return p.transformationMat
+}
+
+func (p *XZPlane) SetTransformation(mt matrices.Matrix) {
+	p.transformationMat = mt
+}
+
+func (p XZPlane) GetMaterial() Material {
+	return p.Material
+}
+
+func (p XZPlane) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate {
+	inverse_transformation, _ := p.Transformation().Inverse()
+	obj_normal := coordinates.CreateVector(0, 1, 0)
+
+	world_normal := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(obj_normal), inverse_transformation.T())
+	world_normal.Set(3, 0, 0)
+
+	res := matrices.MatrixToCoordinate(world_normal)
+	return *res.Norm()
+
 }
