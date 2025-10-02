@@ -96,7 +96,14 @@ func PerformWorldBuildingCustom() {
 		)
 		right.SetTransformation(right_sph_transform)
 
-		right.Material.Pattern = rays.NewPlainPattern(rays.Colour{0.5, 1, 0.1})
+		grad_p := rays.NewXGradient(rays.Colour{0.9, 0.0, 0.9}, rays.Colour{0.5, 0.8, 0.2})
+		grad_p.SetPatternTransformation(matrices.PerformOrderedChainingOps(matrices.NewIdentityMatrix(4),
+			matrices.ScalingMatrix(3, 3, 3),
+			matrices.GivensRotationMatrix3DLeftHanded(coordinates.Z, math.Pi/4),
+		))
+
+		right.Material.Pattern = grad_p
+		// right.Material.Pattern = rays.NewPlainPattern(rays.Colour{0.5, 1, 0.1})
 		right.Material.Specular = 0.7
 		right.Material.Diffuse = 0.3
 		my_world.AddObject(right)

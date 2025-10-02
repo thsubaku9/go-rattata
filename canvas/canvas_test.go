@@ -19,7 +19,7 @@ const (
 )
 
 func givenAColour(ctx context.Context, r, g, b int) (context.Context, error) {
-	return context.WithValue(ctx, colorHolderkey, Colour([4]uint8{uint8(r), uint8(g), uint8(b), 255})), nil
+	return context.WithValue(ctx, colorHolderkey, Colour([3]uint8{uint8(r), uint8(g), uint8(b)})), nil
 }
 
 func checkRed(ctx context.Context, valExpected int) error {
@@ -152,7 +152,7 @@ func write_pixelcRedPixel(ctx context.Context, arg1, arg2 int) (context.Context,
 		return ctx, errors.New("Value not found")
 	}
 
-	c.WritePixel(uint32(arg1), uint32(arg2), Colour{255, 0, 0, 0})
+	c.WritePixel(uint32(arg1), uint32(arg2), Colour{255, 0, 0})
 	return ctx, nil
 }
 
@@ -222,7 +222,7 @@ func insertRandomDataOfSize(ctx context.Context, arg1 int) error {
 				break
 			}
 
-			c.WritePixel(uint32(i), uint32(j), Colour{uint8(rand.Intn(256)), uint8(rand.Intn(256)), uint8(rand.Intn(256)), 255})
+			c.WritePixel(uint32(i), uint32(j), Colour{uint8(rand.Intn(256)), uint8(rand.Intn(256)), uint8(rand.Intn(256))})
 			write_counter++
 		}
 	}
@@ -281,32 +281,32 @@ func TestFeatures(t *testing.T) {
 }
 
 func TestColourAdd(t *testing.T) {
-	c1 := Colour{100, 200, 60, 255}
-	c2 := Colour{100, 100, 0, 255}
+	c1 := Colour{100, 200, 60}
+	c2 := Colour{100, 100, 0}
 	c3 := c1.Add(&c2)
 
-	assert.Equal(t, Colour{200, 255, 60, 255}, *c3)
+	assert.Equal(t, Colour{200, 255, 60}, *c3)
 }
 
 func TestColourSub(t *testing.T) {
-	c1 := Colour{100, 200, 60, 255}
-	c2 := Colour{100, 100, 0, 255}
+	c1 := Colour{100, 200, 60}
+	c2 := Colour{100, 100, 0}
 	c3 := c1.Sub(&c2)
 
-	assert.Equal(t, Colour{0, 100, 60, 255}, *c3)
+	assert.Equal(t, Colour{0, 100, 60}, *c3)
 }
 
 func TestScalarMul(t *testing.T) {
-	c1 := Colour{100, 200, 60, 120}
+	c1 := Colour{100, 200, 60}
 	c3 := c1.Mul(2)
 
-	assert.Equal(t, Colour{200, 255, 120, 120}, *c3)
+	assert.Equal(t, Colour{200, 255, 120}, *c3)
 }
 
 func TestColorMul(t *testing.T) {
-	c1 := Colour{10, 20, 60, 255}
-	c2 := Colour{10, 10, 0, 255}
+	c1 := Colour{10, 20, 60}
+	c2 := Colour{10, 10, 0}
 	c3 := c1.Blend(&c2)
 
-	assert.Equal(t, Colour{100, 200, 0, 255}, *c3)
+	assert.Equal(t, Colour{100, 200, 0}, *c3)
 }

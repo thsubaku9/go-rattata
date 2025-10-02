@@ -135,9 +135,8 @@ func NewWhiteLightColour() Colour {
 func AddColour(c1, c2 Colour) Colour {
 	c3 := Colour{}
 
-	for i := 0; i < 4; i++ {
-		_t := c1[i] + c2[i]
-		c3[i] = float64(min((_t), 255))
+	for i := 0; i < 3; i++ {
+		c3[i] = c1[i] + c2[i]
 	}
 
 	return c3
@@ -147,8 +146,7 @@ func SubColour(c1, c2 Colour) Colour {
 	c3 := Colour{}
 
 	for i := 0; i < 3; i++ {
-		_t := c1[i] - c2[i]
-		c3[i] = float64(max(_t, 0))
+		c3[i] = c1[i] - c2[i]
 	}
 	return c3
 }

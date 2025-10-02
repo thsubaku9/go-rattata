@@ -78,7 +78,8 @@ func (grad XGradient) PatternAt(point coordinates.Coordinate) Colour {
 
 	distance := SubColour(grad.colourB, grad.colourA)
 	fraction := pattern_point.Get(coordinates.X) - math.Floor(pattern_point.Get(coordinates.X))
-	return AddColour(grad.colourA, MulColour(distance, fraction))
+	res := AddColour(grad.colourA, MulColour(distance, fraction))
+	return res
 }
 
 func (grad XGradient) PatternTransformation() matrices.Matrix {
@@ -88,3 +89,47 @@ func (grad XGradient) PatternTransformation() matrices.Matrix {
 func (grad *XGradient) SetPatternTransformation(_mat matrices.Matrix) {
 	grad.transformMatrix = _mat
 }
+
+// ------------------------------------ Ring Pattern ------------------------------------
+
+type XZRing struct {
+	colourA         Colour
+	colourB         Colour
+	transformMatrix matrices.Matrix
+}
+
+func NewXZRing(colA, colB Colour) XZRing {
+	return XZRing{colA, colB, matrices.NewIdentityMatrix(4)}
+}
+
+func (r XZRing) PatternAt(point coordinates.Coordinate) Colour {
+	patternTransformationInverse, _ := r.transformMatrix.Inverse()
+	pattern_point := matrices.MatrixToCoordinate(matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(point), patternTransformationInverse))
+
+	if int(math.Floor(math.Sqrt(pattern_point.Get(coordinates.X)*pattern_point.Get(coordinates.X)+pattern_point.Get(coordinates.Z)*pattern_point.Get(coordinates.Z))))%2 == 0 {
+		return r.colourA
+	}
+
+	return r.colourB
+
+}
+
+func (r XZRing) PatternTransformation() matrices.Matrix {
+	return r.transformMatrix
+}
+
+func (r *XZRing) SetPatternTransformation(_mat matrices.Matrix) {
+	r.transformMatrix = _mat
+}
+
+// ------------------------------------ Checker Pattern ------------------------------------
+
+// ------------------------------------ Polka Dot Pattern ------------------------------------
+
+// ------------------------------------ Radial Gradient Pattern ------------------------------------
+
+// ------------------------------------ Nested Pattern ------------------------------------
+
+// ------------------------------------ Blended Pattern ------------------------------------
+
+// ------------------------------------ Perturbed Pattern ------------------------------------

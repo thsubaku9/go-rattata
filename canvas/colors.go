@@ -34,7 +34,7 @@ func NewWhiteColour() Colour {
 func (c1 *Colour) Add(c2 *Colour) *Colour {
 	c3 := NewColour()
 
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 3; i++ {
 		_t := int(c1[i]) + int(c2[i])
 		c3[i] = uint8(min((_t), 255))
 	}
