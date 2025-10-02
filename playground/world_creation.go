@@ -74,7 +74,12 @@ func PerformWorldBuildingCustom() {
 		middle.SetTransformation(matrices.TranslationMatrix(-0.5, 1, 0.5))
 		// middle.Material.Pattern = rays.NewPlainPattern(rays.Colour{0.1, 1, 0.5})
 
-		middle.Material.Pattern = rays.NewXStripe(rays.Colour{0.1, 1, 0.5}, rays.Colour{0.5, 1, 0.1})
+		_pat := rays.NewXStripe(rays.Colour{0.1, 0.5, 0.5}, rays.Colour{0.8, 0.2, 0.4})
+		_pat.SetPatternTransformation(matrices.PerformOrderedChainingOps(matrices.NewIdentityMatrix(4),
+			matrices.ScalingMatrix(0.2, 0.2, 0.2),
+			matrices.GivensRotationMatrix3DLeftHanded(coordinates.Z, math.Pi/2),
+		))
+		middle.Material.Pattern = _pat
 		middle.Material.Specular = 0.3
 		middle.Material.Diffuse = 0.7
 
@@ -117,10 +122,6 @@ func PerformWorldBuildingCustom() {
 	view_t := matrices.View_Transform(coordinates.CreatePoint(0, 1.5, -5), coordinates.CreatePoint(0, 1, 0), coordinates.CreateVector(0, 1, 0))
 
 	cam.SetTransformationMatrix(matrices.PerformOrderedChainingOps(matrices.NewIdentityMatrix(4), view_t))
-	// matrices.GivensRotationMatrix3DLeftHanded(coordinates.Z, math.Pi/2),
-	// matrices.ScalingMatrix(1, -1, 1)))
-
 	my_canvas := observe.RenderParaller(cam, my_world, 5)
-	// my_canvas := observe.Render(cam, my_world)
 	fmt.Println(canvas.CanvasToPPMData(my_canvas))
 }

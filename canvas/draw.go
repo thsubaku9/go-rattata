@@ -14,21 +14,6 @@ type Pixel struct {
 
 type Canvas [][]Pixel
 
-// func CreateCanvas(w, h uint32) Canvas {
-
-// 	grids := make([][]Pixel, w, w)
-
-// 	for i := uint32(0); i < w; i++ {
-// 		grids[i] = make([]Pixel, h, h)
-
-// 		for j := uint32(0); j < h; j++ {
-// 			grids[i][j] = Pixel{NewColour()}
-// 		}
-// 	}
-
-// 	return Canvas(grids)
-// }
-
 func CreateCanvas(w, h uint32) Canvas {
 
 	grids := make([][]Pixel, h, h)

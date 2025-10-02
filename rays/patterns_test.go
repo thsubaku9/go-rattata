@@ -2,9 +2,11 @@ package rays
 
 import (
 	"rattata/coordinates"
+	"rattata/matrices"
 	"testing"
 )
 
+// ------------------------------------ No Pattern ------------------------------------
 func TestPlainPatternVal(t *testing.T) {
 	pp := NewPlainPattern(Colour{1, 0, 0})
 	col := pp.PatternAt(coordinates.CreatePoint(0, 0, 0))
@@ -13,7 +15,8 @@ func TestPlainPatternVal(t *testing.T) {
 	}
 }
 
-// todo -> vibe coded test fix
+// ------------------------------------ Stripe Pattern ------------------------------------
+
 func TestXStripePatternVal(t *testing.T) {
 	stripe := NewXStripe(Colour{1, 0, 0}, Colour{0, 1, 0})
 	col1 := stripe.PatternAt(coordinates.CreatePoint(0, 0, 0))
@@ -41,3 +44,20 @@ func TestXStripePatternVal(t *testing.T) {
 		t.Errorf("Expected stripe pattern to return colour A at x=-1.1")
 	}
 }
+
+func TestXStripePatternWithTransform(t *testing.T) {
+	stripe := NewXStripe(Colour{1, 0, 0}, Colour{0, 1, 0})
+	stripe.SetPatternTransformation(matrices.ScalingMatrix(2, 2, 2))
+	col1 := stripe.PatternAt(coordinates.CreatePoint(1.5, 0, 0))
+	if col1 != (Colour{1, 0, 0}) {
+		t.Errorf("Expected stripe pattern to return colour A at x=1.5 with pattern scaled by 2")
+	}
+	col2 := stripe.PatternAt(coordinates.CreatePoint(2.5, 0, 0))
+	if col2 != (Colour{0, 1, 0}) {
+		t.Errorf("Expected stripe pattern to return colour B at x=2.5 with pattern scaled by 2")
+	}
+}
+
+// ------------------------------------ Gradient Pattern ------------------------------------
+
+// todo

@@ -132,6 +132,37 @@ func NewWhiteLightColour() Colour {
 	return NewLightColour(1, 1, 1)
 }
 
+func AddColour(c1, c2 Colour) Colour {
+	c3 := Colour{}
+
+	for i := 0; i < 4; i++ {
+		_t := c1[i] + c2[i]
+		c3[i] = float64(min((_t), 255))
+	}
+
+	return c3
+}
+
+func SubColour(c1, c2 Colour) Colour {
+	c3 := Colour{}
+
+	for i := 0; i < 3; i++ {
+		_t := c1[i] - c2[i]
+		c3[i] = float64(max(_t, 0))
+	}
+	return c3
+}
+
+func MulColour(c1 Colour, k float64) Colour {
+	c3 := Colour{}
+
+	for i := 0; i < 3; i++ {
+		_t := c1[i] * k
+		c3[i] = float64(min((_t), 255))
+	}
+	return c3
+}
+
 func NewLightSource(x, y, z float64, colour Colour) Light {
 	return Light{Origin: coordinates.CreatePoint(x, y, z), Colour: colour}
 }
@@ -150,10 +181,8 @@ func CreateDefaultMaterial() Material {
 
 func PatternAtPoint(world_point coordinates.Coordinate, objectTransformation matrices.Matrix, pattern Pattern) Colour {
 	objectTransformationInverse, _ := objectTransformation.Inverse()
-	patternTransformationInverse, _ := pattern.PatternTransformation().Inverse()
 	object_point := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(world_point), objectTransformationInverse)
-	pattern_point := matrices.PerformOrderedChainingOps(object_point, patternTransformationInverse)
-	return pattern.PatternAt(matrices.MatrixToCoordinate(pattern_point))
+	return pattern.PatternAt(matrices.MatrixToCoordinate(object_point))
 }
 
 /*
