@@ -116,19 +116,33 @@ func PerformWorldBuildingCustom() {
 			matrices.ScalingMatrix(0.33, 0.33, 0.33),
 			matrices.TranslationMatrix(-1.5, 0.33, -0.75),
 		)
+
 		left.SetTransformation(left_sph_transform)
-		left.Material.Pattern = rays.NewPlainPattern(rays.Colour{1, 0.8, 0.1})
+
+		// checker_3d := rays.NewChecker3D(rays.Colour{1, 0.8, 0.1}, rays.Colour{1, 1, 1})
+		// checker_3d.SetPatternTransformation(matrices.PerformOrderedChainingOps(matrices.NewIdentityMatrix(4),
+		// 	matrices.ScalingMatrix(0.5, 0.5, 0.5),
+		// ))
+		// left.Material.Pattern = checker_3d
+
+		uvchecker_pattern := rays.NewUnitSphereUVChecker(rays.Colour{1, 1, 1}, rays.Colour{1, 0.8, 0.1}, 16, 16)
+		uvchecker_pattern.SetPatternTransformation(matrices.PerformOrderedChainingOps(matrices.NewIdentityMatrix(4),
+			matrices.ScalingMatrix(1, 1, 1),
+		))
+		left.Material.Pattern = uvchecker_pattern
+
+		// left.Material.Pattern = rays.NewPlainPattern(rays.Colour{1, 0.8, 0.1})
 		left.Material.Specular = 0.7
 		left.Material.Diffuse = 0.7
 
 		my_world.AddObject(left)
 	}
 
-	cam := observe.CreateNewCamera(300, 200, math.Pi/3)
+	cam := observe.CreateNewCamera(400, 300, math.Pi/3)
 
 	view_t := matrices.View_Transform(coordinates.CreatePoint(0, 1.5, -5), coordinates.CreatePoint(0, 1, 0), coordinates.CreateVector(0, 1, 0))
 
 	cam.SetTransformationMatrix(matrices.PerformOrderedChainingOps(matrices.NewIdentityMatrix(4), view_t))
-	my_canvas := observe.RenderParaller(cam, my_world, 5)
+	my_canvas := observe.RenderParaller(cam, my_world, 8)
 	fmt.Println(canvas.CanvasToPPMData(my_canvas))
 }

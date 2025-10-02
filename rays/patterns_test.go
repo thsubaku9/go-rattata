@@ -1,6 +1,7 @@
 package rays
 
 import (
+	"fmt"
 	"rattata/coordinates"
 	"rattata/matrices"
 	"testing"
@@ -103,3 +104,63 @@ func TestXZRingPatternVal(t *testing.T) {
 }
 
 // ------------------------------------ Checker Pattern ------------------------------------
+func TestXZRing(t *testing.T) {
+	ring := NewChecker3D(Colour{1, 0, 0}, Colour{0, 1, 0})
+	col1 := ring.PatternAt(coordinates.CreatePoint(0, 0, 0))
+	if col1 != (Colour{1, 0, 0}) {
+		t.Errorf("Expected checker pattern to return colour A at origin")
+	}
+	col2 := ring.PatternAt(coordinates.CreatePoint(0.99, 0, 0.99))
+	if col2 != (Colour{1, 0, 0}) {
+		t.Errorf("Expected checker pattern to return colour A at x=0.99, z=0.99")
+	}
+	col3 := ring.PatternAt(coordinates.CreatePoint(1.01, 0, 0.99))
+	if col3 != (Colour{0, 1, 0}) {
+		t.Errorf("Expected checker pattern to return colour B at x=1.01, z=0.99")
+	}
+	col4 := ring.PatternAt(coordinates.CreatePoint(0.99, 0, 1.01))
+	if col4 != (Colour{0, 1, 0}) {
+		t.Errorf("Expected checker pattern to return colour B at x=0.99, z=1.01")
+	}
+	col5 := ring.PatternAt(coordinates.CreatePoint(1.01, 0, 1.01))
+	if col5 != (Colour{1, 0, 0}) {
+		t.Errorf("Expected checker pattern to return colour A at x=1.01, z=1.01")
+	}
+}
+
+// ------------------------------------ UV Checker Pattern ------------------------------------
+
+func TestUnitSphereUVChecker(t *testing.T) {
+	chk := NewUnitSphereUVChecker(Colour{1, 1, 1}, Colour{0, 0, 0}, 1, 1)
+
+	col1 := chk.PatternAt(coordinates.CreatePoint(0, 0, 0))
+	if col1 != (chk.colourA) {
+		t.Errorf("Expected UV checker pattern to return colourA at (0,0,0)")
+	}
+
+	col2 := chk.PatternAt(coordinates.CreatePoint(0, 1, 0))
+	if col2 != chk.colourB {
+		t.Errorf("Expected UV checker pattern to return colourB at (0,1,0)")
+	}
+
+	col3 := chk.PatternAt(coordinates.CreatePoint(0, -1, 0))
+	if col3 != chk.colourA {
+		t.Errorf("Expected UV checker pattern to return colourB at (0,-1,0)")
+		fmt.Println(col3)
+	}
+
+	col4 := chk.PatternAt(coordinates.CreatePoint(-0.707, -0.707, 0))
+	if col4 != chk.colourB {
+		t.Errorf("Expected UV checker pattern to return colourB at (-0.707,-0.707,0)")
+	}
+}
+
+// ------------------------------------ Polka Dot Pattern ------------------------------------
+
+// ------------------------------------ Radial Gradient Pattern ------------------------------------
+
+// ------------------------------------ Nested Pattern ------------------------------------
+
+// ------------------------------------ Blended Pattern ------------------------------------
+
+// ------------------------------------ Perturbed Pattern ------------------------------------

@@ -124,6 +124,72 @@ func (r *XZRing) SetPatternTransformation(_mat matrices.Matrix) {
 
 // ------------------------------------ Checker Pattern ------------------------------------
 
+type Checker3D struct {
+	colourA         Colour
+	colourB         Colour
+	transformMatrix matrices.Matrix
+}
+
+func NewChecker3D(colA, colB Colour) Checker3D {
+	return Checker3D{colA, colB, matrices.NewIdentityMatrix(4)}
+}
+
+func (chk Checker3D) PatternAt(point coordinates.Coordinate) Colour {
+	patternTransformationInverse, _ := chk.transformMatrix.Inverse()
+	pattern_point := matrices.MatrixToCoordinate(matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(point), patternTransformationInverse))
+
+	if (int(math.Floor(pattern_point.Get(coordinates.X))+math.Floor(pattern_point.Get(coordinates.Y))+math.Floor(pattern_point.Get(coordinates.Z))) % 2) == 0 {
+		return chk.colourA
+	}
+
+	return chk.colourB
+
+}
+
+func (chk Checker3D) PatternTransformation() matrices.Matrix {
+	return chk.transformMatrix
+}
+
+func (chk *Checker3D) SetPatternTransformation(_mat matrices.Matrix) {
+	chk.transformMatrix = _mat
+}
+
+// ------------------------------------ UV Checker Pattern ------------------------------------
+
+type UnitSphereUVChecker struct {
+	colourA         Colour
+	colourB         Colour
+	transformMatrix matrices.Matrix
+	width           float64
+	height          float64
+}
+
+func NewUnitSphereUVChecker(colA, colB Colour, width, height float64) UnitSphereUVChecker {
+	return UnitSphereUVChecker{colA, colB, matrices.NewIdentityMatrix(4), width, height}
+}
+
+func (chk UnitSphereUVChecker) PatternAt(point coordinates.Coordinate) Colour {
+	patternTransformationInverse, _ := chk.transformMatrix.Inverse()
+	pattern_point := matrices.MatrixToCoordinate(matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(point), patternTransformationInverse))
+
+	u := 0.5 + math.Atan2(pattern_point.Get(coordinates.Z), pattern_point.Get(coordinates.X))/(2*math.Pi)
+	v := 0.5 + math.Asin(pattern_point.Get(coordinates.Y))/math.Pi
+
+	if (int(math.Floor(u*chk.width)+math.Floor(v*chk.height)) % 2) == 0 {
+		return chk.colourA
+	}
+
+	return chk.colourB
+}
+
+func (chk UnitSphereUVChecker) PatternTransformation() matrices.Matrix {
+	return chk.transformMatrix
+}
+
+func (chk *UnitSphereUVChecker) SetPatternTransformation(_mat matrices.Matrix) {
+	chk.transformMatrix = _mat
+}
+
 // ------------------------------------ Polka Dot Pattern ------------------------------------
 
 // ------------------------------------ Radial Gradient Pattern ------------------------------------
