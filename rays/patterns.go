@@ -190,12 +190,38 @@ func (chk *UnitSphereUVChecker) SetPatternTransformation(_mat matrices.Matrix) {
 	chk.transformMatrix = _mat
 }
 
-// ------------------------------------ Polka Dot Pattern ------------------------------------
-
 // ------------------------------------ Radial Gradient Pattern ------------------------------------
 
-// ------------------------------------ Nested Pattern ------------------------------------
+type XZRadialGradient struct {
+	colourA         Colour
+	colourB         Colour
+	transformMatrix matrices.Matrix
+}
 
-// ------------------------------------ Blended Pattern ------------------------------------
+func NewXZRadialGradient(colA, colB Colour) XZRadialGradient {
+	return XZRadialGradient{colA, colB, matrices.NewIdentityMatrix(4)}
+}
+
+func (rg XZRadialGradient) PatternAt(point coordinates.Coordinate) Colour {
+	patternTransformationInverse, _ := rg.transformMatrix.Inverse()
+	pattern_point := matrices.MatrixToCoordinate(matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(point), patternTransformationInverse))
+
+	distance := SubColour(rg.colourB, rg.colourA)
+	fraction := math.Sqrt(pattern_point.Get(coordinates.X)*pattern_point.Get(coordinates.X) + pattern_point.Get(coordinates.Z)*pattern_point.Get(coordinates.Z))
+	res := AddColour(rg.colourA, MulColour(distance, fraction))
+	return res
+}
+
+func (rg XZRadialGradient) PatternTransformation() matrices.Matrix {
+	return rg.transformMatrix
+}
+
+func (rg *XZRadialGradient) SetPatternTransformation(_mat matrices.Matrix) {
+	rg.transformMatrix = _mat
+}
+
+// tbd later
 
 // ------------------------------------ Perturbed Pattern ------------------------------------
+// ------------------------------------ Nested Pattern ------------------------------------
+// ------------------------------------ Blended Pattern ------------------------------------
