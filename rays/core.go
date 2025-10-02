@@ -137,15 +137,15 @@ func NewLightSource(x, y, z float64, colour Colour) Light {
 }
 
 type Material struct {
-	Colour    Colour
 	Ambient   float64
 	Diffuse   float64
 	Specular  float64
 	Shininess float64
+	Pattern   Pattern
 }
 
 func CreateDefaultMaterial() Material {
-	return Material{Colour: Colour{1, 1, 1}, Ambient: 0.1, Diffuse: 0.9, Specular: 0.9, Shininess: 200.0}
+	return Material{Pattern: PlainPattern{Colour{1, 1, 1}}, Ambient: 0.1, Diffuse: 0.9, Specular: 0.9, Shininess: 200.0}
 }
 
 /*
@@ -156,9 +156,11 @@ Diffuse -> Light reflected from matte surface;
 Specular -> Reflection of light source
 */
 func Lighting(m Material, light Light, pos, eyeVector, normalVector coordinates.Coordinate, isInShadow bool) Colour {
-	effectiveColour := Colour{m.Colour[0] * light.Colour[0],
-		m.Colour[1] * light.Colour[1],
-		m.Colour[2] * light.Colour[2],
+
+	_point_color := m.Pattern.PatternAt(pos)
+	effectiveColour := Colour{_point_color[0] * light.Colour[0],
+		_point_color[1] * light.Colour[1],
+		_point_color[2] * light.Colour[2],
 	}
 
 	ambient := Colour{

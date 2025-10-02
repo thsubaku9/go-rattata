@@ -49,7 +49,7 @@ func NewDefaultWorld() World {
 	lightSrc := rays.NewLightSource(-10, 10, -10, rays.NewWhiteLightColour())
 
 	s1 := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
-	s1.Material = rays.Material{Colour: rays.Colour{0.8, 1.0, 0.6}, Ambient: 0.1, Diffuse: 0.7, Specular: 0.2, Shininess: 200.0}
+	s1.Material = rays.Material{Ambient: 0.1, Diffuse: 0.7, Specular: 0.2, Shininess: 200.0, Pattern: rays.NewPlainPattern(rays.Colour{0.8, 1.0, 0.6})}
 	s2 := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 	s2.SetTransformation(matrices.ScalingMatrix(0.5, 0.5, 0.5))
 

@@ -31,8 +31,7 @@ func PerformWorldBuildingCustom() {
 	{
 		floor := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 		floor.SetTransformation(matrices.PerformOrderedChainingOps(matrices.NewIdentityMatrix(4), matrices.ScalingMatrix(10, 0.01, 10)))
-
-		floor.Material.Colour = rays.Colour{1, 0.9, 0.9}
+		floor.Material.Pattern = rays.NewPlainPattern(rays.Colour{1, 0.9, 0.9})
 		floor.Material.Specular = 0
 		my_world.AddObject(floor)
 	}
@@ -48,7 +47,7 @@ func PerformWorldBuildingCustom() {
 		)
 
 		left_wall.SetTransformation(left_wall_transform_mat)
-		left_wall.Material.Colour = rays.Colour{1, 0.9, 0.9}
+		left_wall.Material.Pattern = rays.NewPlainPattern(rays.Colour{1, 0.9, 0.9})
 		left_wall.Material.Specular = 0
 		my_world.AddObject(left_wall)
 	}
@@ -64,7 +63,7 @@ func PerformWorldBuildingCustom() {
 		)
 
 		right_wall.SetTransformation(right_wall_transform_mat)
-		right_wall.Material.Colour = rays.NewLightColour(1, 0.9, 0.9)
+		right_wall.Material.Pattern = rays.NewPlainPattern(rays.Colour{1, 0.9, 0.9})
 		right_wall.Material.Specular = 0
 		my_world.AddObject(right_wall)
 	}
@@ -73,7 +72,9 @@ func PerformWorldBuildingCustom() {
 		middle := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 
 		middle.SetTransformation(matrices.TranslationMatrix(-0.5, 1, 0.5))
-		middle.Material.Colour = rays.NewLightColour(0.1, 1, 0.5)
+		// middle.Material.Pattern = rays.NewPlainPattern(rays.Colour{0.1, 1, 0.5})
+
+		middle.Material.Pattern = rays.NewXStripe(rays.Colour{0.1, 1, 0.5}, rays.Colour{0.5, 1, 0.1})
 		middle.Material.Specular = 0.3
 		middle.Material.Diffuse = 0.7
 
@@ -90,7 +91,7 @@ func PerformWorldBuildingCustom() {
 		)
 		right.SetTransformation(right_sph_transform)
 
-		right.Material.Colour = rays.NewLightColour(0.5, 1, 0.1)
+		right.Material.Pattern = rays.NewPlainPattern(rays.Colour{0.5, 1, 0.1})
 		right.Material.Specular = 0.7
 		right.Material.Diffuse = 0.3
 		my_world.AddObject(right)
@@ -104,8 +105,7 @@ func PerformWorldBuildingCustom() {
 			matrices.TranslationMatrix(-1.5, 0.33, -0.75),
 		)
 		left.SetTransformation(left_sph_transform)
-
-		left.Material.Colour = rays.NewLightColour(1, 0.8, 0.1)
+		left.Material.Pattern = rays.NewPlainPattern(rays.Colour{1, 0.8, 0.1})
 		left.Material.Specular = 0.7
 		left.Material.Diffuse = 0.7
 
