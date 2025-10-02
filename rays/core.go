@@ -148,6 +148,14 @@ func CreateDefaultMaterial() Material {
 	return Material{Pattern: PlainPattern{Colour{1, 1, 1}}, Ambient: 0.1, Diffuse: 0.9, Specular: 0.9, Shininess: 200.0}
 }
 
+func PatternAtPoint(world_point coordinates.Coordinate, objectTransformation matrices.Matrix, pattern Pattern) Colour {
+	objectTransformationInverse, _ := objectTransformation.Inverse()
+	patternTransformationInverse, _ := pattern.PatternTransformation().Inverse()
+	object_point := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(world_point), objectTransformationInverse)
+	pattern_point := matrices.PerformOrderedChainingOps(object_point, patternTransformationInverse)
+	return pattern.PatternAt(matrices.MatrixToCoordinate(pattern_point))
+}
+
 /*
 	Phong reflection model of lighting
 
@@ -155,9 +163,11 @@ Ambient -> Background lighting;
 Diffuse -> Light reflected from matte surface;
 Specular -> Reflection of light source
 */
-func Lighting(m Material, light Light, pos, eyeVector, normalVector coordinates.Coordinate, isInShadow bool) Colour {
+func Lighting(shp Shape, light Light, pos, eyeVector, normalVector coordinates.Coordinate, isInShadow bool) Colour {
 
-	_point_color := m.Pattern.PatternAt(pos)
+	m := shp.GetMaterial()
+
+	_point_color := PatternAtPoint(pos, shp.Transformation(), m.Pattern)
 	effectiveColour := Colour{_point_color[0] * light.Colour[0],
 		_point_color[1] * light.Colour[1],
 		_point_color[2] * light.Colour[2],

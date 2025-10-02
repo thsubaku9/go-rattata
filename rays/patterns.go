@@ -1,9 +1,13 @@
 package rays
 
-import "rattata/coordinates"
+import (
+	"rattata/coordinates"
+	"rattata/matrices"
+)
 
 type Pattern interface {
 	PatternAt(point coordinates.Coordinate) Colour
+	PatternTransformation() matrices.Matrix
 }
 
 // ------------------------------------ No Pattern ------------------------------------
@@ -19,14 +23,19 @@ func (p PlainPattern) PatternAt(point coordinates.Coordinate) Colour {
 	return p.colorMain
 }
 
+func (p PlainPattern) PatternTransformation() matrices.Matrix {
+	return matrices.NewIdentityMatrix(4)
+}
+
 // ------------------------------------ Stripe Pattern ------------------------------------
 type XStripe struct {
-	colourA Colour
-	colourB Colour
+	colourA         Colour
+	colourB         Colour
+	transformMatrix matrices.Matrix
 }
 
 func NewXStripe(colA, colB Colour) XStripe {
-	return XStripe{colA, colB}
+	return XStripe{colA, colB, matrices.NewIdentityMatrix(4)}
 }
 
 func (stripe XStripe) PatternAt(point coordinates.Coordinate) Colour {
@@ -35,4 +44,12 @@ func (stripe XStripe) PatternAt(point coordinates.Coordinate) Colour {
 	} else {
 		return stripe.colourB
 	}
+}
+
+func (stripe XStripe) PatternTransformation() matrices.Matrix {
+	return stripe.transformMatrix
+}
+
+func (stripe *XStripe) SetPatternTransformation(_mat matrices.Matrix) {
+	stripe.transformMatrix = _mat
 }

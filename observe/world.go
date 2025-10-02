@@ -33,7 +33,7 @@ func PreparePrecompData(intersection rays.Intersection, r rays.Ray) PreCompData 
 }
 
 func (pre PreCompData) Shade_Hit(l rays.Light, w World) rays.Colour {
-	return rays.Lighting(pre.Object.GetMaterial(), l, pre.OverPoint, pre.EyeVector, pre.NormalVector, w.IsShadowed(pre.OverPoint))
+	return rays.Lighting(pre.Object, l, pre.OverPoint, pre.EyeVector, pre.NormalVector, w.IsShadowed(pre.OverPoint))
 }
 
 type World struct {
