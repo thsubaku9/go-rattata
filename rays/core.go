@@ -132,20 +132,55 @@ func NewWhiteLightColour() Colour {
 	return NewLightColour(1, 1, 1)
 }
 
+func AddColour(c1, c2 Colour) Colour {
+	c3 := Colour{}
+
+	for i := 0; i < 3; i++ {
+		c3[i] = c1[i] + c2[i]
+	}
+
+	return c3
+}
+
+func SubColour(c1, c2 Colour) Colour {
+	c3 := Colour{}
+
+	for i := 0; i < 3; i++ {
+		c3[i] = c1[i] - c2[i]
+	}
+	return c3
+}
+
+func MulColour(c1 Colour, k float64) Colour {
+	c3 := Colour{}
+
+	for i := 0; i < 3; i++ {
+		_t := c1[i] * k
+		c3[i] = float64(min((_t), 255))
+	}
+	return c3
+}
+
 func NewLightSource(x, y, z float64, colour Colour) Light {
 	return Light{Origin: coordinates.CreatePoint(x, y, z), Colour: colour}
 }
 
 type Material struct {
-	Colour    Colour
 	Ambient   float64
 	Diffuse   float64
 	Specular  float64
 	Shininess float64
+	Pattern   Pattern
 }
 
 func CreateDefaultMaterial() Material {
-	return Material{Colour: Colour{1, 1, 1}, Ambient: 0.1, Diffuse: 0.9, Specular: 0.9, Shininess: 200.0}
+	return Material{Pattern: PlainPattern{Colour{1, 1, 1}}, Ambient: 0.1, Diffuse: 0.9, Specular: 0.9, Shininess: 200.0}
+}
+
+func PatternAtPoint(world_point coordinates.Coordinate, objectTransformation matrices.Matrix, pattern Pattern) Colour {
+	objectTransformationInverse, _ := objectTransformation.Inverse()
+	object_point := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(world_point), objectTransformationInverse)
+	return pattern.PatternAt(matrices.MatrixToCoordinate(object_point))
 }
 
 /*
@@ -155,10 +190,14 @@ Ambient -> Background lighting;
 Diffuse -> Light reflected from matte surface;
 Specular -> Reflection of light source
 */
-func Lighting(m Material, light Light, pos, eyeVector, normalVector coordinates.Coordinate, isInShadow bool) Colour {
-	effectiveColour := Colour{m.Colour[0] * light.Colour[0],
-		m.Colour[1] * light.Colour[1],
-		m.Colour[2] * light.Colour[2],
+func Lighting(shp Shape, light Light, pos, eyeVector, normalVector coordinates.Coordinate, isInShadow bool) Colour {
+
+	m := shp.GetMaterial()
+
+	_point_color := PatternAtPoint(pos, shp.Transformation(), m.Pattern)
+	effectiveColour := Colour{_point_color[0] * light.Colour[0],
+		_point_color[1] * light.Colour[1],
+		_point_color[2] * light.Colour[2],
 	}
 
 	ambient := Colour{

@@ -31,8 +31,7 @@ func PerformWorldBuildingCustom() {
 	{
 		floor := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 		floor.SetTransformation(matrices.PerformOrderedChainingOps(matrices.NewIdentityMatrix(4), matrices.ScalingMatrix(10, 0.01, 10)))
-
-		floor.Material.Colour = rays.Colour{1, 0.9, 0.9}
+		floor.Material.Pattern = rays.NewPlainPattern(rays.Colour{1, 0.9, 0.9})
 		floor.Material.Specular = 0
 		my_world.AddObject(floor)
 	}
@@ -48,7 +47,7 @@ func PerformWorldBuildingCustom() {
 		)
 
 		left_wall.SetTransformation(left_wall_transform_mat)
-		left_wall.Material.Colour = rays.Colour{1, 0.9, 0.9}
+		left_wall.Material.Pattern = rays.NewPlainPattern(rays.Colour{1, 0.9, 0.9})
 		left_wall.Material.Specular = 0
 		my_world.AddObject(left_wall)
 	}
@@ -64,7 +63,7 @@ func PerformWorldBuildingCustom() {
 		)
 
 		right_wall.SetTransformation(right_wall_transform_mat)
-		right_wall.Material.Colour = rays.NewLightColour(1, 0.9, 0.9)
+		right_wall.Material.Pattern = rays.NewPlainPattern(rays.Colour{1, 0.9, 0.9})
 		right_wall.Material.Specular = 0
 		my_world.AddObject(right_wall)
 	}
@@ -73,7 +72,14 @@ func PerformWorldBuildingCustom() {
 		middle := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 
 		middle.SetTransformation(matrices.TranslationMatrix(-0.5, 1, 0.5))
-		middle.Material.Colour = rays.NewLightColour(0.1, 1, 0.5)
+		// middle.Material.Pattern = rays.NewPlainPattern(rays.Colour{0.1, 1, 0.5})
+
+		_pat := rays.NewXStripe(rays.Colour{0.1, 0.5, 0.5}, rays.Colour{0.8, 0.2, 0.4})
+		_pat.SetPatternTransformation(matrices.PerformOrderedChainingOps(matrices.NewIdentityMatrix(4),
+			matrices.ScalingMatrix(0.2, 0.2, 0.2),
+			matrices.GivensRotationMatrix3DLeftHanded(coordinates.Z, math.Pi/2),
+		))
+		middle.Material.Pattern = _pat
 		middle.Material.Specular = 0.3
 		middle.Material.Diffuse = 0.7
 
@@ -90,7 +96,14 @@ func PerformWorldBuildingCustom() {
 		)
 		right.SetTransformation(right_sph_transform)
 
-		right.Material.Colour = rays.NewLightColour(0.5, 1, 0.1)
+		grad_p := rays.NewXGradient(rays.Colour{0.9, 0.0, 0.9}, rays.Colour{0.5, 0.8, 0.2})
+		grad_p.SetPatternTransformation(matrices.PerformOrderedChainingOps(matrices.NewIdentityMatrix(4),
+			matrices.ScalingMatrix(3, 3, 3),
+			matrices.GivensRotationMatrix3DLeftHanded(coordinates.Z, math.Pi/4),
+		))
+
+		right.Material.Pattern = grad_p
+		// right.Material.Pattern = rays.NewPlainPattern(rays.Colour{0.5, 1, 0.1})
 		right.Material.Specular = 0.7
 		right.Material.Diffuse = 0.3
 		my_world.AddObject(right)
@@ -103,24 +116,33 @@ func PerformWorldBuildingCustom() {
 			matrices.ScalingMatrix(0.33, 0.33, 0.33),
 			matrices.TranslationMatrix(-1.5, 0.33, -0.75),
 		)
+
 		left.SetTransformation(left_sph_transform)
 
-		left.Material.Colour = rays.NewLightColour(1, 0.8, 0.1)
+		// checker_3d := rays.NewChecker3D(rays.Colour{1, 0.8, 0.1}, rays.Colour{1, 1, 1})
+		// checker_3d.SetPatternTransformation(matrices.PerformOrderedChainingOps(matrices.NewIdentityMatrix(4),
+		// 	matrices.ScalingMatrix(0.5, 0.5, 0.5),
+		// ))
+		// left.Material.Pattern = checker_3d
+
+		uvchecker_pattern := rays.NewUnitSphereUVChecker(rays.Colour{1, 1, 1}, rays.Colour{1, 0.8, 0.1}, 16, 16)
+		uvchecker_pattern.SetPatternTransformation(matrices.PerformOrderedChainingOps(matrices.NewIdentityMatrix(4),
+			matrices.ScalingMatrix(1, 1, 1),
+		))
+		left.Material.Pattern = uvchecker_pattern
+
+		// left.Material.Pattern = rays.NewPlainPattern(rays.Colour{1, 0.8, 0.1})
 		left.Material.Specular = 0.7
 		left.Material.Diffuse = 0.7
 
 		my_world.AddObject(left)
 	}
 
-	cam := observe.CreateNewCamera(300, 200, math.Pi/3)
+	cam := observe.CreateNewCamera(400, 300, math.Pi/3)
 
 	view_t := matrices.View_Transform(coordinates.CreatePoint(0, 1.5, -5), coordinates.CreatePoint(0, 1, 0), coordinates.CreateVector(0, 1, 0))
 
 	cam.SetTransformationMatrix(matrices.PerformOrderedChainingOps(matrices.NewIdentityMatrix(4), view_t))
-	// matrices.GivensRotationMatrix3DLeftHanded(coordinates.Z, math.Pi/2),
-	// matrices.ScalingMatrix(1, -1, 1)))
-
-	my_canvas := observe.RenderParaller(cam, my_world, 5)
-	// my_canvas := observe.Render(cam, my_world)
+	my_canvas := observe.RenderParaller(cam, my_world, 8)
 	fmt.Println(canvas.CanvasToPPMData(my_canvas))
 }
