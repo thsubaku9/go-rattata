@@ -79,7 +79,9 @@ func PerformWorldBuildingCustom() {
 			matrices.ScalingMatrix(0.2, 0.2, 0.2),
 			matrices.GivensRotationMatrix3DLeftHanded(coordinates.Z, math.Pi/2),
 		))
-		middle.Material.Pattern = _pat
+
+		_pat2 := rays.NewPerturbedPattern(_pat, 0.5)
+		middle.Material.Pattern = _pat2
 		middle.Material.Specular = 0.3
 		middle.Material.Diffuse = 0.7
 
