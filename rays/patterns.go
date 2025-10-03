@@ -220,8 +220,107 @@ func (rg *XZRadialGradient) SetPatternTransformation(_mat matrices.Matrix) {
 	rg.transformMatrix = _mat
 }
 
-// tbd later
-
 // ------------------------------------ Perturbed Pattern ------------------------------------
-// ------------------------------------ Nested Pattern ------------------------------------
-// ------------------------------------ Blended Pattern ------------------------------------
+
+type Perturbed struct {
+	basePattern     Pattern
+	perturbAmount   float64
+	transformMatrix matrices.Matrix
+}
+
+func NewPerturbedPattern(base Pattern, perturbAmt float64) Perturbed {
+	return Perturbed{base, perturbAmt, matrices.NewIdentityMatrix(4)}
+}
+
+func (p Perturbed) PatternAt(point coordinates.Coordinate) Colour {
+	patternTransformationInverse, _ := p.transformMatrix.Inverse()
+	pattern_point := matrices.MatrixToCoordinate(matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(point), patternTransformationInverse))
+
+	x2 := pattern_point.Get(coordinates.X) + (PerlinNoise3D(pattern_point.Get(coordinates.X), pattern_point.Get(coordinates.Y), pattern_point.Get(coordinates.Z)) * p.perturbAmount)
+	y2 := pattern_point.Get(coordinates.Y) + (PerlinNoise3D(pattern_point.Get(coordinates.Y), pattern_point.Get(coordinates.Z), pattern_point.Get(coordinates.X)) * p.perturbAmount)
+	z2 := pattern_point.Get(coordinates.Z) + (PerlinNoise3D(pattern_point.Get(coordinates.Z), pattern_point.Get(coordinates.X), pattern_point.Get(coordinates.Y)) * p.perturbAmount)
+
+	return p.basePattern.PatternAt(coordinates.CreatePoint(x2, y2, z2))
+}
+
+func (p Perturbed) PatternTransformation() matrices.Matrix {
+	return p.transformMatrix
+}
+
+func (p *Perturbed) SetPatternTransformation(_mat matrices.Matrix) {
+	p.transformMatrix = _mat
+}
+
+func PerlinNoise3D(x, y, z float64) float64 {
+	// Scale the input coordinates to control the "frequency" of the noise
+	scale := 2.0
+	x *= scale
+	y *= scale
+	z *= scale
+
+	// Determine the grid cell coordinates
+	x0 := int(math.Floor(x))
+	x1 := x0 + 1
+	y0 := int(math.Floor(y))
+	y1 := y0 + 1
+	z0 := int(math.Floor(z))
+	z1 := z0 + 1
+
+	// Relative coordinates within the grid cell
+	xf := x - float64(x0)
+	yf := y - float64(y0)
+	zf := z - float64(z0)
+
+	// Fade curves for each coordinate
+	u := fade(xf)
+	v := fade(yf)
+	w := fade(zf)
+
+	// Hash coordinates of the cube corners
+	aaa := hash(x0, y0, z0)
+	aba := hash(x0, y1, z0)
+	aab := hash(x0, y0, z1)
+	abb := hash(x0, y1, z1)
+	baa := hash(x1, y0, z0)
+	bba := hash(x1, y1, z0)
+	bab := hash(x1, y0, z1)
+	bbb := hash(x1, y1, z1)
+
+	// And add blended results from 8 corners of the cube
+	x1Interp := lerp(grad(aaa, xf, yf, zf), grad(baa, xf-1, yf, zf), u)
+	x2Interp := lerp(grad(aba, xf, yf-1, zf), grad(bba, xf-1, yf-1, zf), u)
+	y1Interp := lerp(x1Interp, x2Interp, v)
+
+	x3Interp := lerp(grad(aab, xf, yf, zf-1), grad(bab, xf-1, yf, zf-1), u)
+	x4Interp := lerp(grad(abb, xf, yf-1, zf-1), grad(bbb, xf-1, yf-1, zf-1), u)
+	y2Interp := lerp(x3Interp, x4Interp, v)
+
+	return (lerp(y1Interp, y2Interp, w) + 1) / 2 // Normalize to [0,1]
+}
+
+func fade(t float64) float64 {
+	return t * t * t * (t*(t*6-15) + 10)
+}
+
+func lerp(a, b, t float64) float64 {
+	return a + t*(b-a)
+}
+
+func grad(hash int, x, y, z float64) float64 {
+	h := hash & 15
+	u := ifThenElse(h < 8, x, y)
+	v := ifThenElse(h < 4, y, ifThenElse(h == 12 || h == 14, x, z))
+	return ifThenElse((h&1) == 0, u, -u) + ifThenElse((h&2) == 0, v, -v)
+}
+
+func hash(x, y, z int) int {
+	// A simple hash function for demonstration purposes
+	return (x * 73856093) ^ (y * 19349663) ^ (z * 83492791)
+}
+
+func ifThenElse(condition bool, a, b float64) float64 {
+	if condition {
+		return a
+	}
+	return b
+}
