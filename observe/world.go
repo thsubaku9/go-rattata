@@ -35,19 +35,19 @@ func PreparePrecompData(intersection rays.Intersection, r rays.Ray) PreCompData 
 	return _preComp
 }
 
-func (pre PreCompData) Shade_Hit(l rays.Light, w World) rays.Colour {
+func (pre PreCompData) Shade_Hit(l rays.Light, w World, limit uint) rays.Colour {
 	lighting_value := rays.Lighting(pre.Object, l, pre.OverPoint, pre.EyeVector, pre.NormalVector, w.IsShadowed(pre.OverPoint))
-	reflected_value := pre.Reflected_Colour(w)
+	reflected_value := pre.Reflected_Colour(w, limit)
 	return rays.AddColour(lighting_value, reflected_value)
 }
 
-func (pre PreCompData) Reflected_Colour(w World) rays.Colour {
+func (pre PreCompData) Reflected_Colour(w World, limit uint) rays.Colour {
 	if pre.Object.GetMaterial().Reflective == 0 {
 		return rays.Colour{0, 0, 0}
 	}
 
 	reflect_ray := rays.NewRay(pre.OverPoint, pre.ReflectiveVector)
-	color := w.Color_At(reflect_ray)
+	color := w.Color_At(reflect_ray, limit-1)
 
 	return rays.MulColour(color, pre.Object.GetMaterial().Reflective)
 }
@@ -126,7 +126,11 @@ func (w World) IntersectWithRay(r rays.Ray) []rays.Intersection {
 	return res
 }
 
-func (w World) Color_At(r rays.Ray) rays.Colour {
+func (w World) Color_At(r rays.Ray, limit uint) rays.Colour {
+	if limit == 0 {
+		return rays.Colour{0, 0, 0}
+	}
+
 	xs := w.IntersectWithRay(r)
 	res, isOk := rays.Hit(xs)
 
@@ -136,7 +140,7 @@ func (w World) Color_At(r rays.Ray) rays.Colour {
 
 	precomp := PreparePrecompData(*res, r)
 
-	return precomp.Shade_Hit(*w.LightSource(), w)
+	return precomp.Shade_Hit(*w.LightSource(), w, limit)
 }
 
 func (w World) IsShadowed(point coordinates.Coordinate) bool {

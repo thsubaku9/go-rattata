@@ -8,6 +8,7 @@ import (
 )
 
 var EPSILON float64 = 0.0001
+var REC_LIMIT uint = 3
 
 type Ray struct {
 	Origin    coordinates.Coordinate
