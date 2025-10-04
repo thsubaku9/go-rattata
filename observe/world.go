@@ -8,13 +8,14 @@ import (
 )
 
 type PreCompData struct {
-	Tvalue         float64
-	Object         rays.Shape
-	Point          coordinates.Coordinate
-	OverPoint      coordinates.Coordinate
-	EyeVector      coordinates.Coordinate
-	NormalVector   coordinates.Coordinate
-	EyeInsideShape bool
+	Tvalue           float64
+	Object           rays.Shape
+	Point            coordinates.Coordinate
+	OverPoint        coordinates.Coordinate
+	EyeVector        coordinates.Coordinate
+	NormalVector     coordinates.Coordinate
+	ReflectiveVector coordinates.Coordinate
+	EyeInsideShape   bool
 }
 
 func PreparePrecompData(intersection rays.Intersection, r rays.Ray) PreCompData {
@@ -29,11 +30,26 @@ func PreparePrecompData(intersection rays.Intersection, r rays.Ray) PreCompData 
 
 	raising_vector := _preComp.NormalVector.Mul(rays.EPSILON)
 	_preComp.OverPoint = *_preComp.Point.Add(raising_vector)
+
+	_preComp.ReflectiveVector = rays.ReflectVector(r.Direction, _preComp.NormalVector)
 	return _preComp
 }
 
 func (pre PreCompData) Shade_Hit(l rays.Light, w World) rays.Colour {
-	return rays.Lighting(pre.Object, l, pre.OverPoint, pre.EyeVector, pre.NormalVector, w.IsShadowed(pre.OverPoint))
+	lighting_value := rays.Lighting(pre.Object, l, pre.OverPoint, pre.EyeVector, pre.NormalVector, w.IsShadowed(pre.OverPoint))
+	reflected_value := pre.Reflected_Colour(w)
+	return rays.AddColour(lighting_value, reflected_value)
+}
+
+func (pre PreCompData) Reflected_Colour(w World) rays.Colour {
+	if pre.Object.GetMaterial().Reflective == 0 {
+		return rays.Colour{0, 0, 0}
+	}
+
+	reflect_ray := rays.NewRay(pre.OverPoint, pre.ReflectiveVector)
+	color := w.Color_At(reflect_ray)
+
+	return rays.MulColour(color, pre.Object.GetMaterial().Reflective)
 }
 
 type World struct {
