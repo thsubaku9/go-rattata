@@ -135,3 +135,29 @@ func TestShadeHitWithRecursiveDepth(t *testing.T) {
 	}
 
 }
+
+func TestPrecompData(t *testing.T) {
+	r := rays.NewRay(coordinates.CreatePoint(0, 0, -5), coordinates.CreateVector(0, 0, 1))
+	s := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+	i := rays.Intersection{Tvalue: 4, Obj: s}
+
+	pre := PreparePrecompData(i, r)
+
+	assert.Equal(t, i.Tvalue, pre.Tvalue)
+	assert.Equal(t, i.Obj, pre.Object)
+	assert.Equal(t, coordinates.CreatePoint(0, 0, -1), pre.Point)
+	assert.Equal(t, coordinates.CreateVector(0, 0, -1), pre.EyeVector)
+	assert.Equal(t, coordinates.CreateVector(0, 0, -1), pre.NormalVector)
+	assert.False(t, pre.EyeInsideShape)
+
+	r2 := rays.NewRay(coordinates.CreatePoint(0, 0, 0), coordinates.CreateVector(0, 0, 1))
+	i = rays.Intersection{Tvalue: 1, Obj: s}
+	pre2 := PreparePrecompData(i, r2)
+
+	assert.Equal(t, i.Tvalue, pre2.Tvalue)
+	assert.Equal(t, i.Obj, pre2.Object)
+	assert.Equal(t, coordinates.CreatePoint(0, 0, 1), pre2.Point)
+	assert.Equal(t, coordinates.CreateVector(0, 0, -1), pre2.EyeVector)
+	assert.Equal(t, coordinates.CreateVector(0, 0, -1), pre2.NormalVector)
+	assert.True(t, pre2.EyeInsideShape)
+}

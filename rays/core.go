@@ -167,16 +167,19 @@ func NewLightSource(x, y, z float64, colour Colour) Light {
 }
 
 type Material struct {
-	Ambient    float64
-	Diffuse    float64
-	Specular   float64
-	Shininess  float64
-	Pattern    Pattern
-	Reflective float64
+	Ambient         float64
+	Diffuse         float64
+	Specular        float64
+	Shininess       float64
+	Pattern         Pattern
+	Reflective      float64
+	Transparency    float64
+	RefractiveIndex float64
 }
 
 func CreateDefaultMaterial() Material {
-	return Material{Pattern: PlainPattern{Colour{1, 1, 1}}, Ambient: 0.1, Diffuse: 0.9, Specular: 0.9, Shininess: 200.0, Reflective: 0.0}
+	return Material{Pattern: PlainPattern{Colour{1, 1, 1}}, Ambient: 0.1, Diffuse: 0.9, Specular: 0.9, Shininess: 200.0,
+		Reflective: 0.0, RefractiveIndex: 1.0, Transparency: 0.0}
 }
 
 func PatternAtPoint(world_point coordinates.Coordinate, objectTransformation matrices.Matrix, pattern Pattern) Colour {

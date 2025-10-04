@@ -27,6 +27,13 @@ func NewSphere(origin coordinates.Coordinate, radius float64) Sphere {
 	return Sphere{Origin: origin, Radius: radius, transformationMat: matrices.NewIdentityMatrix(4), Material: CreateDefaultMaterial()}
 }
 
+func NewGlassSphere() Sphere {
+	s := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+	s.Material.Transparency = 1.0
+	s.Material.RefractiveIndex = 1.5
+	return s
+}
+
 func (s Sphere) Name() string {
 	return "Sphere"
 }
