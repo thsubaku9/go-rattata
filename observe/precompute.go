@@ -2,6 +2,7 @@ package observe
 
 import (
 	"fmt"
+	"math"
 	"rattata/coordinates"
 	"rattata/rays"
 )
@@ -85,13 +86,18 @@ func obtainInboundOutboundRefractiveIndices(intersection rays.Intersection, xs [
 }
 
 func (pre PreCompData) Shade_Hit(l rays.Light, w World, limit uint) rays.Colour {
+	if limit == 0 {
+		return rays.Colour{0, 0, 0}
+	}
+
 	lighting_value := rays.Lighting(pre.Object, l, pre.OverPoint, pre.EyeVector, pre.NormalVector, w.IsShadowed(pre.OverPoint))
 	reflected_value := pre.Reflected_Colour(w, limit)
-	return rays.AddColour(lighting_value, reflected_value)
+	refracted_value := pre.Refracted_Colour(w, limit)
+	return rays.AddColour(rays.AddColour(lighting_value, reflected_value), refracted_value)
 }
 
 func (pre PreCompData) Reflected_Colour(w World, limit uint) rays.Colour {
-	if pre.Object.GetMaterial().Reflective == 0 {
+	if pre.Object.GetMaterial().Reflective == 0 || limit == 0 {
 		return rays.Colour{0, 0, 0}
 	}
 
@@ -106,6 +112,27 @@ func (pre PreCompData) Refracted_Colour(w World, limit uint) rays.Colour {
 		return rays.Colour{0, 0, 0}
 	}
 
-	// todo perform refraction calculations here
-	return rays.Colour{1, 1, 1}
+	//n_inci * sin(incidence) = n_refrac * sin(refraction)
+
+	n_inc_over_n_refrac := pre.RI_Inbound / pre.RI_Outbound
+
+	cos_incidence := pre.EyeVector.DotP(&pre.NormalVector)
+
+	sin_incidence_squared := 1.0 - cos_incidence*cos_incidence
+	sin_refraction_squared := n_inc_over_n_refrac * n_inc_over_n_refrac * sin_incidence_squared
+
+	if sin_refraction_squared > 1.0 { // Total internal reflection
+		return rays.Colour{0, 0, 0}
+	}
+
+	// todo -> understand
+	cos_refraction := math.Sqrt(1.0 - sin_refraction_squared)
+	direction := pre.NormalVector.Mul(n_inc_over_n_refrac*cos_incidence - cos_refraction).
+		Sub(pre.EyeVector.Mul(n_inc_over_n_refrac))
+
+	refract_ray := rays.NewRay(pre.UnderPoint, *direction)
+
+	color := rays.MulColour(w.Color_At(refract_ray, limit-1), pre.Object.GetMaterial().Transparency)
+
+	return color
 }

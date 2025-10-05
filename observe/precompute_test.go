@@ -1,6 +1,7 @@
 package observe
 
 import (
+	"math"
 	"rattata/coordinates"
 	"rattata/helpers"
 	"rattata/matrices"
@@ -64,4 +65,20 @@ func TestPrecompRefractiveIndices(t *testing.T) {
 		helpers.ApproxEqual(t, expected_n1[i], pre.RI_Inbound, 0.0001)
 		helpers.ApproxEqual(t, expected_n2[i], pre.RI_Outbound, 0.0001)
 	}
+}
+
+func TestPrecompTotalInternalReflection(t *testing.T) {
+	s := rays.NewGlassSphere()
+	s.SetTransformation(matrices.ScalingMatrix(1, 1, 1))
+	s.Material.RefractiveIndex = 1.5
+
+	w := NewEmptyWorld()
+	w.AddObject(s)
+
+	r := rays.NewRay(coordinates.CreatePoint(0, 0, math.Sqrt(2)/2), coordinates.CreateVector(0, 1, 0))
+	xs := []rays.Intersection{rays.NewIntersection(-math.Sqrt(2)/2, s), rays.NewIntersection(math.Sqrt(2)/2, s)}
+
+	pre := PreparePrecompData(xs[1], r, xs)
+	c := pre.Refracted_Colour(w, 2)
+	assert.Equal(t, rays.Colour{0, 0, 0}, c)
 }

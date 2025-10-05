@@ -11,6 +11,9 @@ import (
 type Shape interface {
 	Name() string
 	Transformation() matrices.Matrix
+	/*
+		Returns the normalized vector perpendicular to the shape at the given world point
+	*/
 	NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate
 	GetMaterial() Material
 	Id() string

@@ -135,3 +135,27 @@ func TestShadeHitWithRecursiveDepth(t *testing.T) {
 	}
 
 }
+
+func TestShadeHitWithRefractiveObject(t *testing.T) {
+	w := NewDefaultWorld()
+	plane := rays.NewPlane(coordinates.CreatePoint(0, 0, 0))
+	plane.Material.Transparency = 0.5
+	plane.Material.RefractiveIndex = 1.5
+	plane.SetTransformation(matrices.TranslationMatrix(0, -1, 0))
+	w.AddObject(plane)
+
+	sph := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+	sph.Material.Pattern = rays.NewPlainPattern(rays.Colour{1.0, 0.0, 0.0})
+	sph.Material.Ambient = 0.5
+	sph.SetTransformation(matrices.TranslationMatrix(0, -3.5, -0.5))
+
+	w.AddObject(sph)
+
+	r := rays.NewRay(coordinates.CreatePoint(0, 0, -3), coordinates.CreateVector(0, -math.Sqrt(2)/2, math.Sqrt(2)/2))
+	c := w.Color_At(r, 2)
+	expected_c := rays.Colour{0.936422, 0.68642, 0.68642}
+
+	for i := range expected_c {
+		helpers.ApproxEqual(t, expected_c[i], c[i], 0.0001)
+	}
+}
