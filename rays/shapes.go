@@ -3,20 +3,26 @@ package rays
 import (
 	"rattata/coordinates"
 	"rattata/matrices"
+
+	"github.com/gofrs/uuid"
 )
 
+// ---------------------------------- Shapes ----------------------------------
 type Shape interface {
 	Name() string
 	Transformation() matrices.Matrix
 	NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate
 	GetMaterial() Material
+	Id() string
 }
 
+// ---------------------------------- Sphere ----------------------------------
 type Sphere struct {
 	Origin            coordinates.Coordinate
 	Radius            float64
 	transformationMat matrices.Matrix
 	Material          Material
+	ID                string
 }
 
 func NewSphere(origin coordinates.Coordinate, radius float64) Sphere {
@@ -24,7 +30,8 @@ func NewSphere(origin coordinates.Coordinate, radius float64) Sphere {
 		panic("origin is not a point")
 	}
 
-	return Sphere{Origin: origin, Radius: radius, transformationMat: matrices.NewIdentityMatrix(4), Material: CreateDefaultMaterial()}
+	new_uuid, _ := uuid.NewV4()
+	return Sphere{Origin: origin, Radius: radius, transformationMat: matrices.NewIdentityMatrix(4), Material: CreateDefaultMaterial(), ID: new_uuid.String()}
 }
 
 func NewGlassSphere() Sphere {
@@ -36,6 +43,10 @@ func NewGlassSphere() Sphere {
 
 func (s Sphere) Name() string {
 	return "Sphere"
+}
+
+func (s Sphere) Id() string {
+	return s.ID
 }
 
 func (s Sphere) Transformation() matrices.Matrix {
@@ -65,10 +76,12 @@ func (s Sphere) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Co
 	return *res.Norm()
 }
 
+// ---------------------------------- XZPlane ----------------------------------
 type XZPlane struct {
 	Origin            coordinates.Coordinate
 	transformationMat matrices.Matrix
 	Material          Material
+	ID                string
 }
 
 func NewPlane(origin coordinates.Coordinate) XZPlane {
@@ -76,11 +89,17 @@ func NewPlane(origin coordinates.Coordinate) XZPlane {
 		panic("origin is not a point")
 	}
 
-	return XZPlane{Origin: origin, transformationMat: matrices.NewIdentityMatrix(4), Material: CreateDefaultMaterial()}
+	new_uuid, _ := uuid.NewV4()
+
+	return XZPlane{Origin: origin, transformationMat: matrices.NewIdentityMatrix(4), Material: CreateDefaultMaterial(), ID: new_uuid.String()}
 }
 
 func (p XZPlane) Name() string {
 	return "Plane"
+}
+
+func (p XZPlane) Id() string {
+	return p.ID
 }
 
 func (p XZPlane) Transformation() matrices.Matrix {

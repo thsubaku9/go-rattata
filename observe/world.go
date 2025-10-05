@@ -7,51 +7,6 @@ import (
 	"sort"
 )
 
-type PreCompData struct {
-	Tvalue           float64
-	Object           rays.Shape
-	Point            coordinates.Coordinate
-	OverPoint        coordinates.Coordinate
-	EyeVector        coordinates.Coordinate
-	NormalVector     coordinates.Coordinate
-	ReflectiveVector coordinates.Coordinate
-	EyeInsideShape   bool
-}
-
-func PreparePrecompData(intersection rays.Intersection, r rays.Ray) PreCompData {
-	_preComp := PreCompData{Tvalue: intersection.Tvalue, Object: intersection.Obj, Point: *r.PointAtTime(intersection.Tvalue),
-		EyeVector: *r.Direction.Negate(), NormalVector: intersection.Obj.NormalAtPoint(*r.PointAtTime(intersection.Tvalue))}
-
-	_preComp.EyeInsideShape = _preComp.EyeVector.DotP(&_preComp.NormalVector) < 0
-
-	if _preComp.EyeInsideShape {
-		_preComp.NormalVector = *_preComp.NormalVector.Negate()
-	}
-
-	raising_vector := _preComp.NormalVector.Mul(rays.EPSILON)
-	_preComp.OverPoint = *_preComp.Point.Add(raising_vector)
-
-	_preComp.ReflectiveVector = rays.ReflectVector(r.Direction, _preComp.NormalVector)
-	return _preComp
-}
-
-func (pre PreCompData) Shade_Hit(l rays.Light, w World, limit uint) rays.Colour {
-	lighting_value := rays.Lighting(pre.Object, l, pre.OverPoint, pre.EyeVector, pre.NormalVector, w.IsShadowed(pre.OverPoint))
-	reflected_value := pre.Reflected_Colour(w, limit)
-	return rays.AddColour(lighting_value, reflected_value)
-}
-
-func (pre PreCompData) Reflected_Colour(w World, limit uint) rays.Colour {
-	if pre.Object.GetMaterial().Reflective == 0 {
-		return rays.Colour{0, 0, 0}
-	}
-
-	reflect_ray := rays.NewRay(pre.OverPoint, pre.ReflectiveVector)
-	color := w.Color_At(reflect_ray, limit-1)
-
-	return rays.MulColour(color, pre.Object.GetMaterial().Reflective)
-}
-
 type World struct {
 	lightSource *rays.Light
 	objects     []rays.Shape
@@ -138,7 +93,7 @@ func (w World) Color_At(r rays.Ray, limit uint) rays.Colour {
 		return rays.Colour{0, 0, 0}
 	}
 
-	precomp := PreparePrecompData(*res, r)
+	precomp := PreparePrecompData(*res, r, xs)
 
 	return precomp.Shade_Hit(*w.LightSource(), w, limit)
 }
