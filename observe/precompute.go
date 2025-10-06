@@ -125,11 +125,14 @@ func (pre PreCompData) Refracted_Colour(w World, limit uint) rays.Colour {
 		return rays.Colour{0, 0, 0}
 	}
 
-	// todo -> understand
 	cos_refraction := math.Sqrt(1.0 - sin_refraction_squared)
-	direction := pre.NormalVector.Mul(n_inc_over_n_refrac*cos_incidence - cos_refraction).
-		Sub(pre.EyeVector.Mul(n_inc_over_n_refrac))
 
+	incidence_vector := pre.EyeVector.Negate()
+
+	// https://physics.stackexchange.com/questions/435512/snells-law-in-vector-form
+	// https://en.wikipedia.org/wiki/Snell%27s_law#Vector_form
+	direction := pre.NormalVector.Mul(n_inc_over_n_refrac*cos_incidence - cos_refraction).
+		Add(incidence_vector.Mul(n_inc_over_n_refrac))
 	refract_ray := rays.NewRay(pre.UnderPoint, *direction)
 
 	color := rays.MulColour(w.Color_At(refract_ray, limit-1), pre.Object.GetMaterial().Transparency)
