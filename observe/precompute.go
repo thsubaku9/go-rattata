@@ -1,8 +1,6 @@
 package observe
 
 import (
-	"fmt"
-	"math"
 	"rattata/coordinates"
 	"rattata/rays"
 )
@@ -43,7 +41,6 @@ func PreparePrecompData(intersection rays.Intersection, r rays.Ray, xs []rays.In
 
 func obtainInboundOutboundRefractiveIndices(intersection rays.Intersection, xs []rays.Intersection) (float64, float64) {
 
-	fmt.Printf("%p \n", &intersection)
 	containers := make([]rays.Shape, 0)
 	var ri_inbound, ri_outbound float64 = 1.0, 1.0
 
@@ -112,29 +109,13 @@ func (pre PreCompData) Refracted_Colour(w World, limit uint) rays.Colour {
 		return rays.Colour{0, 0, 0}
 	}
 
-	//n_inci * sin(incidence) = n_refrac * sin(refraction)
+	direction, isRefraced := rays.CalculateRefractiveVector(pre.NormalVector, *pre.EyeVector.Negate(), pre.RI_Inbound, pre.RI_Outbound)
 
-	n_inc_over_n_refrac := pre.RI_Inbound / pre.RI_Outbound
-
-	cos_incidence := pre.EyeVector.DotP(&pre.NormalVector)
-
-	sin_incidence_squared := 1.0 - cos_incidence*cos_incidence
-	sin_refraction_squared := n_inc_over_n_refrac * n_inc_over_n_refrac * sin_incidence_squared
-
-	if sin_refraction_squared > 1.0 { // Total internal reflection
+	if !isRefraced { // Total internal reflection
 		return rays.Colour{0, 0, 0}
 	}
 
-	cos_refraction := math.Sqrt(1.0 - sin_refraction_squared)
-
-	incidence_vector := pre.EyeVector.Negate()
-
-	// https://physics.stackexchange.com/questions/435512/snells-law-in-vector-form
-	// https://en.wikipedia.org/wiki/Snell%27s_law#Vector_form
-	direction := pre.NormalVector.Mul(n_inc_over_n_refrac*cos_incidence - cos_refraction).
-		Add(incidence_vector.Mul(n_inc_over_n_refrac))
 	refract_ray := rays.NewRay(pre.UnderPoint, *direction)
-
 	color := rays.MulColour(w.Color_At(refract_ray, limit-1), pre.Object.GetMaterial().Transparency)
 
 	return color

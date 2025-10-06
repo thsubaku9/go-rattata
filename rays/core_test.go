@@ -161,3 +161,25 @@ func TestLightingShadowRegion(t *testing.T) {
 
 	assert.Equal(t, Colour{0.1, 0.1, 0.1}, result)
 }
+
+// todo
+func TestStandardRefraction(t *testing.T) {
+	v := coordinates.CreateVector(1, -1, 0)
+	n := coordinates.CreateVector(0, 1, 0)
+	r := ReflectVector(v, n)
+	helpers.TestApproxEqualCoordinate(t, coordinates.CreateVector(1, 1, 0), r, 0.00001)
+}
+
+func TestTiltedRefraction(t *testing.T) {
+	v := coordinates.CreateVector(0, -1, 0)
+	n := coordinates.CreateVector(float64(math.Sqrt(2)/2), float64(math.Sqrt(2)/2), 0)
+	r := ReflectVector(v, n)
+	helpers.TestApproxEqualCoordinate(t, coordinates.CreateVector(1, 0, 0), r, 0.00001)
+}
+
+func TestTotalInternalReflection(t *testing.T) {
+	v := coordinates.CreateVector(1, -1, 0)
+	n := coordinates.CreateVector(0, 1, 0)
+	r := ReflectVector(v, n)
+	helpers.TestApproxEqualCoordinate(t, coordinates.CreateVector(1, 1, 0), r, 0.00001)
+}
