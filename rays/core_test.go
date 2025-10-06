@@ -183,3 +183,24 @@ func TestTotalInternalReflection(t *testing.T) {
 	r := ReflectVector(v, n)
 	helpers.TestApproxEqualCoordinate(t, coordinates.CreateVector(1, 1, 0), r, 0.00001)
 }
+
+func TestSchlickUnderTIR(t *testing.T) {
+
+	eyeVector := coordinates.CreateVector(0, 0, -1)
+	normalV := coordinates.CreateVector(0, -1, 0)
+	n1 := 1.5
+	n2 := 1.0
+
+	schlick_val := SchlickScore(eyeVector, normalV, n1, n2)
+
+	assert.Equal(t, 1.0, schlick_val)
+
+}
+
+// todo
+func TestSchlickForPerpendicularRay(t *testing.T) {
+
+}
+func TestSchlickFor_N2_GT_N1(t *testing.T) {
+
+}

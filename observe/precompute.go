@@ -109,7 +109,7 @@ func (pre PreCompData) Refracted_Colour(w World, limit uint) rays.Colour {
 		return rays.Colour{0, 0, 0}
 	}
 
-	direction, isRefraced := rays.CalculateRefractiveVector(pre.NormalVector, *pre.EyeVector.Negate(), pre.RI_Inbound, pre.RI_Outbound)
+	direction, isRefraced := rays.RefractiveVector(pre.NormalVector, *pre.EyeVector.Negate(), pre.RI_Inbound, pre.RI_Outbound)
 
 	if !isRefraced { // Total internal reflection
 		return rays.Colour{0, 0, 0}

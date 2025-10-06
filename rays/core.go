@@ -171,7 +171,7 @@ func ReflectVector(incidence, normal coordinates.Coordinate) coordinates.Coordin
 }
 
 /*
-	Phong reflection model of lighting
+Phong reflection model of lighting
 
 Ambient -> Background lighting;
 Diffuse -> Light reflected from matte surface;
@@ -225,7 +225,7 @@ func Lighting(shp Shape, light Light, pos, eyeVector, normalVector coordinates.C
 	}
 }
 
-func CalculateRefractiveVector(normal_vector, incidence_vector coordinates.Coordinate, inbound_ri, outbound_ri float64) (*coordinates.Coordinate, bool) {
+func RefractiveVector(normal_vector, incidence_vector coordinates.Coordinate, inbound_ri, outbound_ri float64) (*coordinates.Coordinate, bool) {
 
 	//n_inci * sin(incidence) = n_refrac * sin(refraction)
 
@@ -246,6 +246,25 @@ func CalculateRefractiveVector(normal_vector, incidence_vector coordinates.Coord
 		Add(incidence_vector.Mul(n_inc_over_n_refrac))
 
 	return refracted_vector, true
+}
+
+func SchlickScore(eye_vector, normal_vector coordinates.Coordinate, inbound_ri, outbound_ri float64) float64 {
+	// https://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf
+	cos_theta_i := eye_vector.DotP(&normal_vector)
+
+	if inbound_ri > outbound_ri {
+		n := inbound_ri / outbound_ri
+		sin2_theta_t := n * n * (1.0 - cos_theta_i*cos_theta_i)
+		if sin2_theta_t > 1.0 {
+			return 1.0 // Total internal reflection
+		}
+
+		cos_theta_t := math.Sqrt(1.0 - sin2_theta_t)
+		cos_theta_i = cos_theta_t
+	}
+
+	r0 := math.Pow(((inbound_ri - outbound_ri) / (inbound_ri + outbound_ri)), 2)
+	return r0 + (1-r0)*math.Pow((1-cos_theta_i), 5)
 }
 
 // ------------------------------------- Material  ------------------------------------
