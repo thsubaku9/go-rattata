@@ -108,7 +108,7 @@ func (w World) IsShadowed(point coordinates.Coordinate) bool {
 	xs := w.IntersectWithRay(ray)
 	h, doesHit := rays.Hit(xs)
 
-	if doesHit && h.Tvalue < dist {
+	if doesHit && h.Tvalue < dist && h.Obj.GetMaterial().Transparency == 0 {
 		return true
 	}
 

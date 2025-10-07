@@ -248,7 +248,7 @@ func RefractiveVector(normal_vector, incidence_vector coordinates.Coordinate, in
 	return refracted_vector, true
 }
 
-func SchlickScore(eye_vector, normal_vector coordinates.Coordinate, inbound_ri, outbound_ri float64) float64 {
+func SchlickReflectiveScore(eye_vector, normal_vector coordinates.Coordinate, inbound_ri, outbound_ri float64) float64 {
 	// https://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf
 	cos_theta_i := eye_vector.DotP(&normal_vector)
 

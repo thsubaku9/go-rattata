@@ -90,7 +90,16 @@ func (pre PreCompData) Shade_Hit(l rays.Light, w World, limit uint) rays.Colour 
 	lighting_value := rays.Lighting(pre.Object, l, pre.OverPoint, pre.EyeVector, pre.NormalVector, w.IsShadowed(pre.OverPoint))
 	reflected_value := pre.Reflected_Colour(w, limit)
 	refracted_value := pre.Refracted_Colour(w, limit)
-	return rays.AddColour(rays.AddColour(lighting_value, reflected_value), refracted_value)
+
+	if pre.Object.GetMaterial().Reflective > 0 && pre.Object.GetMaterial().Transparency > 0 {
+		reflectance := rays.SchlickReflectiveScore(pre.EyeVector, pre.NormalVector, pre.RI_Inbound, pre.RI_Outbound)
+		transmitive := 1 - reflectance
+
+		return rays.AddColour(rays.AddColour(rays.MulColour(refracted_value, transmitive),
+			rays.MulColour(reflected_value, reflectance)),
+			lighting_value)
+	}
+	return rays.AddColour(rays.AddColour(refracted_value, reflected_value), lighting_value)
 }
 
 func (pre PreCompData) Reflected_Colour(w World, limit uint) rays.Colour {
