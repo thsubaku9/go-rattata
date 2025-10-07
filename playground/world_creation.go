@@ -12,7 +12,7 @@ import (
 
 func PerformWorldBuildingDefault() {
 	w := observe.NewDefaultWorld()
-	cam := observe.CreateNewCamera(400, 200, math.Pi/2)
+	cam := observe.CreateNewCamera(500, 400, math.Pi/2)
 	from := coordinates.CreatePoint(0, 0, -5)
 	to := coordinates.CreatePoint(0, 0, 0)
 	up := coordinates.CreateVector(0, 1, 0)
@@ -29,10 +29,11 @@ func PerformWorldBuildingCustom() {
 	my_world.SetLightSource(&light_src)
 
 	{
-		floor := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
-		floor.SetTransformation(matrices.PerformOrderedChainingOps(matrices.NewIdentityMatrix(4), matrices.ScalingMatrix(10, 0.01, 10)))
+		floor := rays.NewPlane(coordinates.CreatePoint(0, 0, 0))
+		floor.SetTransformation(matrices.ScalingMatrix(10, 0.01, 10))
 		floor.Material.Pattern = rays.NewPlainPattern(rays.Colour{1, 0.9, 0.9})
 		floor.Material.Specular = 0
+		floor.Material.Reflective = 0.4
 		my_world.AddObject(floor)
 	}
 
@@ -47,7 +48,7 @@ func PerformWorldBuildingCustom() {
 		)
 
 		left_wall.SetTransformation(left_wall_transform_mat)
-		left_wall.Material.Pattern = rays.NewPlainPattern(rays.Colour{1, 0.9, 0.9})
+		left_wall.Material.Pattern = rays.NewPlainPattern(rays.Colour{0.6, 0.6, 0.3})
 		left_wall.Material.Specular = 0
 		my_world.AddObject(left_wall)
 	}
@@ -65,12 +66,18 @@ func PerformWorldBuildingCustom() {
 		right_wall.SetTransformation(right_wall_transform_mat)
 		right_wall.Material.Pattern = rays.NewPlainPattern(rays.Colour{1, 0.9, 0.9})
 		right_wall.Material.Specular = 0
+		pat := rays.NewChecker3D(rays.Colour{1, 0.8, 0.1}, rays.Colour{0.6, 0.3, 0.0})
+		pat.SetPatternTransformation(matrices.ScalingMatrix(0.2, 0.2, 0.2))
+		right_wall.Material.Pattern = pat
+
 		my_world.AddObject(right_wall)
 	}
 
 	{
-		middle := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+		// middle := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 
+		middle := rays.NewGlassSphere()
+		middle.Material.Transparency = 0.4
 		middle.SetTransformation(matrices.TranslationMatrix(-0.5, 1, 0.5))
 		// middle.Material.Pattern = rays.NewPlainPattern(rays.Colour{0.1, 1, 0.5})
 
@@ -80,8 +87,8 @@ func PerformWorldBuildingCustom() {
 			matrices.GivensRotationMatrix3DLeftHanded(coordinates.Z, math.Pi/2),
 		))
 
-		_pat2 := rays.NewPerturbedPattern(_pat, 0.5)
-		middle.Material.Pattern = _pat2
+		// _pat2 := rays.NewPerturbedPattern(_pat, 0.5)
+		middle.Material.Pattern = _pat
 		middle.Material.Specular = 0.3
 		middle.Material.Diffuse = 0.7
 

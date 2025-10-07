@@ -1,7 +1,6 @@
 package rays
 
 import (
-	"fmt"
 	"rattata/coordinates"
 	"rattata/matrices"
 	"testing"
@@ -146,7 +145,6 @@ func TestUnitSphereUVChecker(t *testing.T) {
 	col3 := chk.PatternAt(coordinates.CreatePoint(0, -1, 0))
 	if col3 != chk.colourA {
 		t.Errorf("Expected UV checker pattern to return colourB at (0,-1,0)")
-		fmt.Println(col3)
 	}
 
 	col4 := chk.PatternAt(coordinates.CreatePoint(-0.707, -0.707, 0))

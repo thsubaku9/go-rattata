@@ -71,7 +71,7 @@ func Render(cam Camera, world World) canvas.Canvas {
 	for py := 0; py < my_canvas.GetHeight(); py++ {
 		for px := 0; px < my_canvas.GetWidth(); px++ {
 			_ray := cam.RayForPixel(px, py)
-			c := world.Color_At(_ray)
+			c := world.Color_At(_ray, rays.REC_LIMIT)
 			my_canvas.WritePixel(uint32(px), uint32(py), canvas.RayColorToCanvasColor(c))
 		}
 	}
@@ -91,7 +91,7 @@ func RenderParaller(cam Camera, world World, parallel_count int) canvas.Canvas {
 		for data := range data_stream {
 			py, px := data[0], data[1]
 			_ray := _cam.RayForPixel(px, py)
-			c := _world.Color_At(_ray)
+			c := _world.Color_At(_ray, rays.REC_LIMIT)
 			_canvas.WritePixel(uint32(px), uint32(py), canvas.RayColorToCanvasColor(c))
 		}
 

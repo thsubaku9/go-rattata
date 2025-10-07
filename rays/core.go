@@ -8,7 +8,58 @@ import (
 )
 
 var EPSILON float64 = 0.0001
+var REC_LIMIT uint = 3
 
+// ------------------------------------- Light and Color struct ------------------------------------
+type Colour = [3]float64
+
+type Light struct {
+	Origin coordinates.Coordinate
+	Colour Colour
+}
+
+func NewLightColour(red, green, blue float64) Colour {
+	return Colour{red, green, blue}
+}
+
+func NewWhiteLightColour() Colour {
+	return NewLightColour(1, 1, 1)
+}
+
+func AddColour(c1, c2 Colour) Colour {
+	c3 := Colour{}
+
+	for i := 0; i < 3; i++ {
+		c3[i] = c1[i] + c2[i]
+	}
+
+	return c3
+}
+
+func SubColour(c1, c2 Colour) Colour {
+	c3 := Colour{}
+
+	for i := 0; i < 3; i++ {
+		c3[i] = c1[i] - c2[i]
+	}
+	return c3
+}
+
+func MulColour(c1 Colour, k float64) Colour {
+	c3 := Colour{}
+
+	for i := 0; i < 3; i++ {
+		_t := c1[i] * k
+		c3[i] = float64(min((_t), 255))
+	}
+	return c3
+}
+
+func NewLightSource(x, y, z float64, colour Colour) Light {
+	return Light{Origin: coordinates.CreatePoint(x, y, z), Colour: colour}
+}
+
+// ------------------------------------- Rays and Intersections ------------------------------------
 type Ray struct {
 	Origin    coordinates.Coordinate
 	Direction coordinates.Coordinate
@@ -112,79 +163,15 @@ func Transform(ray Ray, matrix matrices.Matrix) Ray {
 	return NewRay(matrices.MatrixToCoordinate(ray_origin_post_transform), matrices.MatrixToCoordinate(ray_direction_post_transform))
 }
 
+// ------------------------------------- Utility Functions  ------------------------------------
+
 func ReflectVector(incidence, normal coordinates.Coordinate) coordinates.Coordinate {
 	directionInversionVector := normal.Mul(-2 * normal.DotP(&incidence))
 	return *incidence.Add(directionInversionVector)
 }
 
-type Light struct {
-	Origin coordinates.Coordinate
-	Colour Colour
-}
-
-type Colour = [3]float64
-
-func NewLightColour(red, green, blue float64) Colour {
-	return Colour{red, green, blue}
-}
-
-func NewWhiteLightColour() Colour {
-	return NewLightColour(1, 1, 1)
-}
-
-func AddColour(c1, c2 Colour) Colour {
-	c3 := Colour{}
-
-	for i := 0; i < 3; i++ {
-		c3[i] = c1[i] + c2[i]
-	}
-
-	return c3
-}
-
-func SubColour(c1, c2 Colour) Colour {
-	c3 := Colour{}
-
-	for i := 0; i < 3; i++ {
-		c3[i] = c1[i] - c2[i]
-	}
-	return c3
-}
-
-func MulColour(c1 Colour, k float64) Colour {
-	c3 := Colour{}
-
-	for i := 0; i < 3; i++ {
-		_t := c1[i] * k
-		c3[i] = float64(min((_t), 255))
-	}
-	return c3
-}
-
-func NewLightSource(x, y, z float64, colour Colour) Light {
-	return Light{Origin: coordinates.CreatePoint(x, y, z), Colour: colour}
-}
-
-type Material struct {
-	Ambient   float64
-	Diffuse   float64
-	Specular  float64
-	Shininess float64
-	Pattern   Pattern
-}
-
-func CreateDefaultMaterial() Material {
-	return Material{Pattern: PlainPattern{Colour{1, 1, 1}}, Ambient: 0.1, Diffuse: 0.9, Specular: 0.9, Shininess: 200.0}
-}
-
-func PatternAtPoint(world_point coordinates.Coordinate, objectTransformation matrices.Matrix, pattern Pattern) Colour {
-	objectTransformationInverse, _ := objectTransformation.Inverse()
-	object_point := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(world_point), objectTransformationInverse)
-	return pattern.PatternAt(matrices.MatrixToCoordinate(object_point))
-}
-
 /*
-	Phong reflection model of lighting
+Phong reflection model of lighting
 
 Ambient -> Background lighting;
 Diffuse -> Light reflected from matte surface;
@@ -236,4 +223,69 @@ func Lighting(shp Shape, light Light, pos, eyeVector, normalVector coordinates.C
 		ambient[1] + diffuse[1] + specular[1],
 		ambient[2] + diffuse[2] + specular[2],
 	}
+}
+
+func RefractiveVector(normal_vector, incidence_vector coordinates.Coordinate, inbound_ri, outbound_ri float64) (*coordinates.Coordinate, bool) {
+
+	//n_inci * sin(incidence) = n_refrac * sin(refraction)
+
+	n_inc_over_n_refrac := inbound_ri / outbound_ri
+	cos_incidence := -incidence_vector.DotP(&normal_vector)
+	sin_incidence_squared := 1.0 - cos_incidence*cos_incidence
+	sin_refraction_squared := n_inc_over_n_refrac * n_inc_over_n_refrac * sin_incidence_squared
+
+	if sin_refraction_squared > 1.0 {
+		return nil, false // Total internal reflection
+	}
+
+	cos_refraction := math.Sqrt(1.0 - sin_refraction_squared)
+
+	// https://physics.stackexchange.com/questions/435512/snells-law-in-vector-form
+	// https://en.wikipedia.org/wiki/Snell%27s_law#Vector_form
+	refracted_vector := normal_vector.Mul(n_inc_over_n_refrac*cos_incidence - cos_refraction).
+		Add(incidence_vector.Mul(n_inc_over_n_refrac))
+
+	return refracted_vector, true
+}
+
+func SchlickReflectiveScore(eye_vector, normal_vector coordinates.Coordinate, inbound_ri, outbound_ri float64) float64 {
+	// https://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf
+	cos_theta_i := eye_vector.DotP(&normal_vector)
+
+	if inbound_ri > outbound_ri {
+		n := inbound_ri / outbound_ri
+		sin2_theta_t := n * n * (1.0 - cos_theta_i*cos_theta_i)
+		if sin2_theta_t > 1.0 {
+			return 1.0 // Total internal reflection
+		}
+
+		cos_theta_t := math.Sqrt(1.0 - sin2_theta_t)
+		cos_theta_i = cos_theta_t
+	}
+
+	r0 := math.Pow(((inbound_ri - outbound_ri) / (inbound_ri + outbound_ri)), 2)
+	return r0 + (1-r0)*math.Pow((1-cos_theta_i), 5)
+}
+
+// ------------------------------------- Material  ------------------------------------
+type Material struct {
+	Ambient         float64
+	Diffuse         float64
+	Specular        float64
+	Shininess       float64
+	Pattern         Pattern
+	Reflective      float64
+	Transparency    float64
+	RefractiveIndex float64
+}
+
+func CreateDefaultMaterial() Material {
+	return Material{Pattern: PlainPattern{Colour{1, 1, 1}}, Ambient: 0.1, Diffuse: 0.9, Specular: 0.9, Shininess: 200.0,
+		Reflective: 0.0, RefractiveIndex: 1.0, Transparency: 0.0}
+}
+
+func PatternAtPoint(world_point coordinates.Coordinate, objectTransformation matrices.Matrix, pattern Pattern) Colour {
+	objectTransformationInverse, _ := objectTransformation.Inverse()
+	object_point := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(world_point), objectTransformationInverse)
+	return pattern.PatternAt(matrices.MatrixToCoordinate(object_point))
 }
