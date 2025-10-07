@@ -144,7 +144,7 @@ func TestShadeHitWithRefractiveObject(t *testing.T) {
 	plane.SetTransformation(matrices.TranslationMatrix(0, -1, 0))
 	w.AddObject(plane)
 
-	sph := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+	sph := rays.NewCenteredSphere()
 	sph.Material.Pattern = rays.NewPlainPattern(rays.Colour{1.0, 0.0, 0.0})
 	sph.Material.Ambient = 0.5
 	sph.SetTransformation(matrices.TranslationMatrix(0, -3.5, -0.5))
@@ -169,7 +169,7 @@ func TestShadeHitWithReflectiveRefractiveObject(t *testing.T) {
 	plane.SetTransformation(matrices.TranslationMatrix(0, -1, 0))
 	w.AddObject(plane)
 
-	sph := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+	sph := rays.NewCenteredSphere()
 	sph.Material.Pattern = rays.NewPlainPattern(rays.Colour{1.0, 0.0, 0.0})
 	sph.Material.Ambient = 0.5
 	sph.SetTransformation(matrices.TranslationMatrix(0, -3.5, -0.5))

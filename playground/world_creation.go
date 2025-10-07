@@ -38,7 +38,7 @@ func PerformWorldBuildingCustom() {
 	}
 
 	{
-		left_wall := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+		left_wall := rays.NewCenteredSphere()
 
 		left_wall_transform_mat := matrices.PerformOrderedChainingOps(matrices.NewIdentityMatrix(4),
 			matrices.ScalingMatrix(10, 0.01, 10),
@@ -54,7 +54,7 @@ func PerformWorldBuildingCustom() {
 	}
 
 	{
-		right_wall := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+		right_wall := rays.NewCenteredSphere()
 
 		right_wall_transform_mat := matrices.PerformOrderedChainingOps(matrices.NewIdentityMatrix(4),
 			matrices.ScalingMatrix(10, 0.01, 10),
@@ -74,7 +74,7 @@ func PerformWorldBuildingCustom() {
 	}
 
 	{
-		// middle := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+		// middle := rays.NewCenteredSphere()
 
 		middle := rays.NewGlassSphere()
 		middle.Material.Transparency = 0.4
@@ -97,7 +97,7 @@ func PerformWorldBuildingCustom() {
 	}
 
 	{
-		right := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+		right := rays.NewCenteredSphere()
 
 		right_sph_transform := matrices.PerformOrderedChainingOps(matrices.NewIdentityMatrix(4),
 			matrices.ScalingMatrix(0.5, 0.5, 0.5),
@@ -119,7 +119,7 @@ func PerformWorldBuildingCustom() {
 	}
 
 	{
-		left := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+		left := rays.NewCenteredSphere()
 
 		left_sph_transform := matrices.PerformOrderedChainingOps(matrices.NewIdentityMatrix(4),
 			matrices.ScalingMatrix(0.33, 0.33, 0.33),

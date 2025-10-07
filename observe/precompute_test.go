@@ -13,7 +13,7 @@ import (
 
 func TestPrecompData(t *testing.T) {
 	r := rays.NewRay(coordinates.CreatePoint(0, 0, -5), coordinates.CreateVector(0, 0, 1))
-	s := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+	s := rays.NewCenteredSphere()
 	i := rays.Intersection{Tvalue: 4, Obj: s}
 
 	pre := PreparePrecompData(i, r, []rays.Intersection{i})

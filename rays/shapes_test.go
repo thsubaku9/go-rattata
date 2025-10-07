@@ -13,7 +13,7 @@ import (
 
 func TestTransformationMatrixInShape(t *testing.T) {
 
-	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+	sph := NewCenteredSphere()
 	assert.Equal(t, matrices.NewIdentityMatrix(4), sph.Transformation())
 
 	rotationMat := matrices.GivensRotationMatrix3DLeftHanded(coordinates.Z, 23)
@@ -24,7 +24,7 @@ func TestTransformationMatrixInShape(t *testing.T) {
 }
 
 func TestNormalComputationOnSphere(t *testing.T) {
-	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+	sph := NewCenteredSphere()
 	point := coordinates.CreatePoint(0, 0, 1)
 	normal := sph.NormalAtPoint(point)
 	assert.Equal(t, coordinates.CreateVector(0, 0, 1), normal)
@@ -36,7 +36,7 @@ func TestNormalComputationOnSphere(t *testing.T) {
 }
 
 func TestNormalComputationOnTransformedSphere(t *testing.T) {
-	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+	sph := NewCenteredSphere()
 	transform_mat, _ := matrices.ScalingMatrix(1, 0.5, 1).Multiply(matrices.GivensRotationMatrix3DLeftHanded(coordinates.Z, math.Pi/5))
 	sph.SetTransformation(transform_mat)
 
@@ -48,4 +48,88 @@ func TestNormalComputationOnTransformedSphere(t *testing.T) {
 func TestNormalOnPlane(t *testing.T) {
 	pl := NewPlane(coordinates.CreatePoint(0, 0, 0))
 	assert.Equal(t, coordinates.CreateVector(0, 1, 0), pl.NormalAtPoint(coordinates.CreatePoint(0, 0, 0)))
+}
+
+// ---------------------------------- Intersections ----------------------------------
+func Test2IntersectionsWithSphereFromOutside(t *testing.T) {
+	r := NewRay(coordinates.CreatePoint(0, 0, -5), coordinates.CreateVector(0, 0, 1))
+	sph := NewCenteredSphere()
+	xs := Intersect(sph, r)
+
+	assert.Equal(t, 2, len(xs))
+	assert.Equal(t, 4.0, xs[0].Tvalue)
+	assert.Equal(t, 6.0, xs[1].Tvalue)
+}
+
+func Test2IntersectionsWithSphereFromInside(t *testing.T) {
+	r := NewRay(coordinates.CreatePoint(0, 0, 0), coordinates.CreateVector(0, 0, 1))
+	sph := NewCenteredSphere()
+	xs := Intersect(sph, r)
+
+	assert.Equal(t, 2, len(xs))
+	assert.Equal(t, -1.0, xs[0].Tvalue)
+	assert.Equal(t, 1.0, xs[1].Tvalue)
+}
+
+func Test1IntersectionWithSphere(t *testing.T) {
+	r := NewRay(coordinates.CreatePoint(0, 1, -5), coordinates.CreateVector(0, 0, 1))
+	sph := NewCenteredSphere()
+	xs := Intersect(sph, r)
+
+	assert.Equal(t, 2, len(xs))
+	assert.Equal(t, float64(5.0), xs[0].Tvalue)
+	assert.Equal(t, float64(5.0), xs[1].Tvalue)
+
+}
+
+func Test0IntersectionWithSphere(t *testing.T) {
+
+	r := NewRay(coordinates.CreatePoint(0, 2, -5), coordinates.CreateVector(0, 0, 1))
+	sph := NewCenteredSphere()
+	xs := Intersect(sph, r)
+
+	assert.Equal(t, 0, len(xs))
+}
+
+func Test0IntersectionWithXZPlane(t *testing.T) {
+
+	r := NewRay(coordinates.CreatePoint(0, 1, 0), coordinates.CreateVector(0, 0, 1))
+	pl := NewPlane(coordinates.CreatePoint(0, 0, 0))
+	xs := Intersect(pl, r)
+
+	assert.Equal(t, 0, len(xs))
+}
+
+func Test1IntersectionWithXZPlane(t *testing.T) {
+
+	r := NewRay(coordinates.CreatePoint(0, 5, -1), coordinates.CreateVector(0, -1, 1))
+	pl := NewPlane(coordinates.CreatePoint(0, 0, 0))
+	xs := Intersect(pl, r)
+
+	assert.Equal(t, 1, len(xs))
+	helpers.ApproxEqual(t, 5.0, xs[0].Tvalue, 0.00001)
+}
+
+func TestIntersectionsWithCube(t *testing.T) {
+	cube := NewCube()
+
+	for _, data := range []struct {
+		origin, direction coordinates.Coordinate
+		t1, t2            float64
+	}{
+		{coordinates.CreatePoint(5, 0.5, 0), coordinates.CreateVector(-1, 0, 0), 4, 6},
+		{coordinates.CreatePoint(-5, 0.5, 0), coordinates.CreateVector(1, 0, 0), 4, 6},
+		{coordinates.CreatePoint(0.5, 5, 0), coordinates.CreateVector(0, -1, 0), 4, 6},
+		{coordinates.CreatePoint(0.5, -5, 0), coordinates.CreateVector(0, 1, 0), 4, 6},
+		{coordinates.CreatePoint(0.5, 0, 5), coordinates.CreateVector(0, 0, -1), 4, 6},
+		{coordinates.CreatePoint(0.5, 0, -5), coordinates.CreateVector(0, 0, 1), 4, 6},
+		{coordinates.CreatePoint(0, 0.5, 0), coordinates.CreateVector(0, 0, 1), -1, 1},
+	} {
+		r := NewRay(data.origin, data.direction)
+		xs := cube.IntersectWithRay(r)
+
+		assert.Equal(t, 2, len(xs))
+		helpers.ApproxEqual(t, data.t1, xs[0].Tvalue, 0.00001)
+		helpers.ApproxEqual(t, data.t2, xs[1].Tvalue, 0.00001)
+	}
 }
