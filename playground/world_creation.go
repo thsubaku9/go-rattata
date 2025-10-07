@@ -74,8 +74,10 @@ func PerformWorldBuildingCustom() {
 	}
 
 	{
-		middle := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+		// middle := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
 
+		middle := rays.NewGlassSphere()
+		middle.Material.Transparency = 0.4
 		middle.SetTransformation(matrices.TranslationMatrix(-0.5, 1, 0.5))
 		// middle.Material.Pattern = rays.NewPlainPattern(rays.Colour{0.1, 1, 0.5})
 
@@ -85,8 +87,8 @@ func PerformWorldBuildingCustom() {
 			matrices.GivensRotationMatrix3DLeftHanded(coordinates.Z, math.Pi/2),
 		))
 
-		_pat2 := rays.NewPerturbedPattern(_pat, 0.5)
-		middle.Material.Pattern = _pat2
+		// _pat2 := rays.NewPerturbedPattern(_pat, 0.5)
+		middle.Material.Pattern = _pat
 		middle.Material.Specular = 0.3
 		middle.Material.Diffuse = 0.7
 
