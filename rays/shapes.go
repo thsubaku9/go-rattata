@@ -178,6 +178,10 @@ func (c Cube) Id() string {
 	return c.id
 }
 
+func (c Cube) Name() string {
+	return "Cube"
+}
+
 func (c Cube) Transformation() matrices.Matrix {
 	return c.transformationMat
 }
@@ -191,11 +195,49 @@ func (c Cube) GetMaterial() Material {
 }
 
 func (c Cube) IntersectWithRay(ray Ray) []Intersection {
-	return []Intersection{}
+
+	x_tmin, x_tmax := c.axis_intersection_points(ray.Origin[coordinates.X], ray.Direction[coordinates.X])
+	y_tmin, y_tmax := c.axis_intersection_points(ray.Origin[coordinates.Y], ray.Direction[coordinates.Y])
+	z_tmin, z_tmax := c.axis_intersection_points(ray.Origin[coordinates.Z], ray.Direction[coordinates.Z])
+
+	tmin := max(x_tmin, y_tmin, z_tmin)
+	tmax := min(x_tmax, y_tmax, z_tmax)
+
+	if tmin > tmax {
+		return []Intersection{}
+	}
+	return []Intersection{{Tvalue: tmin, Obj: c}, {Tvalue: tmax, Obj: c}}
+}
+
+func (c Cube) axis_intersection_points(origin, direction float64) (float64, float64) {
+	tmin_numerator := -1 - origin
+	tmax_numerator := 1 - origin
+
+	var tmin, tmax float64
+	if math.Abs(direction) >= EPSILON {
+		tmin = tmin_numerator / direction
+		tmax = tmax_numerator / direction
+	} else {
+		tmin = tmin_numerator * math.Inf(1)
+		tmax = tmax_numerator * math.Inf(1)
+	}
+
+	if tmin > tmax {
+		return tmax, tmin
+	}
+	return tmin, tmax
 }
 
 func (c Cube) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate {
-	return coordinates.CreateVector(0, 0, 0)
+	maxc := math.Max(math.Abs(world_point[coordinates.X]), math.Max(math.Abs(world_point[coordinates.Y]), math.Abs(world_point[coordinates.Z])))
+
+	if maxc == math.Abs(world_point[coordinates.X]) {
+		return coordinates.CreateVector(world_point[coordinates.X], 0, 0)
+	} else if maxc == math.Abs(world_point[coordinates.Y]) {
+		return coordinates.CreateVector(0, world_point[coordinates.Y], 0)
+	}
+	return coordinates.CreateVector(0, 0, world_point[coordinates.Z])
+
 }
 
 // ---------------------------------- Cylinder ----------------------------------
@@ -208,6 +250,10 @@ type Cylinder struct {
 
 func (cy Cylinder) Id() string {
 	return cy.id
+}
+
+func (cy Cylinder) Name() string {
+	return "Cylinder"
 }
 
 func (cy Cylinder) Transformation() matrices.Matrix {
@@ -240,6 +286,10 @@ type Cone struct {
 
 func (co Cone) Id() string {
 	return co.id
+}
+
+func (co Cone) Name() string {
+	return "Cone"
 }
 
 func (co Cone) Transformation() matrices.Matrix {

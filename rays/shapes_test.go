@@ -133,3 +133,43 @@ func TestIntersectionsWithCube(t *testing.T) {
 		helpers.ApproxEqual(t, data.t2, xs[1].Tvalue, 0.00001)
 	}
 }
+
+func TestIntersectionsWithCubeMiss(t *testing.T) {
+	cube := NewCube()
+
+	for _, data := range []struct {
+		origin, direction coordinates.Coordinate
+	}{
+		{coordinates.CreatePoint(-2, 0, 0), coordinates.CreateVector(0.2673, 0.5345, 0.8018)},
+		{coordinates.CreatePoint(0, -2, 0), coordinates.CreateVector(0.8018, 0.2673, 0.5345)},
+		{coordinates.CreatePoint(0, 0, -2), coordinates.CreateVector(0.5345, 0.8018, 0.2673)},
+		{coordinates.CreatePoint(2, 0, 2), coordinates.CreateVector(0, 0, -1)},
+		{coordinates.CreatePoint(0, 2, 2), coordinates.CreateVector(0, -1, 0)},
+		{coordinates.CreatePoint(2, 2, 0), coordinates.CreateVector(-1, 0, 0)},
+	} {
+		r := NewRay(data.origin, data.direction)
+		xs := cube.IntersectWithRay(r)
+
+		assert.Equal(t, 0, len(xs))
+	}
+}
+
+func TestCuberNormal(t *testing.T) {
+	cube := NewCube()
+
+	for _, data := range []struct {
+		point, normal coordinates.Coordinate
+	}{
+		{coordinates.CreatePoint(1, 0.5, -0.8), coordinates.CreateVector(1, 0, 0)},
+		{coordinates.CreatePoint(-1, -0.2, 0.9), coordinates.CreateVector(-1, 0, 0)},
+		{coordinates.CreatePoint(-0.4, 1, -0.1), coordinates.CreateVector(0, 1, 0)},
+		{coordinates.CreatePoint(0.3, -1, -0.7), coordinates.CreateVector(0, -1, 0)},
+		{coordinates.CreatePoint(-0.6, 0.3, 1), coordinates.CreateVector(0, 0, 1)},
+		{coordinates.CreatePoint(0.4, 0.4, -1), coordinates.CreateVector(0, 0, -1)},
+		{coordinates.CreatePoint(1, 1, 1), coordinates.CreateVector(1, 0, 0)},
+		{coordinates.CreatePoint(-1, -1, -1), coordinates.CreateVector(-1, 0, 0)},
+	} {
+		n := cube.NormalAtPoint(data.point)
+		helpers.TestApproxEqualCoordinate(t, data.normal, n, 0.00001)
+	}
+}
