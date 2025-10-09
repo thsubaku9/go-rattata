@@ -176,12 +176,16 @@ func TestCuberNormal(t *testing.T) {
 
 func TestCylinderRayMiss(t *testing.T) {
 	cyl := NewXZCylinder()
+	cyl.minimum = 1
+	cyl.maximum = 2
 	for _, data := range []struct {
 		origin, direction coordinates.Coordinate
 	}{
 		{coordinates.CreatePoint(1, 0, 0), coordinates.CreateVector(0, 1, 0)},
 		{coordinates.CreatePoint(0, 0, 0), coordinates.CreateVector(0, 1, 0)},
 		{coordinates.CreatePoint(0, 0, -5), coordinates.CreateVector(1, 1, 1)},
+		{coordinates.CreatePoint(0, 1.5, 0), coordinates.CreateVector(0.1, 1, 0)},
+		{coordinates.CreatePoint(0, 3, -5), coordinates.CreateVector(0, 0, 1)},
 	} {
 		r := NewRay(data.origin, data.direction)
 		xs := cyl.IntersectWithRay(r)
@@ -218,6 +222,55 @@ func TestCylinderNormal(t *testing.T) {
 		{coordinates.CreatePoint(0, 5, -1), coordinates.CreateVector(0, 0, -1)},
 		{coordinates.CreatePoint(0, -2, 1), coordinates.CreateVector(0, 0, 1)},
 		{coordinates.CreatePoint(-1, 1, 0), coordinates.CreateVector(-1, 0, 0)},
+	} {
+		n := cyl.NormalAtPoint(data.point)
+		helpers.TestApproxEqualCoordinate(t, data.normal, n, 0.00001)
+	}
+}
+
+func TestCappedCylinderIntersection(t *testing.T) {
+	cyl := NewXZCylinder()
+	cyl.minimum = 1
+	cyl.maximum = 2
+	cyl.closed = true
+
+	for _, data := range []struct {
+		origin, direction coordinates.Coordinate
+		count             int
+	}{
+		{coordinates.CreatePoint(0, 3, 0), coordinates.CreateVector(0, -1, 0), 2},
+		{coordinates.CreatePoint(0, 3, -2), coordinates.CreateVector(0, -1, 2), 2},
+		{coordinates.CreatePoint(0, 4, -2), coordinates.CreateVector(0, -1, 1), 2},
+		{coordinates.CreatePoint(0, 0, -2), coordinates.CreateVector(0, 1, 2), 2},
+		{coordinates.CreatePoint(0, -1, -2), coordinates.CreateVector(0, 1, 1), 2},
+		{coordinates.CreatePoint(0, 0, 2), coordinates.CreateVector(0, 1, -2), 2},
+	} {
+		r := NewRay(data.origin, data.direction)
+		xs := cyl.IntersectWithRay(r)
+
+		assert.Equal(t, data.count, len(xs))
+	}
+}
+
+func TestCappedCylinderNormal(t *testing.T) {
+	cyl := NewXZCylinder()
+	cyl.minimum = 1
+	cyl.maximum = 2
+	cyl.closed = true
+
+	for _, data := range []struct {
+		point, normal coordinates.Coordinate
+	}{
+		{coordinates.CreatePoint(0, 1, 0), coordinates.CreateVector(0, -1, 0)},
+		{coordinates.CreatePoint(0.5, 1, 0), coordinates.CreateVector(0, -1, 0)},
+		{coordinates.CreatePoint(0, 1, 0.5), coordinates.CreateVector(0, -1, 0)},
+		{coordinates.CreatePoint(0, 2, 0), coordinates.CreateVector(0, 1, 0)},
+		{coordinates.CreatePoint(0.5, 2, 0), coordinates.CreateVector(0, 1, 0)},
+		{coordinates.CreatePoint(0, 2, 0.5), coordinates.CreateVector(0, 1, 0)},
+		{coordinates.CreatePoint(1, 1.5, 0), coordinates.CreateVector(1, 0, 0)},
+		{coordinates.CreatePoint(0, 1.5, 1), coordinates.CreateVector(0, 0, 1)},
+		{coordinates.CreatePoint(-1, 1.5, 0), coordinates.CreateVector(-1, 0, 0)},
+		{coordinates.CreatePoint(0, 1.5, -1), coordinates.CreateVector(0, 0, -1)},
 	} {
 		n := cyl.NormalAtPoint(data.point)
 		helpers.TestApproxEqualCoordinate(t, data.normal, n, 0.00001)
