@@ -229,51 +229,85 @@ func (c Cube) axis_intersection_points(origin, direction float64) (float64, floa
 }
 
 func (c Cube) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate {
+	inverse_transformation, _ := c.Transformation().Inverse()
+
 	maxc := math.Max(math.Abs(world_point[coordinates.X]), math.Max(math.Abs(world_point[coordinates.Y]), math.Abs(world_point[coordinates.Z])))
 
-	if maxc == math.Abs(world_point[coordinates.X]) {
-		return coordinates.CreateVector(world_point[coordinates.X], 0, 0)
-	} else if maxc == math.Abs(world_point[coordinates.Y]) {
-		return coordinates.CreateVector(0, world_point[coordinates.Y], 0)
-	}
-	return coordinates.CreateVector(0, 0, world_point[coordinates.Z])
+	var normal_v coordinates.Coordinate
 
+	switch {
+	case maxc == math.Abs(world_point[coordinates.X]):
+		normal_v = coordinates.CreateVector(world_point[coordinates.X], 0, 0)
+	case maxc == math.Abs(world_point[coordinates.Y]):
+		normal_v = coordinates.CreateVector(0, world_point[coordinates.Y], 0)
+	default:
+		normal_v = coordinates.CreateVector(0, 0, world_point[coordinates.Z])
+	}
+
+	world_normal := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(normal_v), inverse_transformation.T())
+
+	res := matrices.MatrixToCoordinate(world_normal)
+	return *res.Norm()
 }
 
-// ---------------------------------- Cylinder ----------------------------------
+// ---------------------------------- XZCylinder ----------------------------------
 
-type Cylinder struct {
+type XZCylinder struct {
 	transformationMat matrices.Matrix
 	Material          Material
 	id                string
 }
 
-func (cy Cylinder) Id() string {
+func NewXZCylinder() XZCylinder {
+	new_uuid, _ := uuid.NewV4()
+	return XZCylinder{transformationMat: matrices.NewIdentityMatrix(4), Material: CreateDefaultMaterial(), id: new_uuid.String()}
+}
+
+func (cy XZCylinder) Id() string {
 	return cy.id
 }
 
-func (cy Cylinder) Name() string {
-	return "Cylinder"
+func (cy XZCylinder) Name() string {
+	return "XZCylinder"
 }
 
-func (cy Cylinder) Transformation() matrices.Matrix {
+func (cy XZCylinder) Transformation() matrices.Matrix {
 	return cy.transformationMat
 }
 
-func (cy *Cylinder) SetTransformation(mt matrices.Matrix) {
+func (cy *XZCylinder) SetTransformation(mt matrices.Matrix) {
 	cy.transformationMat = mt
 }
 
-func (cy Cylinder) GetMaterial() Material {
+func (cy XZCylinder) GetMaterial() Material {
 	return cy.Material
 }
 
-func (cy Cylinder) IntersectWithRay(ray Ray) []Intersection {
-	return []Intersection{}
+func (cy XZCylinder) IntersectWithRay(ray Ray) []Intersection {
+	a := ray.Direction[coordinates.X]*ray.Direction[coordinates.X] + ray.Direction[coordinates.Z]*ray.Direction[coordinates.Z]
+	if math.Abs(a) < EPSILON {
+		return []Intersection{}
+	}
+
+	b := 2*ray.Origin[coordinates.X]*ray.Direction[coordinates.X] + 2*ray.Origin[coordinates.Z]*ray.Direction[coordinates.Z]
+	c := ray.Origin[coordinates.X]*ray.Origin[coordinates.X] + ray.Origin[coordinates.Z]*ray.Origin[coordinates.Z] - 1
+
+	discriminant := b*b - 4*a*c
+	if discriminant < 0 {
+		return []Intersection{}
+	}
+
+	t1 := (-b - math.Sqrt(discriminant)) / (2 * a)
+	t2 := (-b + math.Sqrt(discriminant)) / (2 * a)
+	return Intersections(NewIntersection(t1, cy), NewIntersection(t2, cy))
 }
 
-func (cy Cylinder) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate {
-	return coordinates.CreateVector(0, 0, 0)
+func (cy XZCylinder) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate {
+	inverse_transformation, _ := cy.Transformation().Inverse()
+	normal_v := coordinates.CreateVector(world_point.Get(coordinates.X), 0, world_point.Get(coordinates.Z))
+	world_normal := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(normal_v), inverse_transformation.T())
+	res := matrices.MatrixToCoordinate(world_normal)
+	return *res.Norm()
 }
 
 // ---------------------------------- Cone ----------------------------------

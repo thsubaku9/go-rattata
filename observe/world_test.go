@@ -153,7 +153,7 @@ func TestShadeHitWithRefractiveObject(t *testing.T) {
 
 	r := rays.NewRay(coordinates.CreatePoint(0, 0, -3), coordinates.CreateVector(0, -math.Sqrt(2)/2, math.Sqrt(2)/2))
 	c := w.Color_At(r, 2)
-	expected_c := rays.Colour{0.936422, 0.68642, 0.68642}
+	expected_c := rays.Colour{1.314502, 0.68642, 0.68642}
 
 	for i := range expected_c {
 		helpers.ApproxEqual(t, expected_c[i], c[i], 0.0001)

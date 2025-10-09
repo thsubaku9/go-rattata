@@ -173,3 +173,53 @@ func TestCuberNormal(t *testing.T) {
 		helpers.TestApproxEqualCoordinate(t, data.normal, n, 0.00001)
 	}
 }
+
+func TestCylinderRayMiss(t *testing.T) {
+	cyl := NewXZCylinder()
+	for _, data := range []struct {
+		origin, direction coordinates.Coordinate
+	}{
+		{coordinates.CreatePoint(1, 0, 0), coordinates.CreateVector(0, 1, 0)},
+		{coordinates.CreatePoint(0, 0, 0), coordinates.CreateVector(0, 1, 0)},
+		{coordinates.CreatePoint(0, 0, -5), coordinates.CreateVector(1, 1, 1)},
+	} {
+		r := NewRay(data.origin, data.direction)
+		xs := cyl.IntersectWithRay(r)
+
+		assert.Equal(t, 0, len(xs))
+	}
+}
+
+func TestCylinderRayHit(t *testing.T) {
+	cyl := NewXZCylinder()
+	for _, data := range []struct {
+		origin, direction coordinates.Coordinate
+		t1, t2            float64
+	}{
+		{coordinates.CreatePoint(1, 0, -5), coordinates.CreateVector(0, 0, 1), 5, 5},
+		{coordinates.CreatePoint(0, 0, -5), coordinates.CreateVector(0, 0, 1), 4, 6},
+		{coordinates.CreatePoint(0.5, 0, -5), coordinates.CreateVector(0.1, 1, 1), 4.801980, 5.000000},
+	} {
+		r := NewRay(data.origin, data.direction)
+		xs := cyl.IntersectWithRay(r)
+
+		assert.Equal(t, 2, len(xs))
+		helpers.ApproxEqual(t, data.t1, xs[0].Tvalue, 0.00001)
+		helpers.ApproxEqual(t, data.t2, xs[1].Tvalue, 0.00001)
+	}
+}
+
+func TestCylinderNormal(t *testing.T) {
+	cyl := NewXZCylinder()
+	for _, data := range []struct {
+		point, normal coordinates.Coordinate
+	}{
+		{coordinates.CreatePoint(1, 0, 0), coordinates.CreateVector(1, 0, 0)},
+		{coordinates.CreatePoint(0, 5, -1), coordinates.CreateVector(0, 0, -1)},
+		{coordinates.CreatePoint(0, -2, 1), coordinates.CreateVector(0, 0, 1)},
+		{coordinates.CreatePoint(-1, 1, 0), coordinates.CreateVector(-1, 0, 0)},
+	} {
+		n := cyl.NormalAtPoint(data.point)
+		helpers.TestApproxEqualCoordinate(t, data.normal, n, 0.00001)
+	}
+}
