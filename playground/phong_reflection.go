@@ -21,7 +21,7 @@ func ProcessPhongReflection() {
 	my_canvas := canvas.CreateCanvas(uint32(canvas_pixels), uint32(canvas_pixels))
 	color := canvas.NewColour()
 	color.SetValue(canvas.Red, 255)
-	sph := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+	sph := rays.NewCenteredSphere()
 	sph.Material.Pattern = rays.NewPlainPattern(rays.Colour{1, 0.2, 1})
 	sph.SetTransformation(matrices.ScalingMatrix(1, 0.7, 1))
 

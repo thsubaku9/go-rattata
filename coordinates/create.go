@@ -107,7 +107,11 @@ func (c *Coordinate) Magnitude() float64 {
 }
 
 func (c *Coordinate) Norm() *Coordinate {
-	return c.Div(c.Magnitude())
+	_mag := c.Magnitude()
+	if _mag == 0 { // safety check
+		return c
+	}
+	return c.Div(_mag)
 }
 
 func (c1 *Coordinate) DotP(c2 *Coordinate) float64 {

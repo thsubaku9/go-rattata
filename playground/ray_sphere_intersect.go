@@ -19,7 +19,7 @@ func ProcessRaySphereIntersection() {
 	my_canvas := canvas.CreateCanvas(uint32(canvas_pixels), uint32(canvas_pixels))
 	color := canvas.NewColour()
 	color.SetValue(canvas.Red, 255)
-	sph := rays.NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+	sph := rays.NewCenteredSphere()
 
 	for y := 0; y < my_canvas.GetHeight(); y++ {
 		world_y := half - pixel_size*float64(y)

@@ -9,67 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test2IntersectionsWithSphereFromOutside(t *testing.T) {
-	r := NewRay(coordinates.CreatePoint(0, 0, -5), coordinates.CreateVector(0, 0, 1))
-	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
-	xs := Intersect(sph, r)
-
-	assert.Equal(t, 2, len(xs))
-	assert.Equal(t, 4.0, xs[0].Tvalue)
-	assert.Equal(t, 6.0, xs[1].Tvalue)
-}
-
-func Test2IntersectionsWithSphereFromInside(t *testing.T) {
-	r := NewRay(coordinates.CreatePoint(0, 0, 0), coordinates.CreateVector(0, 0, 1))
-	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
-	xs := Intersect(sph, r)
-
-	assert.Equal(t, 2, len(xs))
-	assert.Equal(t, -1.0, xs[0].Tvalue)
-	assert.Equal(t, 1.0, xs[1].Tvalue)
-}
-
-func Test1IntersectionWithSphere(t *testing.T) {
-	r := NewRay(coordinates.CreatePoint(0, 1, -5), coordinates.CreateVector(0, 0, 1))
-	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
-	xs := Intersect(sph, r)
-
-	assert.Equal(t, 2, len(xs))
-	assert.Equal(t, float64(5.0), xs[0].Tvalue)
-	assert.Equal(t, float64(5.0), xs[1].Tvalue)
-
-}
-
-func Test0IntersectionWithSphere(t *testing.T) {
-
-	r := NewRay(coordinates.CreatePoint(0, 2, -5), coordinates.CreateVector(0, 0, 1))
-	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
-	xs := Intersect(sph, r)
-
-	assert.Equal(t, 0, len(xs))
-}
-
-func Test0IntersectionWithXZPlane(t *testing.T) {
-
-	r := NewRay(coordinates.CreatePoint(0, 1, 0), coordinates.CreateVector(0, 0, 1))
-	pl := NewPlane(coordinates.CreatePoint(0, 0, 0))
-	xs := Intersect(pl, r)
-
-	assert.Equal(t, 0, len(xs))
-}
-
-func Test1IntersectionWithXZPlane(t *testing.T) {
-
-	r := NewRay(coordinates.CreatePoint(0, 5, -1), coordinates.CreateVector(0, -1, 1))
-	pl := NewPlane(coordinates.CreatePoint(0, 0, 0))
-	xs := Intersect(pl, r)
-
-	assert.Equal(t, 1, len(xs))
-	helpers.ApproxEqual(t, 5.0, xs[0].Tvalue, 0.00001)
-}
-
 func TestHit(t *testing.T) {
-	s := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+	s := NewCenteredSphere()
 	i1 := NewIntersection(5, s)
 	i2 := NewIntersection(7, s)
 	i3 := NewIntersection(-3, s)
@@ -96,7 +37,7 @@ func TestTiltedReflection(t *testing.T) {
 }
 
 func TestLightingScenarioEyeBetweenLightNSurface(t *testing.T) {
-	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+	sph := NewCenteredSphere()
 	position := coordinates.CreatePoint(0, 0, 0)
 	eyeV := coordinates.CreateVector(0, 0, -1)
 	normalV := coordinates.CreateVector(0, 0, -1)
@@ -108,7 +49,7 @@ func TestLightingScenarioEyeBetweenLightNSurface(t *testing.T) {
 }
 
 func TestLightingScenarioEyeBetweenLightNSurfaceEyeOffset45Deg(t *testing.T) {
-	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+	sph := NewCenteredSphere()
 	position := coordinates.CreatePoint(0, 0, 0)
 	eyeV := coordinates.CreateVector(0, math.Sqrt(2)/2, -math.Sqrt(2)/2)
 	normalV := coordinates.CreateVector(0, 0, -1)
@@ -119,7 +60,7 @@ func TestLightingScenarioEyeBetweenLightNSurfaceEyeOffset45Deg(t *testing.T) {
 }
 
 func TestLightingScenarioEyeOppositeSurface(t *testing.T) {
-	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+	sph := NewCenteredSphere()
 	position := coordinates.CreatePoint(0, 0, 0)
 	eyeV := coordinates.CreateVector(0, 0, -1)
 	normalV := coordinates.CreateVector(0, 0, -1)
@@ -130,7 +71,7 @@ func TestLightingScenarioEyeOppositeSurface(t *testing.T) {
 }
 
 func TestLightingScenarioEyeInReflectionPath(t *testing.T) {
-	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+	sph := NewCenteredSphere()
 	position := coordinates.CreatePoint(0, 0, 0)
 	eyeV := coordinates.CreateVector(0, -float64(math.Sqrt(2)/2), -float64(math.Sqrt(2)/2))
 	normalV := coordinates.CreateVector(0, 0, -1)
@@ -141,7 +82,7 @@ func TestLightingScenarioEyeInReflectionPath(t *testing.T) {
 }
 
 func TestLightingScenarioLightSourceBehindSurface(t *testing.T) {
-	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+	sph := NewCenteredSphere()
 	position := coordinates.CreatePoint(0, 0, 0)
 	eyeV := coordinates.CreateVector(0, 0, -1)
 	normalV := coordinates.CreateVector(0, 0, -1)
@@ -152,7 +93,7 @@ func TestLightingScenarioLightSourceBehindSurface(t *testing.T) {
 }
 
 func TestLightingShadowRegion(t *testing.T) {
-	sph := NewSphere(coordinates.CreatePoint(0, 0, 0), 1)
+	sph := NewCenteredSphere()
 	position := coordinates.CreatePoint(0, 0, 0)
 	eyeV := coordinates.CreateVector(0, 0, -1)
 	normalV := coordinates.CreateVector(0, 0, -1)

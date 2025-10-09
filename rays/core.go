@@ -118,40 +118,7 @@ func Intersect(shape Shape, ray Ray) []Intersection {
 	inv_transform, _ := shape.Transformation().Inverse()
 	transformed_ray := Transform(ray, inv_transform)
 
-	switch casted_shape := shape.(type) {
-	case Sphere:
-		return intersectSphere(casted_shape, transformed_ray)
-	case XZPlane:
-		return intersectPlane(casted_shape, transformed_ray)
-	default:
-		return []Intersection{}
-	}
-}
-
-func intersectSphere(sph Sphere, ray Ray) []Intersection {
-	sphere_to_ray := ray.Origin.Sub(&sph.Origin)
-
-	a := ray.Direction.DotP(&ray.Direction)
-	b := ray.Direction.DotP(sphere_to_ray) * 2
-	c := sphere_to_ray.DotP(sphere_to_ray) - sph.Radius
-	discriminant := b*b - 4*a*c
-
-	if discriminant < 0 {
-		return []Intersection{}
-	}
-
-	t1 := (-b - math.Sqrt(discriminant)) / (2 * a)
-	t2 := (-b + math.Sqrt(discriminant)) / (2 * a)
-	return Intersections(NewIntersection(t1, sph), NewIntersection(t2, sph))
-}
-
-func intersectPlane(pl XZPlane, ray Ray) []Intersection {
-	if math.Abs(ray.Direction[coordinates.Y]) < EPSILON {
-		return []Intersection{}
-	}
-
-	t := -ray.Origin[coordinates.Y] / ray.Direction[coordinates.Y]
-	return Intersections(NewIntersection(t, pl))
+	return shape.IntersectWithRay(transformed_ray)
 }
 
 func Transform(ray Ray, matrix matrices.Matrix) Ray {

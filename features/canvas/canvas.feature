@@ -15,7 +15,7 @@ Feature: Canvas related ops
         Given c ← canvas(5, 3)
         When insert random data of size 15
             And ppm ← canvas_to_ppm(c)
-        Then header of ppm are 
+        Then header of ppm are
             """
             P3
             5 3
