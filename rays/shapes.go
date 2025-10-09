@@ -1,6 +1,7 @@
 package rays
 
 import (
+	"fmt"
 	"math"
 	"rattata/coordinates"
 	"rattata/matrices"
@@ -141,11 +142,11 @@ func (p XZPlane) GetMaterial() Material {
 }
 
 func (p XZPlane) IntersectWithRay(ray_wrt_obj Ray) []Intersection {
-	if math.Abs(ray_wrt_obj.Direction[coordinates.Y]) < EPSILON {
+	if math.Abs(ray_wrt_obj.Direction.Get(coordinates.Y)) < EPSILON {
 		return []Intersection{}
 	}
 
-	t := -ray_wrt_obj.Origin[coordinates.Y] / ray_wrt_obj.Direction[coordinates.Y]
+	t := -ray_wrt_obj.Origin.Get(coordinates.Y) / ray_wrt_obj.Direction.Get(coordinates.Y)
 	return Intersections(NewIntersection(t, p))
 }
 
@@ -196,9 +197,9 @@ func (c Cube) GetMaterial() Material {
 
 func (c Cube) IntersectWithRay(ray_wrt_obj Ray) []Intersection {
 
-	y_tmin, y_tmax := c.axis_intersection_points(ray_wrt_obj.Origin[coordinates.Y], ray_wrt_obj.Direction[coordinates.Y])
-	x_tmin, x_tmax := c.axis_intersection_points(ray_wrt_obj.Origin[coordinates.X], ray_wrt_obj.Direction[coordinates.X])
-	z_tmin, z_tmax := c.axis_intersection_points(ray_wrt_obj.Origin[coordinates.Z], ray_wrt_obj.Direction[coordinates.Z])
+	y_tmin, y_tmax := c.axis_intersection_points(ray_wrt_obj.Origin.Get(coordinates.Y), ray_wrt_obj.Direction.Get(coordinates.Y))
+	x_tmin, x_tmax := c.axis_intersection_points(ray_wrt_obj.Origin.Get(coordinates.X), ray_wrt_obj.Direction.Get(coordinates.X))
+	z_tmin, z_tmax := c.axis_intersection_points(ray_wrt_obj.Origin.Get(coordinates.Z), ray_wrt_obj.Direction.Get(coordinates.Z))
 
 	tmin := max(x_tmin, y_tmin, z_tmin)
 	tmax := min(x_tmax, y_tmax, z_tmax)
@@ -234,17 +235,17 @@ func (c Cube) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coor
 	obj_point_mat := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(world_point), inverse_transformation)
 	obj_point := matrices.MatrixToCoordinate(obj_point_mat)
 
-	maxc := math.Max(math.Abs(obj_point[coordinates.X]), math.Max(math.Abs(obj_point[coordinates.Y]), math.Abs(obj_point[coordinates.Z])))
+	maxc := math.Max(math.Abs(obj_point.Get(coordinates.X)), math.Max(math.Abs(obj_point.Get(coordinates.Y)), math.Abs(obj_point.Get(coordinates.Z))))
 
 	var normal_v coordinates.Coordinate
 
 	switch {
-	case maxc == math.Abs(obj_point[coordinates.X]):
-		normal_v = coordinates.CreateVector(obj_point[coordinates.X], 0, 0)
-	case maxc == math.Abs(obj_point[coordinates.Y]):
-		normal_v = coordinates.CreateVector(0, obj_point[coordinates.Y], 0)
+	case maxc == math.Abs(obj_point.Get(coordinates.X)):
+		normal_v = coordinates.CreateVector(obj_point.Get(coordinates.X), 0, 0)
+	case maxc == math.Abs(obj_point.Get(coordinates.Y)):
+		normal_v = coordinates.CreateVector(0, obj_point.Get(coordinates.Y), 0)
 	default:
-		normal_v = coordinates.CreateVector(0, 0, obj_point[coordinates.Z])
+		normal_v = coordinates.CreateVector(0, 0, obj_point.Get(coordinates.Z))
 	}
 
 	world_normal := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(normal_v), inverse_transformation.T())
@@ -267,7 +268,7 @@ type XZCylinder struct {
 func NewXZCylinder() XZCylinder {
 	new_uuid, _ := uuid.NewV4()
 	return XZCylinder{transformationMat: matrices.NewIdentityMatrix(4), Material: CreateDefaultMaterial(), id: new_uuid.String(),
-		minimum: math.Inf(-1), maximum: math.Inf(1)}
+		minimum: math.Inf(-1), maximum: math.Inf(1), closed: false}
 }
 
 func (cy XZCylinder) Id() string {
@@ -299,13 +300,13 @@ func (cy XZCylinder) IntersectWithRay(ray_wrt_obj Ray) []Intersection {
 }
 
 func (cy XZCylinder) checkCircularIntersection(ray_wrt_obj Ray) []Intersection {
-	a := ray_wrt_obj.Direction[coordinates.X]*ray_wrt_obj.Direction[coordinates.X] + ray_wrt_obj.Direction[coordinates.Z]*ray_wrt_obj.Direction[coordinates.Z]
+	a := ray_wrt_obj.Direction.Get(coordinates.X)*ray_wrt_obj.Direction.Get(coordinates.X) + ray_wrt_obj.Direction.Get(coordinates.Z)*ray_wrt_obj.Direction.Get(coordinates.Z)
 	if math.Abs(a) < EPSILON {
 		return []Intersection{}
 	}
 
-	b := 2*ray_wrt_obj.Origin[coordinates.X]*ray_wrt_obj.Direction[coordinates.X] + 2*ray_wrt_obj.Origin[coordinates.Z]*ray_wrt_obj.Direction[coordinates.Z]
-	c := ray_wrt_obj.Origin[coordinates.X]*ray_wrt_obj.Origin[coordinates.X] + ray_wrt_obj.Origin[coordinates.Z]*ray_wrt_obj.Origin[coordinates.Z] - 1
+	b := 2*ray_wrt_obj.Origin.Get(coordinates.X)*ray_wrt_obj.Direction.Get(coordinates.X) + 2*ray_wrt_obj.Origin.Get(coordinates.Z)*ray_wrt_obj.Direction.Get(coordinates.Z)
+	c := ray_wrt_obj.Origin.Get(coordinates.X)*ray_wrt_obj.Origin.Get(coordinates.X) + ray_wrt_obj.Origin.Get(coordinates.Z)*ray_wrt_obj.Origin.Get(coordinates.Z) - 1
 
 	discriminant := b*b - 4*a*c
 	if discriminant < 0 {
@@ -317,13 +318,13 @@ func (cy XZCylinder) checkCircularIntersection(ray_wrt_obj Ray) []Intersection {
 
 	res := make([]Intersection, 0)
 
-	if ray_wrt_obj.Origin[coordinates.Y]+t1*ray_wrt_obj.Direction[coordinates.Y] > cy.minimum &&
-		ray_wrt_obj.Origin[coordinates.Y]+t1*ray_wrt_obj.Direction[coordinates.Y] < cy.maximum {
+	if ray_wrt_obj.Origin.Get(coordinates.Y)+t1*ray_wrt_obj.Direction.Get(coordinates.Y) > cy.minimum &&
+		ray_wrt_obj.Origin.Get(coordinates.Y)+t1*ray_wrt_obj.Direction.Get(coordinates.Y) < cy.maximum {
 		res = append(res, NewIntersection(t1, cy))
 	}
 
-	if ray_wrt_obj.Origin[coordinates.Y]+t2*ray_wrt_obj.Direction[coordinates.Y] > cy.minimum &&
-		ray_wrt_obj.Origin[coordinates.Y]+t2*ray_wrt_obj.Direction[coordinates.Y] < cy.maximum {
+	if ray_wrt_obj.Origin.Get(coordinates.Y)+t2*ray_wrt_obj.Direction.Get(coordinates.Y) > cy.minimum &&
+		ray_wrt_obj.Origin.Get(coordinates.Y)+t2*ray_wrt_obj.Direction.Get(coordinates.Y) < cy.maximum {
 		res = append(res, NewIntersection(t2, cy))
 	}
 
@@ -331,14 +332,14 @@ func (cy XZCylinder) checkCircularIntersection(ray_wrt_obj Ray) []Intersection {
 }
 
 func (cy XZCylinder) checkCapIntersection(ray_wrt_obj Ray) []Intersection {
-	if !cy.closed || math.Abs(ray_wrt_obj.Direction[coordinates.Y]) < EPSILON {
+	if !cy.closed || math.Abs(ray_wrt_obj.Direction.Get(coordinates.Y)) < EPSILON {
 		return []Intersection{}
 	}
 
 	res := make([]Intersection, 0)
 
-	t3 := (cy.minimum - ray_wrt_obj.Origin[coordinates.Y]) / ray_wrt_obj.Direction[coordinates.Y]
-	t4 := (cy.maximum - ray_wrt_obj.Origin[coordinates.Y]) / ray_wrt_obj.Direction[coordinates.Y]
+	t3 := (cy.minimum - ray_wrt_obj.Origin.Get(coordinates.Y)) / ray_wrt_obj.Direction.Get(coordinates.Y)
+	t4 := (cy.maximum - ray_wrt_obj.Origin.Get(coordinates.Y)) / ray_wrt_obj.Direction.Get(coordinates.Y)
 
 	if cy.withinBoundingRadius(ray_wrt_obj, t3) {
 		res = append(res, NewIntersection(t3, cy))
@@ -352,8 +353,8 @@ func (cy XZCylinder) checkCapIntersection(ray_wrt_obj Ray) []Intersection {
 }
 
 func (cy XZCylinder) withinBoundingRadius(ray_wrt_obj Ray, t float64) bool {
-	x := ray_wrt_obj.Origin[coordinates.X] + t*ray_wrt_obj.Direction[coordinates.X]
-	z := ray_wrt_obj.Origin[coordinates.Z] + t*ray_wrt_obj.Direction[coordinates.Z]
+	x := ray_wrt_obj.Origin.Get(coordinates.X) + t*ray_wrt_obj.Direction.Get(coordinates.X)
+	z := ray_wrt_obj.Origin.Get(coordinates.Z) + t*ray_wrt_obj.Direction.Get(coordinates.Z)
 
 	return (x*x + z*z) <= 1
 }
@@ -363,12 +364,12 @@ func (cy XZCylinder) NormalAtPoint(world_point coordinates.Coordinate) coordinat
 	obj_point_matrix := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(world_point), inverse_transformation)
 	obj_point := matrices.MatrixToCoordinate(obj_point_matrix)
 
-	dist := obj_point[coordinates.X]*obj_point[coordinates.X] + obj_point[coordinates.Z]*obj_point[coordinates.Z]
+	dist := obj_point.Get(coordinates.X)*obj_point.Get(coordinates.X) + obj_point.Get(coordinates.Z)*obj_point.Get(coordinates.Z)
 
 	var normal_v coordinates.Coordinate
-	if dist < 1 && obj_point[coordinates.Y] >= cy.maximum-EPSILON {
+	if dist < 1 && obj_point.Get(coordinates.Y) >= cy.maximum-EPSILON && cy.closed {
 		normal_v = coordinates.CreateVector(0, 1, 0)
-	} else if dist < 1 && obj_point[coordinates.Y] <= cy.minimum+EPSILON {
+	} else if dist < 1 && obj_point.Get(coordinates.Y) <= cy.minimum+EPSILON && cy.closed {
 		normal_v = coordinates.CreateVector(0, -1, 0)
 	} else {
 		normal_v = coordinates.CreateVector(obj_point.Get(coordinates.X), 0, obj_point.Get(coordinates.Z))
@@ -384,7 +385,16 @@ func (cy XZCylinder) NormalAtPoint(world_point coordinates.Coordinate) coordinat
 type Cone struct {
 	transformationMat matrices.Matrix
 	Material          Material
+	minimum           float64
+	maximum           float64
+	closed            bool
 	id                string
+}
+
+func NewDoubleNappedCone() Cone {
+	new_uuid, _ := uuid.NewV4()
+	return Cone{transformationMat: matrices.NewIdentityMatrix(4), Material: CreateDefaultMaterial(), id: new_uuid.String(),
+		minimum: math.Inf(-1), maximum: math.Inf(1), closed: false}
 }
 
 func (co Cone) Id() string {
@@ -408,9 +418,113 @@ func (co Cone) GetMaterial() Material {
 }
 
 func (co Cone) IntersectWithRay(ray_wrt_obj Ray) []Intersection {
-	return []Intersection{}
+	res := make([]Intersection, 0)
+
+	res = append(res, co.checkCircularIntersection(ray_wrt_obj)...)
+	res = append(res, co.checkCapIntersection(ray_wrt_obj)...)
+	return res
+}
+
+func (co Cone) checkCircularIntersection(ray_wrt_obj Ray) []Intersection {
+	a := ray_wrt_obj.Direction.Get(coordinates.X)*ray_wrt_obj.Direction.Get(coordinates.X) -
+		ray_wrt_obj.Direction.Get(coordinates.Y)*ray_wrt_obj.Direction.Get(coordinates.Y) +
+		ray_wrt_obj.Direction.Get(coordinates.Z)*ray_wrt_obj.Direction.Get(coordinates.Z)
+
+	b := 2*ray_wrt_obj.Origin.Get(coordinates.X)*ray_wrt_obj.Direction.Get(coordinates.X) -
+		2*ray_wrt_obj.Origin.Get(coordinates.Y)*ray_wrt_obj.Direction.Get(coordinates.Y) +
+		2*ray_wrt_obj.Origin.Get(coordinates.Z)*ray_wrt_obj.Direction.Get(coordinates.Z)
+
+	c := ray_wrt_obj.Origin.Get(coordinates.X)*ray_wrt_obj.Origin.Get(coordinates.X) -
+		ray_wrt_obj.Origin.Get(coordinates.Y)*ray_wrt_obj.Origin.Get(coordinates.Y) +
+		ray_wrt_obj.Origin.Get(coordinates.Z)*ray_wrt_obj.Origin.Get(coordinates.Z)
+
+	discriminant := b*b - 4*a*c
+	if discriminant < 0 {
+		return []Intersection{}
+	}
+
+	if math.Abs(a) < EPSILON {
+		if math.Abs(b) < EPSILON {
+			return []Intersection{}
+		}
+		t := -c / (2 * b)
+		return []Intersection{NewIntersection(t, co)}
+	}
+
+	t1 := (-b - math.Sqrt(discriminant)) / (2 * a)
+	t2 := (-b + math.Sqrt(discriminant)) / (2 * a)
+
+	fmt.Println(discriminant)
+	fmt.Println(t1, t2)
+
+	res := make([]Intersection, 0)
+
+	if ray_wrt_obj.Origin.Get(coordinates.Y)+t1*ray_wrt_obj.Direction.Get(coordinates.Y) > co.minimum &&
+		ray_wrt_obj.Origin.Get(coordinates.Y)+t1*ray_wrt_obj.Direction.Get(coordinates.Y) < co.maximum {
+		res = append(res, NewIntersection(t1, co))
+	}
+
+	if ray_wrt_obj.Origin.Get(coordinates.Y)+t2*ray_wrt_obj.Direction.Get(coordinates.Y) > co.minimum &&
+		ray_wrt_obj.Origin.Get(coordinates.Y)+t2*ray_wrt_obj.Direction.Get(coordinates.Y) < co.maximum {
+		res = append(res, NewIntersection(t2, co))
+	}
+
+	return res
+}
+
+func (co Cone) checkCapIntersection(ray_wrt_obj Ray) []Intersection {
+	if !co.closed || math.Abs(ray_wrt_obj.Direction.Get(coordinates.Y)) < EPSILON {
+		return []Intersection{}
+	}
+
+	res := make([]Intersection, 0)
+
+	t3 := (co.minimum - ray_wrt_obj.Origin.Get(coordinates.Y)) / ray_wrt_obj.Direction.Get(coordinates.Y)
+	t4 := (co.maximum - ray_wrt_obj.Origin.Get(coordinates.Y)) / ray_wrt_obj.Direction.Get(coordinates.Y)
+	if co.withinBoundingRadius(ray_wrt_obj, t3) {
+		res = append(res, NewIntersection(t3, co))
+	}
+	if co.withinBoundingRadius(ray_wrt_obj, t4) {
+		res = append(res, NewIntersection(t4, co))
+	}
+
+	return res
+}
+
+func (co Cone) withinBoundingRadius(ray_wrt_obj Ray, t float64) bool {
+	x := ray_wrt_obj.Origin.Get(coordinates.X) + t*ray_wrt_obj.Direction.Get(coordinates.X)
+	y := ray_wrt_obj.Origin.Get(coordinates.Y) + t*ray_wrt_obj.Direction.Get(coordinates.Y)
+	z := ray_wrt_obj.Origin.Get(coordinates.Z) + t*ray_wrt_obj.Direction.Get(coordinates.Z)
+
+	return (x*x + z*z) <= y*y
 }
 
 func (co Cone) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate {
-	return coordinates.CreateVector(0, 0, 0)
+	inverse_transformation, _ := co.Transformation().Inverse()
+
+	obj_point_matrix := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(world_point), inverse_transformation)
+	obj_point := matrices.MatrixToCoordinate(obj_point_matrix)
+
+	dist := obj_point.Get(coordinates.X)*obj_point.Get(coordinates.X) + obj_point.Get(coordinates.Z)*obj_point.Get(coordinates.Z)
+	radius_sqr := math.Pow(obj_point.Get(coordinates.Y), 2)
+
+	var normal_v coordinates.Coordinate
+
+	if dist < radius_sqr && obj_point.Get(coordinates.Y) >= co.maximum-EPSILON && co.closed {
+		normal_v = coordinates.CreateVector(0, 1, 0)
+	} else if dist < radius_sqr && obj_point.Get(coordinates.Y) <= co.minimum+EPSILON && co.closed {
+		normal_v = coordinates.CreateVector(0, -1, 0)
+	} else {
+		y := math.Sqrt(obj_point.Get(coordinates.X)*obj_point.Get(coordinates.X) + obj_point.Get(coordinates.Z)*obj_point.Get(coordinates.Z))
+		if obj_point.Get(coordinates.Y) > 0 {
+			y = -y
+		}
+
+		normal_v = coordinates.CreateVector(obj_point.Get(coordinates.X), y, obj_point.Get(coordinates.Z))
+		fmt.Println("FREEDOM ", normal_v)
+	}
+
+	world_normal := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(normal_v), inverse_transformation.T())
+	res := matrices.MatrixToCoordinate(world_normal)
+	return res
 }

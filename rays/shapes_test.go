@@ -276,3 +276,55 @@ func TestCappedCylinderNormal(t *testing.T) {
 		helpers.TestApproxEqualCoordinate(t, data.normal, n, 0.00001)
 	}
 }
+
+func TestUnboundedCone(t *testing.T) {
+	cone := NewDoubleNappedCone()
+
+	for _, data := range []struct {
+		origin, direction coordinates.Coordinate
+		t1, t2            float64
+	}{
+		{coordinates.CreatePoint(0, 0, -5), coordinates.CreateVector(0, 0, 1), 5, 5},
+		{coordinates.CreatePoint(0, 0.5, -1), coordinates.CreateVector(0, 0, 0.5), 1, 3},
+		{coordinates.CreatePoint(0, -5, 0), coordinates.CreateVector(1, 1, 1), -12.071068, 2.071068},
+	} {
+		r := NewRay(data.origin, data.direction)
+		xs := cone.IntersectWithRay(r)
+
+		assert.Equal(t, 2, len(xs))
+		helpers.ApproxEqual(t, data.t1, xs[0].Tvalue, 0.00001)
+		helpers.ApproxEqual(t, data.t2, xs[1].Tvalue, 0.00001)
+	}
+}
+
+func TestConeRayMiss(t *testing.T) {
+	cone := NewDoubleNappedCone()
+
+	for _, data := range []struct {
+		origin, direction coordinates.Coordinate
+	}{
+		{coordinates.CreatePoint(0, 0, -5), coordinates.CreateVector(1, 0, 0)},
+		{coordinates.CreatePoint(0, 0, -5), coordinates.CreateVector(1, 1, 0)},
+		{coordinates.CreatePoint(1, 1, -5), coordinates.CreateVector(2, 0, 2)},
+	} {
+		r := NewRay(data.origin, data.direction)
+		xs := cone.IntersectWithRay(r)
+
+		assert.Equal(t, 0, len(xs))
+	}
+}
+
+func TestComputeConeNormal(t *testing.T) {
+	cone := NewDoubleNappedCone()
+
+	for _, data := range []struct {
+		point, normal coordinates.Coordinate
+	}{
+		{coordinates.CreatePoint(0, 0, 0), coordinates.CreateVector(0, 0, 0)},
+		{coordinates.CreatePoint(1, 1, 1), coordinates.CreateVector(1, -math.Sqrt(2), 1)},
+		{coordinates.CreatePoint(-1, -1, 0), coordinates.CreateVector(-1, 1, 0)},
+	} {
+		n := cone.NormalAtPoint(data.point)
+		helpers.TestApproxEqualCoordinate(t, data.normal, n, 0.00001)
+	}
+}
