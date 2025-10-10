@@ -176,8 +176,8 @@ func TestCuberNormal(t *testing.T) {
 
 func TestCylinderRayMiss(t *testing.T) {
 	cyl := NewXZCylinder()
-	cyl.minimum = 1
-	cyl.maximum = 2
+	cyl.Minimum = 1
+	cyl.Maximum = 2
 	for _, data := range []struct {
 		origin, direction coordinates.Coordinate
 	}{
@@ -230,9 +230,9 @@ func TestCylinderNormal(t *testing.T) {
 
 func TestCappedCylinderIntersection(t *testing.T) {
 	cyl := NewXZCylinder()
-	cyl.minimum = 1
-	cyl.maximum = 2
-	cyl.closed = true
+	cyl.Minimum = 1
+	cyl.Maximum = 2
+	cyl.Closed = true
 
 	for _, data := range []struct {
 		origin, direction coordinates.Coordinate
@@ -254,9 +254,9 @@ func TestCappedCylinderIntersection(t *testing.T) {
 
 func TestCappedCylinderNormal(t *testing.T) {
 	cyl := NewXZCylinder()
-	cyl.minimum = 1
-	cyl.maximum = 2
-	cyl.closed = true
+	cyl.Minimum = 1
+	cyl.Maximum = 2
+	cyl.Closed = true
 
 	for _, data := range []struct {
 		point, normal coordinates.Coordinate

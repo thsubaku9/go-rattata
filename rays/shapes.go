@@ -259,16 +259,16 @@ func (c Cube) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coor
 type XZCylinder struct {
 	transformationMat matrices.Matrix
 	Material          Material
-	minimum           float64
-	maximum           float64
-	closed            bool
+	Minimum           float64
+	Maximum           float64
+	Closed            bool
 	id                string
 }
 
 func NewXZCylinder() XZCylinder {
 	new_uuid, _ := uuid.NewV4()
 	return XZCylinder{transformationMat: matrices.NewIdentityMatrix(4), Material: CreateDefaultMaterial(), id: new_uuid.String(),
-		minimum: math.Inf(-1), maximum: math.Inf(1), closed: false}
+		Minimum: math.Inf(-1), Maximum: math.Inf(1), Closed: false}
 }
 
 func (cy XZCylinder) Id() string {
@@ -318,13 +318,13 @@ func (cy XZCylinder) checkCircularIntersection(ray_wrt_obj Ray) []Intersection {
 
 	res := make([]Intersection, 0)
 
-	if ray_wrt_obj.Origin.Get(coordinates.Y)+t1*ray_wrt_obj.Direction.Get(coordinates.Y) > cy.minimum &&
-		ray_wrt_obj.Origin.Get(coordinates.Y)+t1*ray_wrt_obj.Direction.Get(coordinates.Y) < cy.maximum {
+	if ray_wrt_obj.Origin.Get(coordinates.Y)+t1*ray_wrt_obj.Direction.Get(coordinates.Y) > cy.Minimum &&
+		ray_wrt_obj.Origin.Get(coordinates.Y)+t1*ray_wrt_obj.Direction.Get(coordinates.Y) < cy.Maximum {
 		res = append(res, NewIntersection(t1, cy))
 	}
 
-	if ray_wrt_obj.Origin.Get(coordinates.Y)+t2*ray_wrt_obj.Direction.Get(coordinates.Y) > cy.minimum &&
-		ray_wrt_obj.Origin.Get(coordinates.Y)+t2*ray_wrt_obj.Direction.Get(coordinates.Y) < cy.maximum {
+	if ray_wrt_obj.Origin.Get(coordinates.Y)+t2*ray_wrt_obj.Direction.Get(coordinates.Y) > cy.Minimum &&
+		ray_wrt_obj.Origin.Get(coordinates.Y)+t2*ray_wrt_obj.Direction.Get(coordinates.Y) < cy.Maximum {
 		res = append(res, NewIntersection(t2, cy))
 	}
 
@@ -332,14 +332,14 @@ func (cy XZCylinder) checkCircularIntersection(ray_wrt_obj Ray) []Intersection {
 }
 
 func (cy XZCylinder) checkCapIntersection(ray_wrt_obj Ray) []Intersection {
-	if !cy.closed || math.Abs(ray_wrt_obj.Direction.Get(coordinates.Y)) < EPSILON {
+	if !cy.Closed || math.Abs(ray_wrt_obj.Direction.Get(coordinates.Y)) < EPSILON {
 		return []Intersection{}
 	}
 
 	res := make([]Intersection, 0)
 
-	t3 := (cy.minimum - ray_wrt_obj.Origin.Get(coordinates.Y)) / ray_wrt_obj.Direction.Get(coordinates.Y)
-	t4 := (cy.maximum - ray_wrt_obj.Origin.Get(coordinates.Y)) / ray_wrt_obj.Direction.Get(coordinates.Y)
+	t3 := (cy.Minimum - ray_wrt_obj.Origin.Get(coordinates.Y)) / ray_wrt_obj.Direction.Get(coordinates.Y)
+	t4 := (cy.Maximum - ray_wrt_obj.Origin.Get(coordinates.Y)) / ray_wrt_obj.Direction.Get(coordinates.Y)
 
 	if cy.withinBoundingRadius(ray_wrt_obj, t3) {
 		res = append(res, NewIntersection(t3, cy))
@@ -367,9 +367,9 @@ func (cy XZCylinder) NormalAtPoint(world_point coordinates.Coordinate) coordinat
 	dist := obj_point.Get(coordinates.X)*obj_point.Get(coordinates.X) + obj_point.Get(coordinates.Z)*obj_point.Get(coordinates.Z)
 
 	var normal_v coordinates.Coordinate
-	if dist < 1 && obj_point.Get(coordinates.Y) >= cy.maximum-EPSILON && cy.closed {
+	if dist < 1 && obj_point.Get(coordinates.Y) >= cy.Maximum-EPSILON && cy.Closed {
 		normal_v = coordinates.CreateVector(0, 1, 0)
-	} else if dist < 1 && obj_point.Get(coordinates.Y) <= cy.minimum+EPSILON && cy.closed {
+	} else if dist < 1 && obj_point.Get(coordinates.Y) <= cy.Minimum+EPSILON && cy.Closed {
 		normal_v = coordinates.CreateVector(0, -1, 0)
 	} else {
 		normal_v = coordinates.CreateVector(obj_point.Get(coordinates.X), 0, obj_point.Get(coordinates.Z))
@@ -385,16 +385,16 @@ func (cy XZCylinder) NormalAtPoint(world_point coordinates.Coordinate) coordinat
 type Cone struct {
 	transformationMat matrices.Matrix
 	Material          Material
-	minimum           float64
-	maximum           float64
-	closed            bool
+	Minimum           float64
+	Maximum           float64
+	Closed            bool
 	id                string
 }
 
 func NewDoubleNappedCone() Cone {
 	new_uuid, _ := uuid.NewV4()
 	return Cone{transformationMat: matrices.NewIdentityMatrix(4), Material: CreateDefaultMaterial(), id: new_uuid.String(),
-		minimum: math.Inf(-1), maximum: math.Inf(1), closed: false}
+		Minimum: math.Inf(-1), Maximum: math.Inf(1), Closed: false}
 }
 
 func (co Cone) Id() string {
@@ -459,13 +459,13 @@ func (co Cone) checkCircularIntersection(ray_wrt_obj Ray) []Intersection {
 
 	res := make([]Intersection, 0)
 
-	if ray_wrt_obj.Origin.Get(coordinates.Y)+t1*ray_wrt_obj.Direction.Get(coordinates.Y) > co.minimum &&
-		ray_wrt_obj.Origin.Get(coordinates.Y)+t1*ray_wrt_obj.Direction.Get(coordinates.Y) < co.maximum {
+	if ray_wrt_obj.Origin.Get(coordinates.Y)+t1*ray_wrt_obj.Direction.Get(coordinates.Y) > co.Minimum &&
+		ray_wrt_obj.Origin.Get(coordinates.Y)+t1*ray_wrt_obj.Direction.Get(coordinates.Y) < co.Maximum {
 		res = append(res, NewIntersection(t1, co))
 	}
 
-	if ray_wrt_obj.Origin.Get(coordinates.Y)+t2*ray_wrt_obj.Direction.Get(coordinates.Y) > co.minimum &&
-		ray_wrt_obj.Origin.Get(coordinates.Y)+t2*ray_wrt_obj.Direction.Get(coordinates.Y) < co.maximum {
+	if ray_wrt_obj.Origin.Get(coordinates.Y)+t2*ray_wrt_obj.Direction.Get(coordinates.Y) > co.Minimum &&
+		ray_wrt_obj.Origin.Get(coordinates.Y)+t2*ray_wrt_obj.Direction.Get(coordinates.Y) < co.Maximum {
 		res = append(res, NewIntersection(t2, co))
 	}
 
@@ -473,14 +473,14 @@ func (co Cone) checkCircularIntersection(ray_wrt_obj Ray) []Intersection {
 }
 
 func (co Cone) checkCapIntersection(ray_wrt_obj Ray) []Intersection {
-	if !co.closed || math.Abs(ray_wrt_obj.Direction.Get(coordinates.Y)) < EPSILON {
+	if !co.Closed || math.Abs(ray_wrt_obj.Direction.Get(coordinates.Y)) < EPSILON {
 		return []Intersection{}
 	}
 
 	res := make([]Intersection, 0)
 
-	t3 := (co.minimum - ray_wrt_obj.Origin.Get(coordinates.Y)) / ray_wrt_obj.Direction.Get(coordinates.Y)
-	t4 := (co.maximum - ray_wrt_obj.Origin.Get(coordinates.Y)) / ray_wrt_obj.Direction.Get(coordinates.Y)
+	t3 := (co.Minimum - ray_wrt_obj.Origin.Get(coordinates.Y)) / ray_wrt_obj.Direction.Get(coordinates.Y)
+	t4 := (co.Maximum - ray_wrt_obj.Origin.Get(coordinates.Y)) / ray_wrt_obj.Direction.Get(coordinates.Y)
 	if co.withinBoundingRadius(ray_wrt_obj, t3) {
 		res = append(res, NewIntersection(t3, co))
 	}
@@ -510,9 +510,9 @@ func (co Cone) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coo
 
 	var normal_v coordinates.Coordinate
 
-	if dist < radius_sqr && obj_point.Get(coordinates.Y) >= co.maximum-EPSILON && co.closed {
+	if dist < radius_sqr && obj_point.Get(coordinates.Y) >= co.Maximum-EPSILON && co.Closed {
 		normal_v = coordinates.CreateVector(0, 1, 0)
-	} else if dist < radius_sqr && obj_point.Get(coordinates.Y) <= co.minimum+EPSILON && co.closed {
+	} else if dist < radius_sqr && obj_point.Get(coordinates.Y) <= co.Minimum+EPSILON && co.Closed {
 		normal_v = coordinates.CreateVector(0, -1, 0)
 	} else {
 		y := math.Sqrt(obj_point.Get(coordinates.X)*obj_point.Get(coordinates.X) + obj_point.Get(coordinates.Z)*obj_point.Get(coordinates.Z))
