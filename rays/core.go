@@ -1,7 +1,6 @@
 package rays
 
 import (
-	"fmt"
 	"math"
 	"rattata/coordinates"
 	"rattata/matrices"
@@ -70,7 +69,12 @@ func NewRay(origin, direction coordinates.Coordinate) Ray {
 		return Ray{Origin: origin, Direction: direction}
 	}
 
-	panic(fmt.Sprintf("Origin coord : %t and Vector coord :%t", origin.IsAPoint(), direction.IsAVector()))
+	org_cpy := origin.Copy()
+	dir_cpy := direction.Copy()
+	org_cpy.Set(coordinates.W, 1)
+	dir_cpy.Set(coordinates.W, 0)
+
+	return Ray{Origin: org_cpy, Direction: dir_cpy}
 }
 
 func (r *Ray) PointAtTime(dir float64) *coordinates.Coordinate {

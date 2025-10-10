@@ -46,6 +46,14 @@ func CreateVector(x, y, z float64) Coordinate {
 	return CreateCoordinate(x, y, z, 0)
 }
 
+func (c1 *Coordinate) Copy() Coordinate {
+	c2 := Coordinate{}
+	for i := 0; i < 4; i++ {
+		c2[i] = c1[i]
+	}
+	return c2
+}
+
 func (c1 *Coordinate) Add(c2 *Coordinate) *Coordinate {
 	c3 := &Coordinate{}
 
