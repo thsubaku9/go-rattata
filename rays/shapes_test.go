@@ -321,8 +321,8 @@ func TestComputeConeNormal(t *testing.T) {
 		point, normal coordinates.Coordinate
 	}{
 		{coordinates.CreatePoint(0, 0, 0), coordinates.CreateVector(0, 0, 0)},
-		{coordinates.CreatePoint(1, 1, 1), coordinates.CreateVector(float64(1/2), -math.Sqrt(2)/2, float64(1/2))},
-		{coordinates.CreatePoint(-1, -1, 0), coordinates.CreateVector(-1, 1, 0)},
+		{coordinates.CreatePoint(1, 1, 1), coordinates.CreateVector(float64(1)/2, -math.Sqrt(2)/2, float64(1)/2)},
+		{coordinates.CreatePoint(-1, -1, 0), coordinates.CreateVector(-0.707, 0.707, 0)},
 	} {
 		n := cone.NormalAtPoint(data.point)
 		helpers.TestApproxEqualCoordinate(t, data.normal, n, 0.00001)
