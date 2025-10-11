@@ -319,10 +319,6 @@ func (cy XZCylinder) Parent() *Group {
 	return cy.parent
 }
 
-func (cy *XZCylinder) SetParent(parent *Group) {
-	cy.parent = parent
-}
-
 func (cy XZCylinder) GetMaterial() Material {
 	return cy.Material
 }
@@ -396,9 +392,7 @@ func (cy XZCylinder) withinBoundingRadius(ray_wrt_obj Ray, t float64) bool {
 }
 
 func (cy XZCylinder) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate {
-	inverse_transformation, _ := cy.Transformation().Inverse()
-	obj_point_matrix := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(world_point), inverse_transformation)
-	obj_point := matrices.MatrixToCoordinate(obj_point_matrix)
+	obj_point := world_to_object_orientation(cy, world_point)
 
 	dist := obj_point.Get(coordinates.X)*obj_point.Get(coordinates.X) + obj_point.Get(coordinates.Z)*obj_point.Get(coordinates.Z)
 
@@ -411,9 +405,17 @@ func (cy XZCylinder) NormalAtPoint(world_point coordinates.Coordinate) coordinat
 		normal_v = coordinates.CreateVector(obj_point.Get(coordinates.X), 0, obj_point.Get(coordinates.Z))
 	}
 
-	world_normal := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(normal_v), inverse_transformation.T())
-	res := matrices.MatrixToCoordinate(world_normal)
-	return *res.Norm()
+	return normal_to_world_orientation(cy, normal_v)
+
+}
+
+func (cy *XZCylinder) SetParent(parent *Group) {
+	cy.parent = parent
+}
+
+func (cy *XZCylinder) GetRefAddress() *Shape {
+	var _shape Shape = cy
+	return &_shape
 }
 
 // ---------------------------------- Cone ----------------------------------
@@ -452,10 +454,6 @@ func (co *Cone) SetTransformation(mt matrices.Matrix) {
 
 func (co Cone) Parent() *Group {
 	return co.parent
-}
-
-func (co *Cone) SetParent(parent *Group) {
-	co.parent = parent
 }
 
 func (co Cone) GetMaterial() Material {
@@ -545,10 +543,7 @@ func (co Cone) withinBoundingRadius(ray_wrt_obj Ray, t float64) bool {
 }
 
 func (co Cone) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate {
-	inverse_transformation, _ := co.Transformation().Inverse()
-
-	obj_point_matrix := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(world_point), inverse_transformation)
-	obj_point := matrices.MatrixToCoordinate(obj_point_matrix)
+	obj_point := world_to_object_orientation(co, world_point)
 
 	dist := obj_point.Get(coordinates.X)*obj_point.Get(coordinates.X) + obj_point.Get(coordinates.Z)*obj_point.Get(coordinates.Z)
 	radius_sqr := math.Pow(obj_point.Get(coordinates.Y), 2)
@@ -566,12 +561,18 @@ func (co Cone) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coo
 		}
 
 		normal_v = coordinates.CreateVector(obj_point.Get(coordinates.X), y, obj_point.Get(coordinates.Z))
-		fmt.Println("FREEDOM ", normal_v)
 	}
 
-	world_normal := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(normal_v), inverse_transformation.T())
-	res := matrices.MatrixToCoordinate(world_normal)
-	return res
+	return normal_to_world_orientation(co, normal_v)
+}
+
+func (co *Cone) SetParent(parent *Group) {
+	co.parent = parent
+}
+
+func (co *Cone) GetRefAddress() *Shape {
+	var _shape Shape = co
+	return &_shape
 }
 
 // ---------------------------------- Group ----------------------------------
@@ -602,10 +603,6 @@ func (g Group) Transformation() matrices.Matrix {
 
 func (g *Group) SetTransformation(mt matrices.Matrix) {
 	g.transformationMat = mt
-}
-
-func (g *Group) SetParent(p *Group) {
-	g.parent = p
 }
 
 func (g Group) Parent() *Group {
@@ -642,6 +639,15 @@ func (g *Group) IndoctrinateShapeToGroup(shape_to_indoctrinate IsGroupable) {
 	shape_to_indoctrinate.SetParent(g)
 }
 
+func (g *Group) SetParent(p *Group) {
+	g.parent = p
+}
+
+func (g *Group) GetRefAddress() *Shape {
+	var _shape Shape = g
+	return &_shape
+}
+
 func world_to_object_orientation(shape Shape, world_coord coordinates.Coordinate) coordinates.Coordinate {
 	cur_coord := world_coord
 	if shape.Parent() != nil {
@@ -665,15 +671,6 @@ func object_to_world_orientation(shape Shape, object_coord coordinates.Coordinat
 	return cur_coord
 
 }
-
-/*
-normal ← transpose(inverse(shape.transform)) * normal normal.w ← 0
-normal ← normalize(normal)
-if shape has parent
-normal ← normal_to_world(shape.parent, normal)
-end if
-return normal
-*/
 
 func normal_to_world_orientation(shape Shape, object_normal_v coordinates.Coordinate) coordinates.Coordinate {
 
