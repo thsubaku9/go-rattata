@@ -77,7 +77,7 @@ func (c1 *Coordinate) Sub(c2 *Coordinate) *Coordinate {
 func (c *Coordinate) Negate() *Coordinate {
 	c3 := &Coordinate{}
 
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 3; i++ {
 		c3[i] = -c[i]
 	}
 
@@ -87,7 +87,7 @@ func (c *Coordinate) Negate() *Coordinate {
 func (c *Coordinate) Mul(f float64) *Coordinate {
 	c3 := &Coordinate{}
 
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 3; i++ {
 		c3[i] = c[i] * f
 	}
 
@@ -97,7 +97,7 @@ func (c *Coordinate) Mul(f float64) *Coordinate {
 func (c *Coordinate) Div(f float64) *Coordinate {
 	c3 := &Coordinate{}
 
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 3; i++ {
 		c3[i] = c[i] / f
 	}
 

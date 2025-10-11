@@ -8,6 +8,8 @@ func main() {
 
 	// playground.ProcessPhongReflection()
 
-	playground.CreateGoofyWorld()
+	// playground.CreateGoofyWorld()
+
+	playground.AHexagon()
 
 }
