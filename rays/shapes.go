@@ -5,6 +5,7 @@ import (
 	"math"
 	"rattata/coordinates"
 	"rattata/matrices"
+	"sort"
 
 	"github.com/gofrs/uuid"
 )
@@ -20,6 +21,12 @@ type Shape interface {
 	NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate
 	GetMaterial() Material
 	Id() string
+	Parent() *Group
+}
+
+type IsGroupable interface {
+	SetParent(parent *Group)
+	GetRefAddress() *Shape
 }
 
 // ---------------------------------- Sphere ----------------------------------
@@ -29,6 +36,7 @@ type Sphere struct {
 	transformationMat matrices.Matrix
 	Material          Material
 	id                string
+	parent            *Group
 }
 
 func NewSphere(origin coordinates.Coordinate, radius float64) Sphere {
@@ -67,6 +75,10 @@ func (s *Sphere) SetTransformation(mt matrices.Matrix) {
 	s.transformationMat = mt
 }
 
+func (s Sphere) Parent() *Group {
+	return s.parent
+}
+
 func (s Sphere) GetMaterial() Material {
 	return s.Material
 }
@@ -89,18 +101,18 @@ func (s Sphere) IntersectWithRay(ray_wrt_obj Ray) []Intersection {
 }
 
 func (s Sphere) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate {
-	inverse_transformation, _ := s.Transformation().Inverse()
-
-	obj_point_mat := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(world_point), inverse_transformation)
-
-	obj_point := matrices.MatrixToCoordinate(obj_point_mat)
+	obj_point := world_to_object_orientation(s, world_point)
 	obj_normal := *obj_point.Sub(&s.Origin)
+	return normal_to_world_orientation(s, obj_normal)
+}
 
-	world_normal := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(obj_normal), inverse_transformation.T())
-	world_normal.Set(3, 0, 0)
+func (s *Sphere) SetParent(parent *Group) {
+	s.parent = parent
+}
 
-	res := matrices.MatrixToCoordinate(world_normal)
-	return *res.Norm()
+func (s *Sphere) GetRefAddress() *Shape {
+	var _shape Shape = s
+	return &_shape
 }
 
 // ---------------------------------- XZPlane ----------------------------------
@@ -109,6 +121,7 @@ type XZPlane struct {
 	transformationMat matrices.Matrix
 	Material          Material
 	id                string
+	parent            *Group
 }
 
 func NewPlane(origin coordinates.Coordinate) XZPlane {
@@ -137,6 +150,10 @@ func (p *XZPlane) SetTransformation(mt matrices.Matrix) {
 	p.transformationMat = mt
 }
 
+func (p XZPlane) Parent() *Group {
+	return p.parent
+}
+
 func (p XZPlane) GetMaterial() Material {
 	return p.Material
 }
@@ -151,15 +168,17 @@ func (p XZPlane) IntersectWithRay(ray_wrt_obj Ray) []Intersection {
 }
 
 func (p XZPlane) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate {
-	inverse_transformation, _ := p.Transformation().Inverse()
 	obj_normal := coordinates.CreateVector(0, 1, 0)
+	return normal_to_world_orientation(p, obj_normal)
+}
 
-	world_normal := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(obj_normal), inverse_transformation.T())
-	world_normal.Set(3, 0, 0)
+func (p *XZPlane) SetParent(parent *Group) {
+	p.parent = parent
+}
 
-	res := matrices.MatrixToCoordinate(world_normal)
-	return *res.Norm()
-
+func (p *XZPlane) GetRefAddress() *Shape {
+	var _shape Shape = p
+	return &_shape
 }
 
 // ---------------------------------- Cube ----------------------------------
@@ -168,6 +187,7 @@ type Cube struct {
 	transformationMat matrices.Matrix
 	Material          Material
 	id                string
+	parent            *Group
 }
 
 func NewCube() Cube {
@@ -189,6 +209,10 @@ func (c Cube) Transformation() matrices.Matrix {
 
 func (c *Cube) SetTransformation(mt matrices.Matrix) {
 	c.transformationMat = mt
+}
+
+func (c Cube) Parent() *Group {
+	return c.parent
 }
 
 func (c Cube) GetMaterial() Material {
@@ -230,10 +254,7 @@ func (c Cube) axis_intersection_points(origin, direction float64) (float64, floa
 }
 
 func (c Cube) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate {
-	inverse_transformation, _ := c.Transformation().Inverse()
-
-	obj_point_mat := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(world_point), inverse_transformation)
-	obj_point := matrices.MatrixToCoordinate(obj_point_mat)
+	obj_point := world_to_object_orientation(c, world_point)
 
 	maxc := math.Max(math.Abs(obj_point.Get(coordinates.X)), math.Max(math.Abs(obj_point.Get(coordinates.Y)), math.Abs(obj_point.Get(coordinates.Z))))
 
@@ -248,10 +269,16 @@ func (c Cube) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coor
 		normal_v = coordinates.CreateVector(0, 0, obj_point.Get(coordinates.Z))
 	}
 
-	world_normal := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(normal_v), inverse_transformation.T())
+	return normal_to_world_orientation(c, normal_v)
+}
 
-	res := matrices.MatrixToCoordinate(world_normal)
-	return *res.Norm()
+func (c *Cube) SetParent(parent *Group) {
+	c.parent = parent
+}
+
+func (c *Cube) GetRefAddress() *Shape {
+	var _shape Shape = c
+	return &_shape
 }
 
 // ---------------------------------- XZCylinder ----------------------------------
@@ -263,6 +290,7 @@ type XZCylinder struct {
 	Maximum           float64
 	Closed            bool
 	id                string
+	parent            *Group
 }
 
 func NewXZCylinder() XZCylinder {
@@ -285,6 +313,14 @@ func (cy XZCylinder) Transformation() matrices.Matrix {
 
 func (cy *XZCylinder) SetTransformation(mt matrices.Matrix) {
 	cy.transformationMat = mt
+}
+
+func (cy XZCylinder) Parent() *Group {
+	return cy.parent
+}
+
+func (cy *XZCylinder) SetParent(parent *Group) {
+	cy.parent = parent
 }
 
 func (cy XZCylinder) GetMaterial() Material {
@@ -389,6 +425,7 @@ type Cone struct {
 	Maximum           float64
 	Closed            bool
 	id                string
+	parent            *Group
 }
 
 func NewDoubleNappedCone() Cone {
@@ -411,6 +448,14 @@ func (co Cone) Transformation() matrices.Matrix {
 
 func (co *Cone) SetTransformation(mt matrices.Matrix) {
 	co.transformationMat = mt
+}
+
+func (co Cone) Parent() *Group {
+	return co.parent
+}
+
+func (co *Cone) SetParent(parent *Group) {
+	co.parent = parent
 }
 
 func (co Cone) GetMaterial() Material {
@@ -526,5 +571,121 @@ func (co Cone) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coo
 
 	world_normal := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(normal_v), inverse_transformation.T())
 	res := matrices.MatrixToCoordinate(world_normal)
+	return res
+}
+
+// ---------------------------------- Group ----------------------------------
+
+type Group struct {
+	containedShapes   []*Shape
+	transformationMat matrices.Matrix
+	id                string
+	parent            *Group
+}
+
+func NewGroup() Group {
+	new_uuid, _ := uuid.NewV4()
+	return Group{containedShapes: make([]*Shape, 0), transformationMat: matrices.NewIdentityMatrix(4), id: new_uuid.String()}
+}
+
+func (g Group) Id() string {
+	return g.id
+}
+
+func (g Group) Name() string {
+	return "Group"
+}
+
+func (g Group) Transformation() matrices.Matrix {
+	return g.transformationMat
+}
+
+func (g *Group) SetTransformation(mt matrices.Matrix) {
+	g.transformationMat = mt
+}
+
+func (g *Group) SetParent(p *Group) {
+	g.parent = p
+}
+
+func (g Group) Parent() *Group {
+	return g.parent
+}
+
+func (g Group) GetMaterial() Material {
+	panic("Groups do not have materials")
+}
+
+func (g Group) IntersectWithRay(ray_wrt_obj Ray) []Intersection {
+	if len(g.containedShapes) == 0 {
+		return []Intersection{}
+	}
+
+	all_intersections := make([]Intersection, 0)
+	for _, shape_ptr := range g.containedShapes {
+		all_intersections = append(all_intersections, Intersect(*shape_ptr, ray_wrt_obj)...)
+	}
+
+	sort.Slice(all_intersections, func(i, j int) bool {
+		return all_intersections[i].Tvalue <= all_intersections[j].Tvalue
+	})
+
+	return all_intersections
+}
+
+func (g Group) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate {
+	panic("Groups do not have normals")
+}
+
+func (g *Group) IndoctrinateShapeToGroup(shape_to_indoctrinate IsGroupable) {
+	g.containedShapes = append(g.containedShapes, shape_to_indoctrinate.GetRefAddress())
+	shape_to_indoctrinate.SetParent(g)
+}
+
+func world_to_object_orientation(shape Shape, world_coord coordinates.Coordinate) coordinates.Coordinate {
+	cur_coord := world_coord
+	if shape.Parent() != nil {
+		cur_coord = world_to_object_orientation(*shape.Parent(), cur_coord)
+	}
+
+	inv_transform, _ := shape.Transformation().Inverse()
+	cur_coord_mat := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(cur_coord), inv_transform)
+	return matrices.MatrixToCoordinate(cur_coord_mat)
+}
+
+func object_to_world_orientation(shape Shape, object_coord coordinates.Coordinate) coordinates.Coordinate {
+
+	cur_coord_mat := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(object_coord), shape.Transformation())
+	cur_coord := matrices.MatrixToCoordinate(cur_coord_mat)
+
+	if shape.Parent() != nil {
+		cur_coord = object_to_world_orientation(*shape.Parent(), cur_coord)
+	}
+
+	return cur_coord
+
+}
+
+/*
+normal ← transpose(inverse(shape.transform)) * normal normal.w ← 0
+normal ← normalize(normal)
+if shape has parent
+normal ← normal_to_world(shape.parent, normal)
+end if
+return normal
+*/
+
+func normal_to_world_orientation(shape Shape, object_normal_v coordinates.Coordinate) coordinates.Coordinate {
+
+	inverse_transformation, _ := shape.Transformation().Inverse()
+	world_normal := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(object_normal_v), inverse_transformation.T())
+	res := matrices.MatrixToCoordinate(world_normal)
+	res.Set(coordinates.W, 0)
+	res = *res.Norm()
+
+	if shape.Parent() != nil {
+		res = normal_to_world_orientation(*shape.Parent(), res)
+	}
+
 	return res
 }

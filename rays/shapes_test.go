@@ -328,3 +328,52 @@ func TestComputeConeNormal(t *testing.T) {
 		helpers.TestApproxEqualCoordinate(t, data.normal, n, 0.00001)
 	}
 }
+
+func TestDefaultGroup(t *testing.T) {
+	grp := NewGroup()
+
+	assert.Nil(t, grp.Parent())
+	assert.Empty(t, grp.containedShapes)
+
+	assert.Empty(t, grp.IntersectWithRay(NewRay(coordinates.CreatePoint(0, 0, 0), coordinates.CreateVector(0, 0, 1))))
+}
+
+func TestGroupIndoctrination(t *testing.T) {
+	grp := NewGroup()
+
+	s1 := NewGlassSphere()
+	s2 := NewPlane(coordinates.CreatePoint(0, 0, 0))
+
+	grp.IndoctrinateShapeToGroup(&s1)
+	grp.IndoctrinateShapeToGroup(&s2)
+
+	assert.NotEmpty(t, grp.containedShapes)
+	assert.Equal(t, 2, len(grp.containedShapes))
+
+	assert.NotNil(t, s1.Parent())
+	assert.Equal(t, &grp, s1.Parent())
+
+}
+
+func TestGroupIntersection(t *testing.T) {
+	grp := NewGroup()
+
+	s1 := NewGlassSphere()
+	s2 := NewGlassSphere()
+	s2.SetTransformation(matrices.TranslationMatrix(0, 0, -3))
+	s3 := NewGlassSphere()
+	s3.SetTransformation(matrices.TranslationMatrix(5, 0, 0))
+
+	grp.IndoctrinateShapeToGroup(&s1)
+	grp.IndoctrinateShapeToGroup(&s2)
+	grp.IndoctrinateShapeToGroup(&s3)
+
+	r := NewRay(coordinates.CreatePoint(0, 0, -5), coordinates.CreateVector(0, 0, 1))
+	xs := grp.IntersectWithRay(r)
+
+	assert.Equal(t, 4, len(xs))
+	assert.Equal(t, s2.Id(), xs[0].Obj.Id())
+	assert.Equal(t, s2.Id(), xs[1].Obj.Id())
+	assert.Equal(t, s1.Id(), xs[2].Obj.Id())
+	assert.Equal(t, s1.Id(), xs[3].Obj.Id())
+}
