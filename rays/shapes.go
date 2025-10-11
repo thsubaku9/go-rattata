@@ -24,9 +24,52 @@ type Shape interface {
 	Parent() *Group
 }
 
+// ---------------------------------- Group Interface ----------------------------------
+
 type IsGroupable interface {
 	SetParent(parent *Group)
 	GetRefAddress() *Shape
+}
+
+// ---------------------------------- Helper Fns ----------------------------------
+
+func world_to_object_orientation(shape Shape, world_coord coordinates.Coordinate) coordinates.Coordinate {
+	cur_coord := world_coord
+	if shape.Parent() != nil {
+		cur_coord = world_to_object_orientation(*shape.Parent(), cur_coord)
+	}
+
+	inv_transform, _ := shape.Transformation().Inverse()
+	cur_coord_mat := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(cur_coord), inv_transform)
+	return matrices.MatrixToCoordinate(cur_coord_mat)
+}
+
+func object_to_world_orientation(shape Shape, object_coord coordinates.Coordinate) coordinates.Coordinate {
+
+	cur_coord_mat := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(object_coord), shape.Transformation())
+	cur_coord := matrices.MatrixToCoordinate(cur_coord_mat)
+
+	if shape.Parent() != nil {
+		cur_coord = object_to_world_orientation(*shape.Parent(), cur_coord)
+	}
+
+	return cur_coord
+
+}
+
+func normal_to_world_orientation(shape Shape, object_normal_v coordinates.Coordinate) coordinates.Coordinate {
+
+	inverse_transformation, _ := shape.Transformation().Inverse()
+	world_normal := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(object_normal_v), inverse_transformation.T())
+	res := matrices.MatrixToCoordinate(world_normal)
+	res.Set(coordinates.W, 0)
+	res = *res.Norm()
+
+	if shape.Parent() != nil {
+		res = normal_to_world_orientation(*shape.Parent(), res)
+	}
+
+	return res
 }
 
 // ---------------------------------- Sphere ----------------------------------
@@ -648,41 +691,85 @@ func (g *Group) GetRefAddress() *Shape {
 	return &_shape
 }
 
-func world_to_object_orientation(shape Shape, world_coord coordinates.Coordinate) coordinates.Coordinate {
-	cur_coord := world_coord
-	if shape.Parent() != nil {
-		cur_coord = world_to_object_orientation(*shape.Parent(), cur_coord)
-	}
+// ---------------------------------- Triangle ----------------------------------
 
-	inv_transform, _ := shape.Transformation().Inverse()
-	cur_coord_mat := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(cur_coord), inv_transform)
-	return matrices.MatrixToCoordinate(cur_coord_mat)
+type Triangle struct {
+	p1, p2, p3        coordinates.Coordinate
+	transformationMat matrices.Matrix
+	id                string
+	Material          Material
+	parent            *Group
+	e1, e2            coordinates.Coordinate
+	normal            coordinates.Coordinate
 }
 
-func object_to_world_orientation(shape Shape, object_coord coordinates.Coordinate) coordinates.Coordinate {
+func NewTriangle(p1, p2, p3 coordinates.Coordinate) Triangle {
+	new_uuid, _ := uuid.NewV4()
+	triangle := Triangle{
+		p1:                p1,
+		p2:                p2,
+		p3:                p3,
+		transformationMat: matrices.NewIdentityMatrix(4),
+		id:                new_uuid.String(),
+		Material:          CreateDefaultMaterial(),
+		parent:            nil}
 
-	cur_coord_mat := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(object_coord), shape.Transformation())
-	cur_coord := matrices.MatrixToCoordinate(cur_coord_mat)
+	triangle.e1 = triangle.E1()
+	triangle.e2 = triangle.E2()
+	normal_v := triangle.e1.CrossP(&triangle.e2).Norm()
+	triangle.normal = *normal_v
 
-	if shape.Parent() != nil {
-		cur_coord = object_to_world_orientation(*shape.Parent(), cur_coord)
-	}
-
-	return cur_coord
-
+	return triangle
 }
 
-func normal_to_world_orientation(shape Shape, object_normal_v coordinates.Coordinate) coordinates.Coordinate {
+func (t Triangle) Name() string {
+	panic("Triangle")
+}
 
-	inverse_transformation, _ := shape.Transformation().Inverse()
-	world_normal := matrices.PerformOrderedChainingOps(matrices.CoordinateToMatrix(object_normal_v), inverse_transformation.T())
-	res := matrices.MatrixToCoordinate(world_normal)
-	res.Set(coordinates.W, 0)
-	res = *res.Norm()
+func (t Triangle) Transformation() matrices.Matrix {
+	return t.transformationMat
+}
 
-	if shape.Parent() != nil {
-		res = normal_to_world_orientation(*shape.Parent(), res)
-	}
+func (t *Triangle) SetTransformation(mt matrices.Matrix) {
+	t.transformationMat = mt
+}
 
-	return res
+func (t Triangle) IntersectWithRay(ray_wrt_obj Ray) []Intersection {
+	panic("not implemented") // TODO: Implement
+}
+
+/*
+Returns the normalized vector perpendicular to the shape at the given world point
+*/
+func (t Triangle) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate {
+	return normal_to_world_orientation(t, t.normal)
+}
+
+func (t Triangle) GetMaterial() Material {
+	return t.Material
+}
+
+func (t Triangle) Id() string {
+	return t.id
+}
+
+func (t Triangle) Parent() *Group {
+	return t.parent
+}
+
+func (t *Triangle) SetParent(parent *Group) {
+	t.parent = parent
+}
+
+func (t *Triangle) GetRefAddress() *Shape {
+	var shp Shape = t
+	return &shp
+}
+
+func (t Triangle) E1() coordinates.Coordinate {
+	return *t.p2.Sub(&t.p1)
+}
+
+func (t Triangle) E2() coordinates.Coordinate {
+	return *t.p3.Sub(&t.p1)
 }
