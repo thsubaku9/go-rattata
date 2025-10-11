@@ -321,7 +321,7 @@ func TestComputeConeNormal(t *testing.T) {
 		point, normal coordinates.Coordinate
 	}{
 		{coordinates.CreatePoint(0, 0, 0), coordinates.CreateVector(0, 0, 0)},
-		{coordinates.CreatePoint(1, 1, 1), coordinates.CreateVector(1, -math.Sqrt(2), 1)},
+		{coordinates.CreatePoint(1, 1, 1), coordinates.CreateVector(float64(1/2), -math.Sqrt(2)/2, float64(1/2))},
 		{coordinates.CreatePoint(-1, -1, 0), coordinates.CreateVector(-1, 1, 0)},
 	} {
 		n := cone.NormalAtPoint(data.point)
@@ -376,4 +376,83 @@ func TestGroupIntersection(t *testing.T) {
 	assert.Equal(t, s2.Id(), xs[1].Obj.Id())
 	assert.Equal(t, s1.Id(), xs[2].Obj.Id())
 	assert.Equal(t, s1.Id(), xs[3].Obj.Id())
+}
+
+func TestTriangleData(t *testing.T) {
+
+	tr := NewTriangle(
+		coordinates.CreatePoint(0, 1, 0),
+		coordinates.CreatePoint(-1, 0, 0),
+		coordinates.CreatePoint(1, 0, 0),
+	)
+
+	assert.Equal(t, coordinates.CreateVector(-1, -1, 0), tr.e1)
+	assert.Equal(t, coordinates.CreateVector(1, -1, 0), tr.e2)
+	assert.Equal(t, coordinates.CreateVector(0, 0, -1), tr.normal)
+}
+
+func TestTriangleIntersectionMissWithParallelRay(t *testing.T) {
+	tr := NewTriangle(
+		coordinates.CreatePoint(0, 1, 0),
+		coordinates.CreatePoint(-1, 0, 0),
+		coordinates.CreatePoint(1, 0, 0),
+	)
+
+	r := NewRay(coordinates.CreatePoint(0, -1, -2), coordinates.CreateVector(0, 1, 0))
+	xs := tr.IntersectWithRay(r)
+
+	assert.Empty(t, xs)
+}
+
+func TestTriangleIntersectionMissEdgeP1P3(t *testing.T) {
+	tr := NewTriangle(
+		coordinates.CreatePoint(0, 1, 0),
+		coordinates.CreatePoint(-1, 0, 0),
+		coordinates.CreatePoint(1, 0, 0),
+	)
+
+	r := NewRay(coordinates.CreatePoint(1, 1, -2), coordinates.CreateVector(0, 0, 1))
+	xs := tr.IntersectWithRay(r)
+
+	assert.Empty(t, xs)
+}
+
+func TestTriangleIntersectionMissEdgeP1P2(t *testing.T) {
+	tr := NewTriangle(
+		coordinates.CreatePoint(0, 1, 0),
+		coordinates.CreatePoint(-1, 0, 0),
+		coordinates.CreatePoint(1, 0, 0),
+	)
+
+	r := NewRay(coordinates.CreatePoint(-1, 1, -2), coordinates.CreateVector(0, 0, 1))
+	xs := tr.IntersectWithRay(r)
+
+	assert.Empty(t, xs)
+}
+
+func TestTriangleIntersectionMissEdgeP2P3(t *testing.T) {
+	tr := NewTriangle(
+		coordinates.CreatePoint(0, 1, 0),
+		coordinates.CreatePoint(-1, 0, 0),
+		coordinates.CreatePoint(1, 0, 0),
+	)
+
+	r := NewRay(coordinates.CreatePoint(0, -1, -2), coordinates.CreateVector(0, 0, 1))
+	xs := tr.IntersectWithRay(r)
+
+	assert.Empty(t, xs)
+}
+
+func TestTriangleIntersection(t *testing.T) {
+	tr := NewTriangle(
+		coordinates.CreatePoint(0, 1, 0),
+		coordinates.CreatePoint(-1, 0, 0),
+		coordinates.CreatePoint(1, 0, 0),
+	)
+
+	r := NewRay(coordinates.CreatePoint(0, 0.5, -2), coordinates.CreateVector(0, 0, 1))
+	xs := tr.IntersectWithRay(r)
+
+	assert.Equal(t, 1, len(xs))
+	assert.Equal(t, float64(2), xs[0].Tvalue)
 }

@@ -1,7 +1,6 @@
 package rays
 
 import (
-	"fmt"
 	"math"
 	"rattata/coordinates"
 	"rattata/matrices"
@@ -540,9 +539,6 @@ func (co Cone) checkCircularIntersection(ray_wrt_obj Ray) []Intersection {
 	t1 := (-b - math.Sqrt(discriminant)) / (2 * a)
 	t2 := (-b + math.Sqrt(discriminant)) / (2 * a)
 
-	fmt.Println(discriminant)
-	fmt.Println(t1, t2)
-
 	res := make([]Intersection, 0)
 
 	if ray_wrt_obj.Origin.Get(coordinates.Y)+t1*ray_wrt_obj.Direction.Get(coordinates.Y) > co.Minimum &&
@@ -716,60 +712,87 @@ func NewTriangle(p1, p2, p3 coordinates.Coordinate) Triangle {
 
 	triangle.e1 = triangle.E1()
 	triangle.e2 = triangle.E2()
-	normal_v := triangle.e1.CrossP(&triangle.e2).Norm()
+	normal_v := triangle.e2.CrossP(&triangle.e1).Norm()
 	triangle.normal = *normal_v
 
 	return triangle
 }
 
-func (t Triangle) Name() string {
+func (tri Triangle) Name() string {
 	panic("Triangle")
 }
 
-func (t Triangle) Transformation() matrices.Matrix {
-	return t.transformationMat
+func (tri Triangle) Transformation() matrices.Matrix {
+	return tri.transformationMat
 }
 
-func (t *Triangle) SetTransformation(mt matrices.Matrix) {
-	t.transformationMat = mt
+func (tri *Triangle) SetTransformation(mt matrices.Matrix) {
+	tri.transformationMat = mt
 }
 
-func (t Triangle) IntersectWithRay(ray_wrt_obj Ray) []Intersection {
-	panic("not implemented") // TODO: Implement
+/*
+Based on moller trumbore ray triangle intersection (which ultimately resolves using barycentric coordinates and cramers rule)
+*/
+func (tri Triangle) IntersectWithRay(ray_wrt_obj Ray) []Intersection {
+	perp_vector := ray_wrt_obj.Direction.CrossP(&tri.e2)
+	det := perp_vector.DotP(&tri.e1)
+
+	if math.Abs(det) < EPSILON {
+		return []Intersection{}
+	}
+
+	f := 1 / det
+
+	p1_to_origin := ray_wrt_obj.Origin.Sub(&tri.p1)
+	u := f * p1_to_origin.DotP(perp_vector)
+
+	if u < 0 || u > 1 {
+		return []Intersection{}
+	}
+
+	origin_cross_e1 := p1_to_origin.CrossP(&tri.e1)
+	v := f * ray_wrt_obj.Direction.DotP(origin_cross_e1)
+
+	if v < 0 || u+v > 1 {
+		return []Intersection{}
+	}
+
+	t := f * origin_cross_e1.DotP(&tri.e2)
+	return []Intersection{{Tvalue: t, Obj: tri}}
 }
 
 /*
 Returns the normalized vector perpendicular to the shape at the given world point
 */
-func (t Triangle) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate {
-	return normal_to_world_orientation(t, t.normal)
+func (tri Triangle) NormalAtPoint(world_point coordinates.Coordinate) coordinates.Coordinate {
+	return normal_to_world_orientation(tri, tri.normal)
 }
 
-func (t Triangle) GetMaterial() Material {
-	return t.Material
+func (tri Triangle) GetMaterial() Material {
+	return tri.Material
 }
 
-func (t Triangle) Id() string {
-	return t.id
+func (tri Triangle) Id() string {
+	return tri.id
 }
 
-func (t Triangle) Parent() *Group {
-	return t.parent
+func (tri Triangle) Parent() *Group {
+	return tri.parent
 }
 
-func (t *Triangle) SetParent(parent *Group) {
-	t.parent = parent
+func (tri *Triangle) SetParent(parent *Group) {
+	tri.parent = parent
 }
 
-func (t *Triangle) GetRefAddress() *Shape {
-	var shp Shape = t
+func (tri *Triangle) GetRefAddress() *Shape {
+	var shp Shape = tri
 	return &shp
 }
 
-func (t Triangle) E1() coordinates.Coordinate {
-	return *t.p2.Sub(&t.p1)
+func (tri Triangle) E1() coordinates.Coordinate {
+	return *tri.p2.Sub(&tri.p1)
 }
 
-func (t Triangle) E2() coordinates.Coordinate {
-	return *t.p3.Sub(&t.p1)
+func (tri Triangle) E2() coordinates.Coordinate {
+	return *tri.p3.Sub(&tri.p1)
 }
